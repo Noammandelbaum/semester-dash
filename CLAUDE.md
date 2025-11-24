@@ -1,5 +1,30 @@
 # SemesterDash - Project Context for Claude
 
+## 🚨 START OF SESSION - MANDATORY
+
+**At the start of EVERY conversation, before doing anything else:**
+
+1. **Read all context files:**
+   - `CLAUDE.md` (this file)
+   - `docs/ROADMAP.md` - Product phases
+   - `docs/DESIGN_SYSTEM.md` - UI guidelines
+   - `docs/DEVOPS_ROADMAP.md` - DevOps plan
+
+2. **Load Jira state:**
+   ```bash
+   node scripts/jira.mjs active   # Current sprint
+   node scripts/jira.mjs full     # Full overview (if needed)
+   ```
+
+3. **Summarize to user:**
+   - Current sprint + remaining tasks
+   - What's blocked / what's next
+   - Ask what to work on
+
+**Do NOT start working until you understand the full context!**
+
+---
+
 ## Current Status (Updated: 2025-11-24)
 
 ### What's Working:
