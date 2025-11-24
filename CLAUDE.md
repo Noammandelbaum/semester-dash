@@ -32,18 +32,19 @@
 - ✅ Protected dashboard routes
 - ✅ PostgreSQL database (Neon) with User, Account, Session tables
 - ✅ Prisma 7 with adapter pattern
-- ✅ Basic UI components (Button, Card)
+- ✅ Full UI component library (Button, Card, Input, Label, Dialog, Select, Badge, Progress)
+- ✅ Design tokens configured (colors, typography, shadows, animations)
 - ✅ RTL Hebrew support
 - ✅ **Deployed to Vercel: https://semester-dash.vercel.app**
 
 ### What's Next:
-- [ ] Course CRUD (Sprint 2)
+- [ ] Course CRUD (Sprint 2) ← **Starting now**
 - [ ] Task management (Sprint 3)
 
 ### Recent Changes:
-- **Deployed to Vercel** (SEMDASH-15 ✅)
-- Added `prisma generate` to build script for Vercel compatibility
-- Configured Google OAuth for production URL
+- **Added UI components** (SEMDASH-38 ✅): Input, Label, Dialog, Select, Badge
+- **Design tokens verified** (SEMDASH-37 ✅): Already configured in globals.css
+- Documented build command fix for local development
 
 ---
 
@@ -159,8 +160,11 @@ JIRA_URL=...
 ```bash
 # Development
 npm run dev              # Start dev server
-npm run build            # Production build
 npm run lint             # ESLint
+
+# Build (use npx next build locally - faster, avoids prisma generate hanging)
+npx next build           # Local build test (recommended)
+npm run build            # Full build (includes prisma generate - can hang locally)
 
 # Database
 npx prisma studio        # Database GUI
@@ -170,6 +174,8 @@ npx prisma generate      # Regenerate client
 # Jira
 node scripts/jira.mjs active
 ```
+
+> **Note for Claude:** When testing builds locally, always use `npx next build` instead of `npm run build`. The `npm run build` script runs `prisma generate` first which can hang in Windows terminals.
 
 ---
 
