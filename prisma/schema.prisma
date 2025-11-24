@@ -1,0 +1,138 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ========================================
+// NextAuth.js Models
+// ========================================
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ========================================
+// Application Models
+// ========================================
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  accounts Account[]
+  sessions Session[]
+  courses  Course[]
+
+  // User preferences
+  semesterStart DateTime?
+  semesterEnd   DateTime?
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  name        String
+  courseCode  String?  // e.g., "CS101"
+  credits     Float    @default(0) // Course weight/credits
+  color       String?  // For UI display
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks  Task[]
+
+  @@index([userId])
+}
+
+enum TaskType {
+  LECTURE
+  TUTORIAL
+  LAB
+  ASSIGNMENT
+  EXAM
+  PROJECT
+  READING
+  OTHER
+}
+
+enum TaskStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+}
+
+model Task {
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  type        TaskType   @default(LECTURE)
+  status      TaskStatus @default(NOT_STARTED)
+  weekNumber  Int?       // Week 1-13 of semester
+  dueDate     DateTime?
+  priority    Int        @default(0) // Higher = more important
+  duration    Int?       // Estimated duration in minutes
+  url         String?    // Link to resource (video, document, etc.)
+  notes       String?    @db.Text
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  completedAt DateTime?
+
+  // Relations
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  // Self-relation for dependencies (Phase 2)
+  // "This task requires these tasks to be completed first"
+  dependencies   Task[] @relation("TaskDependencies")
+  dependentTasks Task[] @relation("TaskDependencies")
+
+  @@index([courseId])
+  @@index([status])
+  @@index([weekNumber])
+}
