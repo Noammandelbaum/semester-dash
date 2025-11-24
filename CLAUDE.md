@@ -1,6 +1,6 @@
 # SemesterDash - Project Context for Claude
 
-## Current Status (Updated: 2024-11-24)
+## Current Status (Updated: 2025-11-24)
 
 ### What's Working:
 - ✅ Google OAuth authentication (login/logout)
@@ -9,17 +9,16 @@
 - ✅ Prisma 7 with adapter pattern
 - ✅ Basic UI components (Button, Card)
 - ✅ RTL Hebrew support
+- ✅ **Deployed to Vercel: https://semester-dash.vercel.app**
 
 ### What's Next:
-- [ ] Deploy to Vercel (SEMDASH-15)
 - [ ] Course CRUD (Sprint 2)
 - [ ] Task management (Sprint 3)
 
 ### Recent Changes:
-- Organized project structure (docs/, scripts/)
-- Removed hardcoded secrets from jira.mjs
-- Added suppressHydrationWarning for VS Code extension
-- Fixed @types/pg for build
+- **Deployed to Vercel** (SEMDASH-15 ✅)
+- Added `prisma generate` to build script for Vercel compatibility
+- Configured Google OAuth for production URL
 
 ---
 
