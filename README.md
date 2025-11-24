@@ -1,36 +1,115 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SemesterDash 📚
+
+> **One view to see everything and know what to do next.**
+
+SemesterDash is a student semester management dashboard that helps students track their courses, tasks (lectures, assignments, labs), and progress throughout the semester.
+
+## Features
+
+- 🔐 **Google OAuth** - Sign in with your Google account
+- 📊 **Dashboard** - See all your courses and tasks at a glance
+- 📝 **Task Management** - Track lectures, assignments, labs, and exams
+- 📈 **Progress Tracking** - Visualize your semester progress
+- 🌐 **Hebrew RTL Support** - Built for Hebrew-speaking students
+
+## Tech Stack
+
+| Technology | Purpose |
+|------------|---------|
+| [Next.js 16](https://nextjs.org/) | React framework with App Router |
+| [TypeScript](https://www.typescriptlang.org/) | Type safety |
+| [Tailwind CSS 4](https://tailwindcss.com/) | Styling |
+| [PostgreSQL](https://www.postgresql.org/) | Database (via [Neon](https://neon.tech/)) |
+| [Prisma 7](https://www.prisma.io/) | ORM |
+| [NextAuth.js v5](https://authjs.dev/) | Authentication |
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+
+- PostgreSQL database (or use [Neon](https://neon.tech/) free tier)
+- Google OAuth credentials
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/Noammandelbaum/semester-dash.git
+cd semester-dash
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up environment variables:
+```bash
+cp .env.example .env
+# Edit .env with your credentials
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Push the database schema:
+```bash
+npx prisma db push
+```
 
-## Learn More
+5. Start the development server:
+```bash
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Open [http://localhost:3000](http://localhost:3000) to see the app.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Environment Variables
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```env
+# Database
+DATABASE_URL=postgresql://...
 
-## Deploy on Vercel
+# Auth
+AUTH_SECRET=your-secret
+AUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-secret
+NEXTAUTH_URL=http://localhost:3000
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Project Structure
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+semester-dash/
+├── docs/                  # Documentation
+│   ├── DESIGN_SYSTEM.md  # UI/UX guidelines
+│   ├── ROADMAP.md        # Product roadmap
+│   └── LOCALIZATION.md   # Translations
+├── prisma/               # Database schema
+├── src/
+│   ├── app/             # Next.js pages & API
+│   ├── components/      # React components
+│   ├── lib/             # Utilities
+│   └── types/           # TypeScript definitions
+└── CLAUDE.md            # AI development context
+```
+
+## Roadmap
+
+- **Phase 1 (Alpha)**: Manual course and task management
+- **Phase 2 (Beta)**: Moodle integration, automation
+- **Phase 3 (GA)**: Multi-university support, analytics
+
+See [docs/ROADMAP.md](docs/ROADMAP.md) for details.
+
+## Contributing
+
+This project is currently in early development. Contributions are welcome!
+
+## License
+
+Private - All rights reserved.
+
+---
+
+Built with ❤️ for students
