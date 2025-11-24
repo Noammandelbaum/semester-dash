@@ -165,6 +165,34 @@ node scripts/jira.mjs active
 2. Update "Current Status" section
 3. Note any blockers or next steps
 
+### Git Workflow
+**CI/CD:**
+- GitHub Actions runs on every push/PR: lint + build
+- Vercel auto-deploys on push to main
+
+**When to use what:**
+| Situation | Action |
+|-----------|--------|
+| Small fix, docs, config | Push directly to main |
+| Single task (SEMDASH-XX) | Push to main (CI validates) |
+| Large feature / Epic | Create branch → PR to main |
+| Risky/breaking change | Create branch → PR to main |
+
+**Branch naming:**
+```
+feature/course-crud
+fix/login-redirect
+refactor/auth-flow
+```
+
+**PR Flow (for large features):**
+```bash
+git checkout -b feature/course-crud
+# ... work ...
+git push -u origin feature/course-crud
+# Create PR on GitHub → CI runs → merge when green
+```
+
 ### Commit Message Format
 ```
 <type>(<scope>): <description>
@@ -172,7 +200,7 @@ node scripts/jira.mjs active
 Closes SEMDASH-XX
 ```
 
-Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`
+Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `ci`
 
 ---
 
