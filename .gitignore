@@ -46,3 +46,11 @@ next-env.d.ts
 # local dev tools
 scripts/
 .claude/
+
+# internal documentation (private - keep most docs private for now)
+docs/SECURITY_INTERNAL.md
+docs/DEVOPS_ROADMAP.md
+docs/ROADMAP.md
+docs/SPRINT_PLANNING.md
+docs/SPRINT_CHECKLIST.md
+docs/SECURITY.md
