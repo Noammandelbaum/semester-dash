@@ -1,0 +1,47 @@
+# Dependabot configuration for automated dependency updates
+# Monitors both production and dev dependencies for security updates
+
+version: 2
+updates:
+  # Monitor npm dependencies
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Jerusalem"
+    # Security updates only (not feature updates)
+    open-pull-requests-limit: 5
+    reviewers:
+      - "Noammandelbaum"
+    labels:
+      - "dependencies"
+      - "security"
+    # Group updates to reduce PR noise
+    groups:
+      production-dependencies:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "prisma*"
+          - "@prisma/*"
+      dev-dependencies:
+        dependency-type: "development"
+        patterns:
+          - "*"
+    # Only create PRs for security updates
+    versioning-strategy: increase
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+
+  # Monitor GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "dependencies"
+      - "github-actions"

@@ -24,7 +24,11 @@ jobs:
         run: npm ci
 
       - name: Security audit
-        run: npm audit --audit-level=high
+        run: |
+          echo "🔍 Running security audit..."
+          npm audit --audit-level=high --json > audit.json || true
+          node scripts/check-audit.mjs audit.json
+          rm audit.json
 
       - name: Run linter
         run: npm run lint
