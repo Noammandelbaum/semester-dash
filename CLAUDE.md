@@ -6,11 +6,11 @@
 
 1. **Read all context files:**
    - `CLAUDE.md` (this file)
-   - `docs/SPRINT_PLANNING.md` - Sprint 2-4 detailed plan
-   - `docs/DESIGN_SYSTEM.md` - UI guidelines
-   - `docs/SECURITY_INTERNAL.md` - Security guidelines (private)
-   - `docs/ROADMAP.md` - Product phases (private)
-   - `docs/DEVOPS_ROADMAP.md` - DevOps plan (private)
+   - `docs/private/SPRINT_PLANNING.md` - Sprint 2-4 detailed plan
+   - `docs/public/DESIGN_SYSTEM.md` - UI guidelines
+   - `docs/private/SECURITY_INTERNAL.md` - Security guidelines (private)
+   - `docs/private/ROADMAP.md` - Product phases (private)
+   - `docs/private/DEVOPS_ROADMAP.md` - DevOps plan (private)
 
 2. **Load Jira state:**
    ```bash
@@ -83,28 +83,40 @@ SemesterDash is a student semester management dashboard that helps students trac
 semester-dash/
 ├── CLAUDE.md              # This file - main context
 ├── README.md              # Public readme
-├── docs/                    # Documentation
-│   ├── SECURITY.md        # Public security policy
-│   ├── SECURITY_INTERNAL.md  # Detailed security (private)
-│   ├── SPRINT_PLANNING.md    # Sprint 2-4 roadmap (private)
-│   ├── SPRINT_CHECKLIST.md   # End-of-sprint quality gates
-│   ├── DESIGN_SYSTEM.md      # Colors, typography, components
-│   ├── ROADMAP.md            # Product phases (private)
-│   └── DEVOPS_ROADMAP.md     # DevOps strategy (private)
+├── docs/
+│   ├── public/           # ✅ Safe for public repo (tracked in git)
+│   │   ├── README.md         # Public docs overview
+│   │   ├── SECURITY.md       # Security policy (disclosure)
+│   │   ├── DESIGN_SYSTEM.md  # UI guidelines
+│   │   └── LOCALIZATION.md   # i18n guide
+│   └── private/          # 🔒 Private (gitignored)
+│       ├── README.md             # Private docs overview
+│       ├── BRANDING_STRATEGY.md  # Marketing + personal brand
+│       ├── ROADMAP.md            # Product phases
+│       ├── DEVOPS_ROADMAP.md     # DevOps strategy
+│       ├── SECURITY_INTERNAL.md  # Detailed security
+│       ├── SPRINT_PLANNING.md    # Sprint 2-4 roadmap
+│       └── SPRINT_CHECKLIST.md   # Quality gates
 ├── prisma/
 │   └── schema.prisma     # Database models
 ├── src/
 │   ├── app/              # Next.js pages & API
 │   │   ├── api/auth/    # NextAuth endpoints
+│   │   ├── api/courses/ # Course CRUD endpoints
 │   │   ├── dashboard/   # Protected routes
 │   │   └── login/       # Auth pages
 │   ├── components/       # React components
-│   │   ├── ui/          # Base components (Button, Card)
+│   │   ├── ui/          # Base components (Button, Card, Dialog)
+│   │   ├── courses/     # Course-specific components
 │   │   └── providers/   # Context providers
 │   ├── lib/             # Core utilities
 │   │   ├── auth.ts      # NextAuth config
+│   │   ├── auth-utils.ts # Auth helpers
+│   │   ├── rate-limit.ts # Rate limiting
 │   │   ├── prisma.ts    # DB client
 │   │   └── utils.ts     # Helpers
+│   ├── schemas/         # Zod validation schemas
+│   │   └── course.ts    # Course validation
 │   └── types/           # TypeScript definitions
 └── scripts/              # Local dev tools (gitignored)
     └── jira.mjs         # Jira CLI
