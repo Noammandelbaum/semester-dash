@@ -1,0 +1,13 @@
+{
+  "git": {
+    "deploymentEnabled": {
+      "main": true
+    }
+  },
+  "github": {
+    "silent": false,
+    "autoJobCancellation": true,
+    "enabled": true
+  },
+  "framework": "nextjs"
+}
