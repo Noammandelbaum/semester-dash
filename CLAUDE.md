@@ -27,32 +27,37 @@
 
 ---
 
-## Current Status (Updated: 2025-11-25)
+## Current Status (Updated: 2025-11-26)
 
 ### Sprint 1 - Foundation: COMPLETED ✅
 **All 9 tasks completed successfully!**
 
+### Sprint 2 - Course Management: COMPLETED ✅
+**19/26 tasks completed - Core functionality 100% working!**
+
 ### What's Working:
-- ✅ Google OAuth authentication (login/logout)
-- ✅ Protected dashboard routes
-- ✅ PostgreSQL database (Neon) with User, Account, Session tables
-- ✅ Prisma 7 with adapter pattern
-- ✅ Full UI component library (Button, Card, Input, Label, Dialog, Select, Badge, Progress)
-- ✅ Design tokens configured (colors, typography, shadows, animations)
-- ✅ RTL Hebrew support
-- ✅ **Deployed to Vercel: https://semester-dash.vercel.app**
-- ✅ **Google Analytics 4 integrated** (SEMDASH-60)
+- ✅ **Sprint 1**: Google OAuth, Protected routes, PostgreSQL + Prisma, UI library, Vercel deployment, GA4
+- ✅ **Sprint 2**: Full Course CRUD (Create, Read, Update, Delete)
+  - ✅ Backend: 6 API endpoints with auth, validation, rate limiting
+  - ✅ Frontend: Course list page, Create/Edit dialogs, Hebrew UI
+  - ✅ Security: Headers, rate limiting, ownership checks, input validation
+  - ✅ Database: Course model with userId, cascade delete
+  - ✅ Infrastructure: Zod schemas, auth-utils, rate-limit utilities
 
 ### What's Next:
-- [ ] Sprint 2: Course CRUD ← **Ready to start**
-- [ ] Sprint 3: Task management
+- [ ] Sprint 3: Task Management + Sprint 2 Finalization ← **Ready to start**
+  - Week 1: Manual testing (SEMDASH-89), Sprint checklist (SEMDASH-90)
+  - Week 1-2: Task CRUD implementation
+  - Week 2: Sentry integration (SEMDASH-86)
+- [ ] Sprint 4: Dashboard, Progress visualization, Landing page
 
 ### Recent Changes:
-- **Sprint 1 completed** (2025-11-25): All foundation tasks done
-- **Sprint 2-4 planning complete**: Detailed roadmap with security woven in
-- **Security documentation created**: Public (docs/SECURITY.md) + Internal (docs/SECURITY_INTERNAL.md)
-- **Sprint checklist template**: docs/SPRINT_CHECKLIST.md for quality gates
-- **Code review passed**: Zero unused files, clean structure
+- **Sprint 2 completed** (2025-11-26): Course CRUD fully functional
+  - Migrated 3 tasks to Sprint 3: Testing (SEMDASH-89, -90), Sentry (SEMDASH-86)
+  - Migrated 3 tasks to Sprint 4: Landing page, Illustrations, Progress viz
+  - User stories (SEMDASH-21-26) marked as Done (functionality implemented)
+- **Code quality**: All TypeScript errors fixed, lint clean, npm audit OK for production
+- **Security**: Rate limiting, ownership checks, Zod validation working
 
 ---
 
@@ -207,6 +212,35 @@ node scripts/jira.mjs active
 1. Commit working code
 2. Update "Current Status" section
 3. Note any blockers or next steps
+
+### Jira Workflow
+
+**IMPORTANT: Claude updates Jira ONLY after user approval!**
+
+**When a task is completed:**
+1. Implement and test the feature
+2. Show the user what was completed
+3. **Ask for approval** before updating Jira
+4. After approval: Update Jira status to "Done"
+
+**Jira Update Commands:**
+```bash
+# Check current sprint
+node scripts/jira.mjs active
+
+# Update task status (manual - use Jira web UI or API)
+# For now: Ask user to confirm, then update manually in Jira
+```
+
+**Sprint Closure Process:**
+1. Review all sprint tasks with user
+2. Get approval for what's "Done" vs "Moved"
+3. Update Jira:
+   - Mark completed tasks as "Done"
+   - Move incomplete tasks to next sprint
+   - Add comments explaining migrations
+4. Update CLAUDE.md and SPRINT_PLANNING.md
+5. Commit sprint closure changes
 
 ### Git Workflow
 **CI/CD:**

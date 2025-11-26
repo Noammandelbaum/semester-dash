@@ -74,8 +74,8 @@ model User {
 model Course {
   id          String   @id @default(cuid())
   name        String
-  courseCode  String?  // e.g., "CS101"
-  credits     Float    @default(0) // Course weight/credits
+  courseCode  String?  // e.g., "CS101" - for future automation
+  credits     Float?   // Course weight/credits (optional)
   color       String?  // For UI display
   description String?
   createdAt   DateTime @default(now())

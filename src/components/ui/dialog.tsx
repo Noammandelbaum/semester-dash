@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -68,6 +69,12 @@ interface DialogContentProps {
 function DialogContent({ children, className }: DialogContentProps) {
   const { open, onOpenChange } = useDialog();
   const contentRef = React.useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = React.useState(false);
+
+  // Ensure we're on the client side
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Close on escape
   React.useEffect(() => {
@@ -91,11 +98,11 @@ function DialogContent({ children, className }: DialogContentProps) {
     }
   };
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
-  return (
+  const dialogContent = (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
+      className="fixed inset-0 z-[9999] flex items-center justify-center"
       onClick={handleBackdropClick}
     >
       {/* Backdrop */}
@@ -105,7 +112,7 @@ function DialogContent({ children, className }: DialogContentProps) {
       <div
         ref={contentRef}
         className={cn(
-          "relative z-50 w-full max-w-lg mx-4 p-6 rounded-xl",
+          "relative z-[10000] w-full max-w-lg mx-4 p-6 rounded-xl",
           "bg-[var(--color-surface)] shadow-[var(--shadow-xl)]",
           "animate-scale-in",
           className
@@ -127,6 +134,8 @@ function DialogContent({ children, className }: DialogContentProps) {
       </div>
     </div>
   );
+
+  return createPortal(dialogContent, document.body);
 }
 
 function DialogHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
