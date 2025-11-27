@@ -4,10 +4,13 @@
 
 ### Core Principles
 1. **Clarity Over Complexity** - Students are stressed; the UI should reduce cognitive load, not add to it
-2. **Progress Visibility** - Always show where the user stands (what's done, what's next)
-3. **Mobile-First** - Students check their phones constantly; mobile experience is primary
-4. **Instant Feedback** - Every action should have immediate visual feedback
-5. **Delight in Details** - Small animations and micro-interactions make the app feel alive
+2. **Dashboard-First** - One view shows everything; drilling down reveals details
+3. **Weekly Focus** - Prioritize "what's happening this week" over distant future
+4. **Progress Visibility** - Always show where the user stands (what's done, what's next)
+5. **Mobile-First** - Students check their phones constantly; mobile experience is primary
+6. **Instant Feedback** - Every action should have immediate visual feedback
+7. **Gentle Gamification** - Celebrate progress without creating stress
+8. **Delight in Details** - Small animations and micro-interactions make the app feel alive
 
 ### Target User
 - University/college students (18-30)
@@ -291,4 +294,434 @@ Use Lucide React for consistent iconography.
 
 ---
 
+## 🎮 Gamification Guidelines (New - Sprint 3.5)
+
+### **Philosophy: "Gentle Celebration, Not Pressure"**
+
+**DO:**
+- ✅ Progress rings/bars with smooth animations
+- ✅ Micro-celebrations (0.3s confetti when task completed)
+- ✅ Encouraging messages ("Great! 3 more this week")
+- ✅ Color-coded status (green = good, yellow = attention, red = urgent)
+- ✅ Weekly recaps ("You completed 12/15 tasks this week!")
+- ✅ Subtle achievements ("First course created! 🎓")
+
+**DON'T:**
+- ❌ Points/XP systems (creates pressure)
+- ❌ Leaderboards (encourages unhealthy competition)
+- ❌ Streaks that punish breaks (Duolingo-style guilt)
+- ❌ "You're falling behind!" messaging
+- ❌ Aggressive notifications
+
+### **Interaction Patterns:**
+
+**Task Completion:**
+```
+1. Tap/click on checkbox → immediate green fill (150ms)
+2. Micro-confetti (2-3 particles, 300ms)
+3. Progress bar smoothly animates forward (500ms)
+4. Optional: Haptic feedback on mobile (single tap)
+5. Encouraging text appears briefly: "כל הכבוד! ✓"
+```
+
+**Mobile Gestures:**
+```
+- Swipe right → Complete task
+- Swipe left → Skip/delete (with undo)
+- Long press → Show details/options
+- Pull to refresh → Sync data
+```
+
+**Progress Visualization:**
+```
+- Circular progress (Apple Watch style)
+- Color transitions: Red (0-40%) → Yellow (40-70%) → Green (70%+)
+- Smooth animations (ease-out, 500ms)
+- Numbers count up when updated
+```
+
+---
+
+## 📱 UX Flows (New - Sprint 3.5)
+
+### **First-Time User (Onboarding):**
+
+```
+Landing → Login (Google) → Welcome →
+Setup Semester (dates) → Create First Course →
+Add Categories → Dashboard (with tips)
+```
+
+**Key Principles:**
+- Maximum 4 screens before seeing value
+- Each step has progress indicator (1/3, 2/3, etc.)
+- Can skip and come back later
+- Defaults are smart (13 weeks, common categories)
+
+### **Daily Use (Returning User):**
+
+```
+Open App → Weekly View (default) →
+Tap checkbox to complete →
+Micro-celebration →
+View updated progress
+```
+
+**Alternative paths:**
+- Swipe to next week
+- Tap course → detailed view
+- + button → quick add task
+
+### **Creating a Course:**
+
+```
++ Add Course →
+Fill basic info (name, code, credits, color) →
+Select categories (lectures, tutorials, assignments) →
+Confirmation → Back to dashboard
+```
+
+**Inline validation:**
+- Live preview of color selection
+- Auto-suggest course codes (future)
+- Default values pre-filled
+
+---
+
 **Remember:** Good design isn't decoration—it's about making the app easier and more enjoyable to use. Every design decision should answer: "Does this help the student manage their semester better?"
+
+**New mantra:** Make it fast, make it clear, make it rewarding.
+
+---
+
+## 🎨 UX Vision & Approved Approach (Sprint 3.5)
+
+### **The Core Problem We're Solving**
+
+Students don't need another task manager. They need to **see their entire semester at a glance** and feel in control.
+
+**Inspiration:** Excel tracking but interactive, beautiful, and rewarding.
+
+---
+
+### **Key UX Decisions (Approved 2025-11-27)**
+
+#### 1. **Prototype Approach: HTML/CSS Interactive Mockups**
+
+**Decision:** Build functional HTML/CSS prototypes instead of static Figma designs.
+
+**Rationale:**
+- ✅ Interactive immediately (click, tap, see animations)
+- ✅ Works on mobile/desktop for testing
+- ✅ 50% of the final code already done
+- ✅ Fast iteration based on feedback
+- ⚠️ Less visually polished than professional Figma (acceptable for MVP)
+
+**Future:** If MVP succeeds, invest in professional UI/UX designer for polish.
+
+---
+
+#### 2. **Gamification Philosophy: "Gentle Celebration, Not Pressure"**
+
+**What We DO:**
+- ✅ **Progress rings** (Apple Watch style) - smooth animations
+- ✅ **Micro-celebrations** - 0.3s confetti when task completed
+- ✅ **Encouraging messages** - "כל הכבוד! עוד 3 משימות השבוע"
+- ✅ **Color-coded status** - Green = good, Yellow = attention, Red = urgent
+- ✅ **Weekly recaps** - "השלמת 12/15 משימות השבוע!"
+- ✅ **Subtle achievements** - "הקורס הראשון נוסף! 🎓"
+
+**What We DON'T:**
+- ❌ Points/XP systems (creates pressure)
+- ❌ Leaderboards (unhealthy competition)
+- ❌ Streaks that punish breaks (Duolingo-style guilt)
+- ❌ "You're falling behind!" messaging
+- ❌ Aggressive notifications
+
+**Key Principle:** Empower and calm, never stress.
+
+---
+
+#### 3. **First-Time User Experience (Onboarding Flow)**
+
+**Goal:** 3-4 screens max, 1-2 minutes to first value.
+
+```
+Landing → Google Login → Welcome →
+Setup Semester (dates) → Create First Course →
+Add Categories → Dashboard (with gentle tips)
+```
+
+**Key Features:**
+1. **No overwhelming tutorials** - learning by doing
+2. **Smart defaults** - 13 weeks, common categories pre-selected
+3. **Progress indicator** - "צעד 1 מתוך 3"
+4. **Skip option** - "אעשה את זה אחר כך"
+5. **Immediate celebration** - "🎉 מעולה! הקורס הראשון מוכן"
+
+**Example Flow:**
+
+```
+┌─────────────────────────────────────┐
+│  צעד 1 מתוך 3: מתי הסמסטר?         │
+├─────────────────────────────────────┤
+│  📅 תאריך התחלה: [01.11.24____]    │
+│  📅 תאריך סיום:   [28.02.25____]   │
+│                                      │
+│  💡 13 שבועות (מחושב אוטומטית)      │
+│                                      │
+│  [דלג לעכשיו]  [הבא →]              │
+└─────────────────────────────────────┘
+
+┌─────────────────────────────────────┐
+│  צעד 2 מתוך 3: הקורס הראשון        │
+├─────────────────────────────────────┤
+│  שם: [מבוא למדעי המחשב_______]     │
+│  קוד: [CS101] נ"ז: [3.5]           │
+│  צבע: 🔵🟢🟡🔴🟣                     │
+│                                      │
+│  במה תעקוב?                         │
+│  ☑️ הרצאות (שבועי)                 │
+│  ☑️ תרגולים (שבועי)                │
+│  ☐ מעבדות                          │
+│  ☑️ הגשות ([5___] במהלך הסמסטר)   │
+│  + הוסף קטגוריה מותאמת              │
+│                                      │
+│  [הוסף קורס →]                      │
+└─────────────────────────────────────┘
+
+┌─────────────────────────────────────┐
+│  🎉 מעולה! הקורס הראשון מוכן        │
+├─────────────────────────────────────┤
+│  רוצה להוסיף עוד קורסים?           │
+│                                      │
+│  [+ הוסף עוד קורס]                 │
+│  [סיימתי, קח אותי לדשבורד →]       │
+└─────────────────────────────────────┘
+```
+
+---
+
+#### 4. **Default View: Weekly View**
+
+**Decision:** Default screen = "מה יש לי השבוע"
+
+**Alternative views accessible via tabs/toggle:**
+- 📅 **Weekly View** (default) - focus on this week
+- 📊 **Dashboard** - all courses overview
+- 🗓️ **Timeline** - entire semester grid
+
+**Weekly View Example:**
+
+```
+┌──────────────────────────────────────────────────┐
+│  🗓️ השבוע שלך - שבוע 4 (20-26 נובמבר)           │
+│                              [תצוגה: שבועי ▼]     │
+├──────────────────────────────────────────────────┤
+│                                                   │
+│  🔵 מבוא למדעי המחשב              [פרטים →]     │
+│  ┌───────────────────────────────────┐          │
+│  │ ████████████████░░░░░░░░ 75%      │          │
+│  └───────────────────────────────────┘          │
+│  השבוע: ✅ הרצאה  ✅ תרגול  🔶 הגשה 2 (3 ימים) │
+│                                                   │
+│  🟢 מבני נתונים                   [פרטים →]     │
+│  ┌───────────────────────────────────┐          │
+│  │ ████████████░░░░░░░░░░░░ 60%      │          │
+│  └───────────────────────────────────┘          │
+│  השבוע: ✅ הרצאה  ⬜ תרגול  ⬜ מעבדה            │
+│                                                   │
+├──────────────────────────────────────────────────┤
+│  📊 סטטיסטיקות מהירות:                           │
+│  • 8/13 משימות הושלמו השבוע                     │
+│  • 2 הגשות בשבוע הבא                            │
+│  • אתה 15% מעל הממוצע! 🔥                       │
+└──────────────────────────────────────────────────┘
+```
+
+---
+
+#### 5. **Task Completion Animation (The Magic Moment)**
+
+**User Action:** Tap/click on ⬜ checkbox
+
+**System Response (300ms total):**
+
+1. **Immediate visual feedback (0-150ms):**
+   - Checkbox fills with green color
+   - Smooth transition animation
+
+2. **Celebration (150-300ms):**
+   - ✅ Checkmark appears with slide-in
+   - 🎊 2-3 confetti particles (subtle!)
+   - 📳 Haptic feedback on mobile (single tap)
+
+3. **Progress update (300-500ms):**
+   - Progress bar smoothly animates forward
+   - Number counts up (75% → 77%)
+   - Encouraging message: "כל הכבוד! ✓"
+
+**Code Example (CSS):**
+```css
+@keyframes checkboxFill {
+  from {
+    background-color: transparent;
+    transform: scale(1);
+  }
+  to {
+    background-color: var(--color-success);
+    transform: scale(1.1);
+  }
+}
+
+@keyframes confetti {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-20px) rotate(360deg);
+    opacity: 0;
+  }
+}
+```
+
+---
+
+#### 6. **Mobile Gestures (Touch-First)**
+
+**Primary Actions:**
+- **Tap** - Toggle completion (⬜ → ✅)
+- **Swipe right** - Quick complete
+- **Swipe left** - Quick skip/delete (with undo toast)
+- **Long press** - Show details/options menu
+- **Pull to refresh** - Sync data
+
+**Why swipe?**
+- ✅ Faster than tapping small checkboxes
+- ✅ Feels natural on mobile
+- ✅ Familiar pattern (Mail, Todoist)
+
+---
+
+#### 7. **Notifications & Reminders (Gentle, Not Aggressive)**
+
+**Philosophy:** Help, don't nag.
+
+**Delivery Channels:**
+1. **In-app banner** (primary)
+   ```
+   ┌────────────────────────────────────┐
+   │  🔔 קרוב ומשמעותי:                 │
+   │  • הגשה: תרגיל 3 - עוד 3 ימים    │
+   │  [תזכיר מחר] [ראיתי ✓]            │
+   └────────────────────────────────────┘
+   ```
+
+2. **Email digest** (weekly, opt-in)
+   - "מה צפוי השבוע הבא"
+   - Sent Sunday evening
+   - One email, all deadlines
+
+3. **Browser notifications** (opt-in only)
+   - Only for urgent deadlines (< 2 days)
+   - User explicitly enables
+
+**Tone Examples:**
+- ✅ "הגשת תרגיל 3 קרובה (1 דצמבר) - רוצה לתכנן?"
+- ❌ "התראה! הגשה בעוד 2 ימים!!!"
+
+---
+
+#### 8. **Empty States (Encouraging, Not Depressing)**
+
+**No courses yet:**
+```
+┌────────────────────────────────────┐
+│           📚                        │
+│     אין לך קורסים עדיין            │
+│                                     │
+│  בוא נתחיל! הוסף את הקורס הראשון  │
+│  שלך ותראה את כל הסמסטר במבט אחד   │
+│                                     │
+│  [+ צור קורס ראשון]                │
+└────────────────────────────────────┘
+```
+
+**No tasks this week:**
+```
+┌────────────────────────────────────┐
+│           🎉                        │
+│     אין לך משימות השבוע!           │
+│                                     │
+│  תהנה מהשבוע הרגוע 😊              │
+│  או תתחיל להתכונן לשבוע הבא        │
+│                                     │
+│  [ראה שבוע הבא →]                  │
+└────────────────────────────────────┘
+```
+
+---
+
+#### 9. **Responsive Breakpoints & Mobile-First**
+
+**Design Order:**
+1. Mobile portrait (375px) - PRIMARY
+2. Mobile landscape (667px)
+3. Tablet (768px)
+4. Desktop (1024px+)
+
+**Mobile optimizations:**
+- Touch targets: minimum 44×44px
+- Bottom navigation (thumb zone)
+- FAB for quick add (bottom-right)
+- Swipe gestures enabled
+- No hover states required
+
+**Desktop enhancements:**
+- Keyboard shortcuts (Space = toggle, N = new task)
+- Hover states for discoverability
+- Sidebar navigation
+- Wider grid views
+
+---
+
+### **Visual Inspiration & References**
+
+**Apps we learn from:**
+- ✅ **Notion** - Clean, minimal, intuitive
+- ✅ **Linear** - Fast, beautiful, delightful
+- ✅ **Todoist** - Smart gamification (gentle)
+- ✅ **Apple Reminders** - Simple, effective
+- ⚠️ **Duolingo** - Good animations, but too stressful (avoid guilt)
+
+**What makes them work:**
+- Instant feedback on every action
+- Progress visible at all times
+- Minimal clicks to complete tasks
+- Beautiful but not distracting
+- Mobile-first thinking
+
+---
+
+### **Design Implementation Strategy**
+
+**Phase 1: MVP (Sprint 3.5-4)**
+- Clean, functional UI with basic styling
+- Focus on UX flow and interactions
+- Use Tailwind CSS defaults
+- Minimal custom animations
+
+**Phase 2: Polish (Sprint 5+)**
+- Professional UI/UX designer (if budget allows)
+- Advanced animations and transitions
+- Branded illustrations
+- Micro-interactions refinement
+
+**Principle:** Function first, beauty second.
+
+---
+
+**Document Updated:** 2025-11-27
+**Based on:** User discussion from 2025-11-26 (full vision alignment)
+**Next Review:** After prototype user testing

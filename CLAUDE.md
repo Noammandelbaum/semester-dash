@@ -29,11 +29,53 @@
 
 ## Current Status (Updated: 2025-11-26)
 
+### 🚨 **MAJOR PIVOT - Sprint 3 Refactor** 🚨
+
+**What Happened:**
+- Built Task CRUD in Sprint 3 (backend + frontend complete)
+- **User feedback:** Architecture doesn't match the product vision
+- **Root issue:** Tasks were separate entities, not integrated into semester view
+
+**New Vision (Approved):**
+- 🎯 **Dashboard-first approach:** One view to see the entire semester
+- 🎯 **Course-centric:** Tasks are part of courses, not standalone
+- 🎯 **Weekly tracking:** Focus on "what do I have this week?"
+- 🎯 **Gamification (subtle):** Progress rings, gentle celebrations, no pressure
+
 ### Sprint 1 - Foundation: COMPLETED ✅
 **All 9 tasks completed successfully!**
 
 ### Sprint 2 - Course Management: COMPLETED ✅
 **19/26 tasks completed - Core functionality 100% working!**
+
+### Sprint 3.5 - Weekly View Implementation: READY FOR PHASE 1 🚀
+**Status:** ✅ Planning Complete (2025-11-27) → 🚀 Ready for Implementation
+**Approach:** 5-phase implementation over 3 weeks (8-10h/week)
+
+**Approved Plan:** `docs/private/WEEKLY_VIEW_PLAN.md`
+
+**Key Decisions (User-Confirmed):**
+- ✅ **Default view:** Weekly View ("מה יש לי השבוע")
+- ✅ **Assignment tracking:** Pre-define count (e.g., "5 הגשות")
+- ✅ **Holiday handling:** Automatic via Israeli calendar (`@hebcal/core`)
+- ✅ **Category management:** Smart defaults (lectures + tutorials), user-editable
+- ✅ **Gamification:** "Gentle celebration" - progress rings, micro-confetti, no stress
+- ✅ **Mobile-first:** Swipe gestures, 44×44px touch targets, thumb-zone optimization
+
+**Current Phase:** Phase 1 - Database & API (Week 1, 8-10h)
+
+**Phase 1 Tasks:**
+1. Update Prisma schema (Semester, Category, WeeklyProgress, Milestone)
+2. Create `/api/weekly-view` endpoint
+3. Create `/api/progress/weekly/toggle` endpoint
+4. Create Zod validation schemas
+5. Create date-utils with Israeli holiday detection
+
+**Next After Phase 1:**
+- Phase 2: Core UI components (Week 1-2)
+- Phase 3: "Magic Moment" animations (Week 2)
+- Phase 4: Mobile gestures (Week 2-3)
+- Phase 5: Polish & accessibility (Week 3)
 
 ### What's Working:
 - ✅ **Sprint 1**: Google OAuth, Protected routes, PostgreSQL + Prisma, UI library, Vercel deployment, GA4
@@ -41,31 +83,63 @@
   - ✅ Backend: 6 API endpoints with auth, validation, rate limiting
   - ✅ Frontend: Course list page, Create/Edit dialogs, Hebrew UI
   - ✅ Security: Headers, rate limiting, ownership checks, input validation
-  - ✅ Database: Course model with userId, cascade delete
-  - ✅ Infrastructure: Zod schemas, auth-utils, rate-limit utilities
+- ⚠️ **Sprint 3**: Task CRUD built but needs architectural refactor
 
 ### What's Next:
-- [ ] Sprint 3: Task Management + Sprint 2 Finalization ← **Ready to start**
-  - Week 1: Manual testing (SEMDASH-89), Sprint checklist (SEMDASH-90)
-  - Week 1-2: Task CRUD implementation
-  - Week 2: Sentry integration (SEMDASH-86)
-- [ ] Sprint 4: Dashboard, Progress visualization, Landing page
+- [ ] Sprint 3.5: UX Prototype + Architecture Refactor ← **CURRENT**
+  - Design Weekly View mockup
+  - Design Course Detail view
+  - Design Onboarding flow
+  - Refactor Database: Semester → Course (with Categories) → Progress
+  - Rebuild frontend with new UX
+- [ ] Sprint 4: Dashboard polish, Progress visualization, Landing page
 
 ### Recent Changes:
-- **Sprint 2 completed** (2025-11-26): Course CRUD fully functional
-  - Migrated 3 tasks to Sprint 3: Testing (SEMDASH-89, -90), Sentry (SEMDASH-86)
-  - Migrated 3 tasks to Sprint 4: Landing page, Illustrations, Progress viz
-  - User stories (SEMDASH-21-26) marked as Done (functionality implemented)
-- **Code quality**: All TypeScript errors fixed, lint clean, npm audit OK for production
-- **Security**: Rate limiting, ownership checks, Zod validation working
+- **Implementation plan approved** (2025-11-27): Complete 5-phase roadmap created
+  - Full plan: `docs/private/WEEKLY_VIEW_PLAN.md` (370 lines, approved)
+  - Phase breakdown added to `SPRINT_PLANNING.md`
+  - All user requirements confirmed via Q&A session
+  - Holiday handling: Automatic via `@hebcal/core` library (user correction implemented)
+  - Assignment tracking: Pre-defined counts matching syllabus workflow
+  - Category management: Smart defaults with future Moodle automation readiness
+- **Sprint 3 pivot decision** (2025-11-26): Refactoring to dashboard-first approach
+  - User wants: Excel-like view of entire semester, not task lists
+  - New architecture: Semester → Course → Categories → WeeklyProgress/Milestone
+  - Weekly tracking: Check off what you did this week
+  - Gentle gamification: Progress rings, celebrations, no stress
+- **UX vision finalized** (2025-11-27): Full discussion documented
+  - See `DESIGN_SYSTEM.md` § "UX Vision & Approved Approach" for full details
+  - Mobile-first: Swipe gestures, 44×44px touch targets, thumb-zone optimization
+  - "Magic Moment" animation: 300ms timeline (haptic → fill → confetti → toast)
+- **Code quality**: TypeScript clean, ready for Phase 1 implementation
+- **Security**: All existing security measures remain + will extend to new endpoints
 
 ---
 
 ## Project Overview
 
-SemesterDash is a student semester management dashboard that helps students track their courses, tasks (lectures, assignments, labs), and progress throughout the semester.
+SemesterDash is a **semester-at-a-glance dashboard** that helps students visualize and track their entire semester in one view - inspired by Excel tracking but interactive, beautiful, and rewarding.
 
-**Core Value:** One view to see everything and know what to do next.
+**Core Value:** See your entire semester at a glance. Track progress. Feel accomplished.
+
+**Key Differentiators:**
+- 📊 **Dashboard-first:** Not a task list app - it's a semester visualization tool
+- 📅 **Weekly View:** Focus on "what's happening this week" across all courses
+- 🎯 **Course Categories:** Each course has customizable tracking (lectures, tutorials, assignments, exams)
+- 🎮 **Gentle Gamification:** Progress rings, micro-celebrations, no stress
+- 📱 **Mobile-first:** Quick check-ins between classes
+- 🎨 **Delightful UX:** Every interaction should feel rewarding
+
+**What It's NOT:**
+- ❌ Not another todo list app (Todoist, Things, etc.)
+- ❌ Not a calendar app (Google Calendar does that)
+- ❌ Not a grade tracker (that's a separate problem)
+
+**Target Users:**
+- University/college students (18-30, Gen Z)
+- Juggling 4-6 courses per semester
+- Want to feel organized without stress
+- Mobile-native, expect instant feedback
 
 ## Tech Stack
 | Technology | Version | Purpose |
@@ -139,6 +213,63 @@ semester-dash/
 - All tables have `createdAt` and `updatedAt`
 - Cascade delete for related records
 - Use soft delete where appropriate
+
+---
+
+## Data Architecture (New - Sprint 3.5)
+
+### **The New Model:**
+
+```typescript
+// Top-level: Semester
+Semester {
+  id, name, startDate, endDate, weeksCount, userId
+}
+
+// Courses belong to semesters
+Course {
+  id, name, code, credits, color, semesterId, userId
+
+  // Dynamic categories (what to track in this course)
+  categories: Category[]
+}
+
+// Category = type of tracking in a course
+Category {
+  id, courseId
+  type: "LECTURE" | "TUTORIAL" | "LAB" | "ASSIGNMENT" | "EXAM" | "CUSTOM"
+  name: string // editable if CUSTOM
+  icon: string
+  trackingMode: "weekly" | "milestone"
+
+  // If weekly:
+  frequency: { perWeek: number } // e.g., 2 lectures/week
+
+  // If milestone:
+  totalCount: number // e.g., 5 assignments
+}
+
+// Weekly Progress (for weekly categories)
+WeeklyProgress {
+  id, courseId, categoryId, weekNumber
+  completed: boolean
+  completedAt: DateTime
+}
+
+// Milestones (for assignments, exams)
+Milestone {
+  id, courseId, categoryId
+  title, dueDate, status, completedAt, grade, notes
+}
+```
+
+### **Key Principles:**
+
+1. **Semester-first:** Everything starts with defining the semester (dates, weeks)
+2. **Course-centric:** Tasks/tracking are properties of courses, not standalone
+3. **Flexible categories:** Each course can have different tracking needs
+4. **Weekly + Milestone:** Support both recurring (lectures) and one-off (exams)
+5. **User-owned:** All data tied to userId for security
 
 ---
 
