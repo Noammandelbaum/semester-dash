@@ -22,10 +22,10 @@
 ### לפני שמתחילים:
 ```bash
 # קרא את ה-roadmap
-cat docs/planning/roadmap.md
+cat docs/private/planning/roadmap.md
 
 # בדוק את ה-gap analysis לסעיף UI Components
-cat docs/planning/gap-analysis.md
+cat docs/private/planning/gap-analysis.md
 ```
 
 ### Sprint 2 כולל (לפי Jira):

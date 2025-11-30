@@ -1,4 +1,4 @@
-# SemesterDash Design System
+# SemesterHub Design System
 
 ## 🎯 Design Philosophy
 
@@ -33,13 +33,68 @@
   - Clear and direct
   - Encouraging ("עוד קצת!", "את/ה בדרך הנכונה")
 
+### Tagline
+- **English:** "Your semester, at a glance"
+- **Hebrew:** "הסמסטר שלך, במבט אחד"
+
+### Key Message: Stress Reduction
+> **75% of students feel overwhelmed by academic workload.**
+> SemesterHub exists to change that.
+
+Our messaging focuses on **calm and control**, not productivity hacking:
+- ✅ "See your whole semester - it's manageable"
+- ✅ "From chaos to calm"
+- ❌ NOT "Boost your productivity"
+- ❌ NOT "Never miss a deadline again!"
+
+---
+
+## 🇮🇱 Israeli-Specific Features
+
+### Why Israel-First?
+SemesterHub is built specifically for the Israeli academic ecosystem:
+
+| Feature | Why It Matters |
+|---------|----------------|
+| **Hebrew-Native UI** | RTL design, natural Hebrew UX - not a translation |
+| **Moodle Integration** | 90%+ of Israeli universities use Moodle |
+| **Academic Calendar** | סמסטר א', ב', קיץ + מועדי בחינות |
+| **Reserve Duty Mode** | Unique to Israel - automatic deadline adjustments |
+
+### Reserve Duty Mode (מצב מילואים)
+A feature no other app offers:
+- Mark service period with one click
+- System automatically suggests deadline adjustments
+- "Catch-up plan" after returning from service
+- Calculates "effective semester length" excluding service days
+
+### Moodle Sync (Future)
+- Browser extension for automatic course/assignment import
+- No manual data entry needed
+- Works with TAU, Hebrew U, Technion, BGU, etc.
+
 ## 🌈 Color Palette
+
+> **Brand Decision (Nov 27, 2025):** "Playful Energy" palette chosen to align with Moodle's orange
+> branding while maintaining a stress-reducing, student-friendly feel.
+> See `docs/private/planning/naming-branding.md` for full rationale.
 
 ### Primary Colors
 ```css
---color-primary: #6366F1;        /* Indigo - main brand color */
---color-primary-light: #818CF8;  /* Hover states */
---color-primary-dark: #4F46E5;   /* Active states */
+--color-primary: #ff6b35;        /* Vibrant Orange - main brand color (Moodle-aligned) */
+--color-primary-light: #ff8c5a;  /* Hover states */
+--color-primary-dark: #e55a2b;   /* Active states */
+```
+
+### Secondary & Accent
+```css
+--color-secondary: #0f766e;      /* Deep Teal - calm, focus */
+--color-secondary-light: #14b8a6;
+--color-secondary-dark: #0d5f58;
+
+--color-accent: #fbbf24;         /* Sunny Yellow - optimism, highlights */
+--color-accent-light: #fcd34d;
+--color-accent-dark: #f59e0b;
 ```
 
 ### Semantic Colors
@@ -53,10 +108,10 @@
 ### Course Colors (User-selectable)
 ```css
 --course-red: #EF4444;
---course-orange: #F97316;
+--course-orange: #ff6b35;        /* Primary brand */
 --course-amber: #F59E0B;
 --course-green: #22C55E;
---course-teal: #14B8A6;
+--course-teal: #0f766e;          /* Secondary brand */
 --course-blue: #3B82F6;
 --course-indigo: #6366F1;
 --course-purple: #8B5CF6;
@@ -65,7 +120,7 @@
 
 ### Neutrals
 ```css
---color-background: #FAFAFA;     /* Page background */
+--color-background: #fafaf9;     /* Warm white - page background */
 --color-surface: #FFFFFF;        /* Cards, modals */
 --color-border: #E5E7EB;         /* Borders, dividers */
 --color-text-primary: #111827;   /* Main text */
@@ -85,8 +140,11 @@
 ### Font Family
 ```css
 --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
---font-hebrew: 'Heebo', 'Inter', sans-serif;
+--font-hebrew: 'Rubik', 'Inter', sans-serif;  /* Rubik - designed for Hebrew, modern */
 ```
+
+> **Note:** Rubik was chosen over Heebo for its modern design optimized for Hebrew.
+> See `docs/private/planning/naming-branding.md` for typography rationale.
 
 ### Scale
 ```css
@@ -158,7 +216,7 @@ Danger: Background danger for destructive actions
 
 ### Progress Indicators
 - Circular progress for overall course progress
-- Linear progress bar for task completion
+- Linear progress bar for assignment completion
 - Color coding: green (>70%), yellow (40-70%), red (<40%)
 
 ### Status Badges
@@ -223,14 +281,14 @@ Overdue: Red background, red text
 ### Interaction Feedback
 - Button press: slight scale down (0.98)
 - Card hover: subtle lift + shadow increase
-- Task completion: satisfying checkmark animation
+- Assignment completion: satisfying checkmark animation
 - Progress update: smooth number counting
 
 ## 🎉 Celebration Moments
 - First course added: "🎓 יופי! הקורס הראשון נוסף"
-- Task completed: Quick confetti or checkmark animation
+- Assignment completed: Quick confetti or checkmark animation
 - Course 100% complete: Special celebration screen
-- Weekly progress: "📈 השבוע השלמת X משימות!"
+- Weekly progress: "📈 השבוע השלמת X מטלות!"
 
 ## 📋 Key Screens Design Notes
 
@@ -242,13 +300,13 @@ Overdue: Red background, red text
 
 ### Course View
 - Course header with color and stats
-- Task list grouped by type or week
+- Assignment list grouped by status or due date
 - Progress bar prominent
-- Quick add task button (FAB on mobile)
+- Quick add assignment button (FAB on mobile)
 
-### Task Item
+### Assignment Item
 - Checkbox prominent and easy to tap
-- Task type icon
+- Priority indicator
 - Due date with color coding
 - Swipe actions on mobile (complete, delete)
 
@@ -271,7 +329,7 @@ theme: {
       // etc.
     },
     fontFamily: {
-      sans: ['Inter', 'Heebo', 'sans-serif'],
+      sans: ['Inter', 'Rubik', 'sans-serif'],
     },
   },
 }
@@ -294,16 +352,16 @@ Use Lucide React for consistent iconography.
 
 ---
 
-## 🎮 Gamification Guidelines (New - Sprint 3.5)
+## 🎮 Gamification Guidelines
 
 ### **Philosophy: "Gentle Celebration, Not Pressure"**
 
 **DO:**
 - ✅ Progress rings/bars with smooth animations
-- ✅ Micro-celebrations (0.3s confetti when task completed)
+- ✅ Micro-celebrations (0.3s confetti when assignment completed)
 - ✅ Encouraging messages ("Great! 3 more this week")
 - ✅ Color-coded status (green = good, yellow = attention, red = urgent)
-- ✅ Weekly recaps ("You completed 12/15 tasks this week!")
+- ✅ Weekly recaps ("You completed 12/15 assignments this week!")
 - ✅ Subtle achievements ("First course created! 🎓")
 
 **DON'T:**
@@ -315,7 +373,7 @@ Use Lucide React for consistent iconography.
 
 ### **Interaction Patterns:**
 
-**Task Completion:**
+**Assignment Completion:**
 ```
 1. Tap/click on checkbox → immediate green fill (150ms)
 2. Micro-confetti (2-3 particles, 300ms)
@@ -326,7 +384,7 @@ Use Lucide React for consistent iconography.
 
 **Mobile Gestures:**
 ```
-- Swipe right → Complete task
+- Swipe right → Complete assignment
 - Swipe left → Skip/delete (with undo)
 - Long press → Show details/options
 - Pull to refresh → Sync data
@@ -342,21 +400,21 @@ Use Lucide React for consistent iconography.
 
 ---
 
-## 📱 UX Flows (New - Sprint 3.5)
+## 📱 UX Flows
 
 ### **First-Time User (Onboarding):**
 
 ```
 Landing → Login (Google) → Welcome →
 Setup Semester (dates) → Create First Course →
-Add Categories → Dashboard (with tips)
+Dashboard (with tips)
 ```
 
 **Key Principles:**
-- Maximum 4 screens before seeing value
+- Maximum 3-4 screens before seeing value
 - Each step has progress indicator (1/3, 2/3, etc.)
 - Can skip and come back later
-- Defaults are smart (13 weeks, common categories)
+- Defaults are smart (13 weeks, current semester dates)
 
 ### **Daily Use (Returning User):**
 
@@ -370,14 +428,13 @@ View updated progress
 **Alternative paths:**
 - Swipe to next week
 - Tap course → detailed view
-- + button → quick add task
+- + button → quick add assignment
 
 ### **Creating a Course:**
 
 ```
 + Add Course →
 Fill basic info (name, code, credits, color) →
-Select categories (lectures, tutorials, assignments) →
 Confirmation → Back to dashboard
 ```
 
@@ -385,6 +442,7 @@ Confirmation → Back to dashboard
 - Live preview of color selection
 - Auto-suggest course codes (future)
 - Default values pre-filled
+- Assignments added separately per course
 
 ---
 
@@ -394,7 +452,7 @@ Confirmation → Back to dashboard
 
 ---
 
-## 🎨 UX Vision & Approved Approach (Sprint 3.5)
+## 🎨 UX Vision & Approved Approach
 
 ### **The Core Problem We're Solving**
 
@@ -425,10 +483,10 @@ Students don't need another task manager. They need to **see their entire semest
 
 **What We DO:**
 - ✅ **Progress rings** (Apple Watch style) - smooth animations
-- ✅ **Micro-celebrations** - 0.3s confetti when task completed
-- ✅ **Encouraging messages** - "כל הכבוד! עוד 3 משימות השבוע"
+- ✅ **Micro-celebrations** - 0.3s confetti when assignment completed
+- ✅ **Encouraging messages** - "כל הכבוד! עוד 3 מטלות השבוע"
 - ✅ **Color-coded status** - Green = good, Yellow = attention, Red = urgent
-- ✅ **Weekly recaps** - "השלמת 12/15 משימות השבוע!"
+- ✅ **Weekly recaps** - "השלמת 12/15 מטלות השבוע!"
 - ✅ **Subtle achievements** - "הקורס הראשון נוסף! 🎓"
 
 **What We DON'T:**
@@ -449,12 +507,12 @@ Students don't need another task manager. They need to **see their entire semest
 ```
 Landing → Google Login → Welcome →
 Setup Semester (dates) → Create First Course →
-Add Categories → Dashboard (with gentle tips)
+Dashboard (with gentle tips)
 ```
 
 **Key Features:**
 1. **No overwhelming tutorials** - learning by doing
-2. **Smart defaults** - 13 weeks, common categories pre-selected
+2. **Smart defaults** - 13 weeks, current semester type auto-detected
 3. **Progress indicator** - "צעד 1 מתוך 3"
 4. **Skip option** - "אעשה את זה אחר כך"
 5. **Immediate celebration** - "🎉 מעולה! הקורס הראשון מוכן"
@@ -465,6 +523,7 @@ Add Categories → Dashboard (with gentle tips)
 ┌─────────────────────────────────────┐
 │  צעד 1 מתוך 3: מתי הסמסטר?         │
 ├─────────────────────────────────────┤
+│  📅 סוג סמסטר: [סמסטר א' ▼]        │
 │  📅 תאריך התחלה: [01.11.24____]    │
 │  📅 תאריך סיום:   [28.02.25____]   │
 │                                      │
@@ -478,14 +537,7 @@ Add Categories → Dashboard (with gentle tips)
 ├─────────────────────────────────────┤
 │  שם: [מבוא למדעי המחשב_______]     │
 │  קוד: [CS101] נ"ז: [3.5]           │
-│  צבע: 🔵🟢🟡🔴🟣                     │
-│                                      │
-│  במה תעקוב?                         │
-│  ☑️ הרצאות (שבועי)                 │
-│  ☑️ תרגולים (שבועי)                │
-│  ☐ מעבדות                          │
-│  ☑️ הגשות ([5___] במהלך הסמסטר)   │
-│  + הוסף קטגוריה מותאמת              │
+│  צבע: 🟠🟢🟡🔴🟣                     │
 │                                      │
 │  [הוסף קורס →]                      │
 └─────────────────────────────────────┘
@@ -499,6 +551,9 @@ Add Categories → Dashboard (with gentle tips)
 │  [סיימתי, קח אותי לדשבורד →]       │
 └─────────────────────────────────────┘
 ```
+
+> **Note:** Assignments are added per-course after initial setup, not during onboarding.
+> This keeps onboarding fast (< 2 minutes to first value).
 
 ---
 
@@ -541,7 +596,7 @@ Add Categories → Dashboard (with gentle tips)
 
 ---
 
-#### 5. **Task Completion Animation (The Magic Moment)**
+#### 5. **Assignment Completion Animation (The Magic Moment)**
 
 **User Action:** Tap/click on ⬜ checkbox
 
@@ -648,11 +703,11 @@ Add Categories → Dashboard (with gentle tips)
 └────────────────────────────────────┘
 ```
 
-**No tasks this week:**
+**No assignments this week:**
 ```
 ┌────────────────────────────────────┐
 │           🎉                        │
-│     אין לך משימות השבוע!           │
+│     אין לך מטלות השבוע!            │
 │                                     │
 │  תהנה מהשבוע הרגוע 😊              │
 │  או תתחיל להתכונן לשבוע הבא        │
@@ -698,7 +753,7 @@ Add Categories → Dashboard (with gentle tips)
 **What makes them work:**
 - Instant feedback on every action
 - Progress visible at all times
-- Minimal clicks to complete tasks
+- Minimal clicks to complete assignments
 - Beautiful but not distracting
 - Mobile-first thinking
 
@@ -706,13 +761,13 @@ Add Categories → Dashboard (with gentle tips)
 
 ### **Design Implementation Strategy**
 
-**Phase 1: MVP (Sprint 3.5-4)**
+**Phase 1: MVP (Sprints 2-4)**
 - Clean, functional UI with basic styling
 - Focus on UX flow and interactions
 - Use Tailwind CSS defaults
 - Minimal custom animations
 
-**Phase 2: Polish (Sprint 5+)**
+**Phase 2: Polish (Sprints 5-6)**
 - Professional UI/UX designer (if budget allows)
 - Advanced animations and transitions
 - Branded illustrations
@@ -722,6 +777,6 @@ Add Categories → Dashboard (with gentle tips)
 
 ---
 
-**Document Updated:** 2025-11-27
-**Based on:** User discussion from 2025-11-26 (full vision alignment)
-**Next Review:** After prototype user testing
+**Document Updated:** 2025-11-30
+**Based on:** Research phase findings, naming-branding.md, user-pain-points.md
+**Next Review:** After Sprint 2 completion

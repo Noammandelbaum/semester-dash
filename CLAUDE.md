@@ -8,8 +8,8 @@
 ## Quick Context
 
 **מה:** SemesterHub - דשבורד סמסטר לסטודנטים ישראליים
-**שלב:** MVP Development - Sprint 1 (80% complete)
-**הבא:** STUDDASH-19 - Database Schema Refactor
+**שלב:** MVP Development - Sprint 1 ✅ Complete
+**הבא:** Sprint 2 - UI Framework
 
 ---
 
@@ -17,10 +17,10 @@
 
 Before starting ANY work, read these:
 
-1. **Product Vision:** `docs/planning/product-vision.md`
-2. **Gap Analysis:** `docs/planning/gap-analysis.md`
-3. **ADR-003 (Refactor Decision):** `docs/decisions/003-refactor-existing-project.md`
-4. **Roadmap:** `docs/planning/roadmap.md`
+1. **Product Vision:** `docs/private/planning/product-vision.md`
+2. **Gap Analysis:** `docs/private/planning/gap-analysis.md`
+3. **ADR-003 (Refactor Decision):** `docs/private/decisions/003-refactor-existing-project.md`
+4. **Roadmap:** `docs/private/planning/roadmap.md`
 
 ---
 
@@ -110,21 +110,25 @@ See `docs/planning/roadmap.md` for Sprint 2 details.
 
 ```
 semester-dash/
-├── CLAUDE.md               # This file
+├── CLAUDE.md               # This file (project memory)
 ├── docs/
-│   ├── research/           # Market & technical research
-│   ├── planning/           # Vision, roadmap, gap analysis
-│   ├── decisions/          # ADRs (Architecture Decision Records)
 │   ├── public/             # Public docs (tracked in git)
+│   │   ├── DESIGN_SYSTEM.md
+│   │   ├── LOCALIZATION.md
+│   │   └── SECURITY.md
 │   └── private/            # Private docs (gitignored)
+│       ├── planning/       # Vision, roadmap, gap analysis
+│       ├── decisions/      # ADRs (Architecture Decision Records)
+│       └── research/       # Market & technical research
 ├── prisma/
-│   └── schema.prisma       # Database schema (needs refactor!)
+│   └── schema.prisma       # Database schema
 ├── scripts/
 │   └── jira.mjs            # Jira API client
 ├── src/
 │   ├── app/                # Next.js App Router pages
 │   │   ├── api/auth/       # NextAuth endpoints
 │   │   ├── api/courses/    # Course CRUD endpoints
+│   │   ├── api/assignments/# Assignment CRUD endpoints
 │   │   ├── dashboard/      # Protected routes
 │   │   └── login/          # Auth pages
 │   ├── components/         # React components
@@ -143,7 +147,7 @@ semester-dash/
 ### Before Starting
 ```bash
 1. Read this file (CLAUDE.md)
-2. Read docs/planning/gap-analysis.md
+2. Read docs/private/planning/gap-analysis.md
 3. Run: node scripts/jira.mjs active
 4. Ask Noam: "What should I work on?"
 ```
@@ -213,6 +217,13 @@ Closes STUDDASH-XX
 ```
 
 Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `ci`
+
+### ⚠️ Privacy in Commits
+**NEVER mention private docs in commit messages!**
+- ❌ "Update gap-analysis.md" (private)
+- ❌ "Fix paths in private/README.md"
+- ✅ "Update CLAUDE.md" (public)
+- ✅ "Fix documentation paths"
 
 ---
 
