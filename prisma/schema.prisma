@@ -62,13 +62,40 @@ model User {
   updatedAt     DateTime  @updatedAt
 
   // Relations
-  accounts Account[]
-  sessions Session[]
-  courses  Course[]
+  accounts    Account[]
+  sessions    Session[]
+  courses     Course[]
+  semesters   Semester[]
+  assignments Assignment[]
+}
 
-  // User preferences
-  semesterStart DateTime?
-  semesterEnd   DateTime?
+// ========================================
+// Semester Model
+// ========================================
+
+enum SemesterType {
+  A      // סמסטר א'
+  B      // סמסטר ב'
+  SUMMER // סמסטר קיץ
+}
+
+model Semester {
+  id        String       @id @default(cuid())
+  name      String       // "סמסטר א' תשפ"ה"
+  type      SemesterType
+  year      Int          // Academic year (e.g., 2024 for תשפ"ה)
+  startDate DateTime
+  endDate   DateTime
+  isActive  Boolean      @default(false)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  // Relations
+  userId  String
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courses Course[]
+
+  @@index([userId])
 }
 
 model Course {
@@ -82,57 +109,52 @@ model Course {
   updatedAt   DateTime @updatedAt
 
   // Relations
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tasks  Task[]
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  semesterId  String?
+  semester    Semester?    @relation(fields: [semesterId], references: [id])
+  assignments Assignment[]
 
   @@index([userId])
+  @@index([semesterId])
 }
 
-enum TaskType {
-  LECTURE
-  TUTORIAL
-  LAB
-  ASSIGNMENT
-  EXAM
-  PROJECT
-  READING
-  OTHER
-}
+// ========================================
+// Assignment Model (formerly Task)
+// ========================================
 
-enum TaskStatus {
+enum AssignmentStatus {
   NOT_STARTED
   IN_PROGRESS
   COMPLETED
-  SKIPPED
 }
 
-model Task {
-  id          String     @id @default(cuid())
+enum AssignmentPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model Assignment {
+  id          String             @id @default(cuid())
   title       String
   description String?
-  type        TaskType   @default(LECTURE)
-  status      TaskStatus @default(NOT_STARTED)
-  weekNumber  Int?       // Week 1-13 of semester
-  dueDate     DateTime?
-  priority    Int        @default(0) // Higher = more important
-  duration    Int?       // Estimated duration in minutes
-  url         String?    // Link to resource (video, document, etc.)
-  notes       String?    @db.Text
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  dueDate     DateTime
+  weight      Float?             // Percentage of grade (0-100, optional)
+  priority    AssignmentPriority @default(MEDIUM)
+  status      AssignmentStatus   @default(NOT_STARTED)
   completedAt DateTime?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
 
   // Relations
   courseId String
   course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  // Self-relation for dependencies (Phase 2)
-  // "This task requires these tasks to be completed first"
-  dependencies   Task[] @relation("TaskDependencies")
-  dependentTasks Task[] @relation("TaskDependencies")
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([courseId])
+  @@index([userId])
+  @@index([dueDate])
   @@index([status])
-  @@index([weekNumber])
 }

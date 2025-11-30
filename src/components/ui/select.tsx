@@ -53,9 +53,10 @@ interface SelectTriggerProps {
   className?: string;
   placeholder?: string;
   children?: React.ReactNode;
+  disabled?: boolean;
 }
 
-function SelectTrigger({ className, placeholder = "בחר...", children }: SelectTriggerProps) {
+function SelectTrigger({ className, placeholder = "בחר...", children, disabled }: SelectTriggerProps) {
   const { value, open, setOpen } = useSelect();
   const triggerRef = React.useRef<HTMLButtonElement>(null);
 
@@ -77,6 +78,7 @@ function SelectTrigger({ className, placeholder = "בחר...", children }: Selec
       ref={triggerRef}
       type="button"
       onClick={() => setOpen(!open)}
+      disabled={disabled}
       className={cn(
         "flex h-10 w-full items-center justify-between rounded-lg border px-3 py-2 text-sm",
         "bg-[var(--color-surface)] border-[var(--color-border)]",
