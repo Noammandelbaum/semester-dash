@@ -122,7 +122,7 @@ function DialogContent({ children, className }: DialogContentProps) {
           type="button"
           onClick={() => onOpenChange(false)}
           className={cn(
-            "absolute top-4 left-4 p-1 rounded-lg",
+            "absolute top-4 end-4 p-1 rounded-lg",
             "text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]",
             "hover:bg-[var(--color-border)] transition-colors"
           )}
@@ -141,7 +141,7 @@ function DialogContent({ children, className }: DialogContentProps) {
 function DialogHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("flex flex-col gap-1.5 text-center sm:text-right", className)}
+      className={cn("flex flex-col gap-1.5 text-center sm:text-end", className)}
       {...props}
     />
   );

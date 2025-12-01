@@ -66,7 +66,7 @@ export default function Home() {
                 <CardContent>
                   <div className="flex items-center justify-between mb-4">
                     <CircularProgress value={75} size={60} />
-                    <div className="flex-1 mr-4">
+                    <div className="flex-1 ms-4">
                       <h3 className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
                         מבוא למדעי המחשב
                       </h3>
@@ -88,7 +88,7 @@ export default function Home() {
                 <CardContent>
                   <div className="flex items-center justify-between mb-4">
                     <CircularProgress value={45} size={60} />
-                    <div className="flex-1 mr-4">
+                    <div className="flex-1 ms-4">
                       <h3 className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
                         אלגברה לינארית 1
                       </h3>

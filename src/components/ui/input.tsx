@@ -12,11 +12,13 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       <input
         type={type}
         className={cn(
-          "flex h-10 w-full rounded-lg border px-3 py-2 text-sm",
+          // Size: minimum 44px height for touch target (WCAG)
+          "flex min-h-[44px] w-full rounded-lg border px-3 py-2 text-sm",
           "bg-[var(--color-surface)] border-[var(--color-border)]",
           "text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)]",
           "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent",
           "disabled:cursor-not-allowed disabled:opacity-50",
+          "transition-colors",
           error && "border-[var(--color-danger)] focus:ring-[var(--color-danger)]",
           className
         )}

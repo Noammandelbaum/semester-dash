@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CreateCourseDialog } from "@/components/courses/create-course-dialog";
 import { EditCourseDialog } from "@/components/courses/edit-course-dialog";
+import { PageHeader } from "@/components/layout";
 import { BookOpen, Trash2 } from "lucide-react";
 
 interface Course {
@@ -87,22 +88,17 @@ export default function CoursesPage() {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl" dir="rtl">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">
-            הקורסים שלי
-          </h1>
-          <p className="text-[var(--color-text-secondary)] mt-1">
-            נהל את כל הקורסים שלך במקום אחד
-          </p>
-        </div>
-        {/* Show button only when there are courses */}
-        {!isLoading && courses.length > 0 && (
-          <CreateCourseDialog onCourseCreated={fetchCourses} />
-        )}
-      </div>
+    <>
+      {/* Page Header */}
+      <PageHeader
+        title="הקורסים שלי"
+        subtitle="נהל את כל הקורסים שלך במקום אחד"
+        actions={
+          !isLoading && courses.length > 0 ? (
+            <CreateCourseDialog onCourseCreated={fetchCourses} />
+          ) : undefined
+        }
+      />
 
       {/* Loading State */}
       {isLoading && (
@@ -149,7 +145,7 @@ export default function CoursesPage() {
                       {(() => {
                         console.log("Course:", course.name, "Credits:", course.credits, "Type:", typeof course.credits);
                         return course.credits && course.credits > 0 ? (
-                          <span className="text-sm font-normal text-[var(--color-text-secondary)] mr-2">
+                          <span className="text-sm font-normal text-[var(--color-text-secondary)] ms-2">
                             {" "}({course.credits} נ״ז)
                           </span>
                         ) : null;
@@ -186,6 +182,6 @@ export default function CoursesPage() {
           ))}
         </div>
       )}
-    </div>
+    </>
   );
 }

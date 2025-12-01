@@ -170,6 +170,17 @@ export async function GET(req: Request) {
       where.priority = validatedQuery.priority;
     }
 
+    // Date range filter for calendar view
+    if (validatedQuery.startDate || validatedQuery.endDate) {
+      where.dueDate = {};
+      if (validatedQuery.startDate) {
+        where.dueDate.gte = validatedQuery.startDate;
+      }
+      if (validatedQuery.endDate) {
+        where.dueDate.lte = validatedQuery.endDate;
+      }
+    }
+
     // 5. Fetch assignments with filters and pagination
     const assignments = await prisma.assignment.findMany({
       where,

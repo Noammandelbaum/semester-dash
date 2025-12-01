@@ -9,6 +9,7 @@ interface SelectContextValue {
   onValueChange: (value: string) => void;
   open: boolean;
   setOpen: (open: boolean) => void;
+  disabled?: boolean;
 }
 
 const SelectContext = React.createContext<SelectContextValue | null>(null);
@@ -26,22 +27,24 @@ interface SelectProps {
   defaultValue?: string;
   onValueChange?: (value: string) => void;
   children: React.ReactNode;
+  disabled?: boolean;
 }
 
-function Select({ value, defaultValue = "", onValueChange, children }: SelectProps) {
+function Select({ value, defaultValue = "", onValueChange, children, disabled }: SelectProps) {
   const [internalValue, setInternalValue] = React.useState(defaultValue);
   const [open, setOpen] = React.useState(false);
 
   const isControlled = value !== undefined;
   const currentValue = isControlled ? value : internalValue;
   const setValue = (newValue: string) => {
+    if (disabled) return;
     if (!isControlled) setInternalValue(newValue);
     onValueChange?.(newValue);
     setOpen(false);
   };
 
   return (
-    <SelectContext.Provider value={{ value: currentValue, onValueChange: setValue, open, setOpen }}>
+    <SelectContext.Provider value={{ value: currentValue, onValueChange: setValue, open, setOpen, disabled }}>
       <div className="relative">
         {children}
       </div>
@@ -54,10 +57,12 @@ interface SelectTriggerProps {
   placeholder?: string;
   children?: React.ReactNode;
   disabled?: boolean;
+  id?: string;
 }
 
-function SelectTrigger({ className, placeholder = "בחר...", children, disabled }: SelectTriggerProps) {
-  const { value, open, setOpen } = useSelect();
+function SelectTrigger({ className, placeholder = "בחר...", children, disabled: disabledProp, id }: SelectTriggerProps) {
+  const { value, open, setOpen, disabled: disabledContext } = useSelect();
+  const disabled = disabledProp ?? disabledContext;
   const triggerRef = React.useRef<HTMLButtonElement>(null);
 
   // Close on click outside
@@ -77,14 +82,17 @@ function SelectTrigger({ className, placeholder = "בחר...", children, disable
     <button
       ref={triggerRef}
       type="button"
+      id={id}
       onClick={() => setOpen(!open)}
       disabled={disabled}
       className={cn(
-        "flex h-10 w-full items-center justify-between rounded-lg border px-3 py-2 text-sm",
+        // Size: minimum 44px height for touch target (WCAG)
+        "flex min-h-[44px] w-full items-center justify-between rounded-lg border px-3 py-2 text-sm",
         "bg-[var(--color-surface)] border-[var(--color-border)]",
         "text-[var(--color-text-primary)]",
         "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]",
         "disabled:cursor-not-allowed disabled:opacity-50",
+        "transition-colors",
         className
       )}
     >
@@ -141,9 +149,11 @@ function SelectItem({ value, children, className }: SelectItemProps) {
       type="button"
       onClick={() => onValueChange(value)}
       className={cn(
-        "flex w-full items-center justify-between px-3 py-2 text-sm",
+        // Size: minimum 44px height for touch target (WCAG)
+        "flex w-full min-h-[44px] items-center justify-between px-3 py-2 text-sm",
         "text-[var(--color-text-primary)]",
         "hover:bg-[var(--color-primary)]/10",
+        "transition-colors",
         isSelected && "bg-[var(--color-primary)]/5",
         className
       )}

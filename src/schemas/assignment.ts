@@ -75,6 +75,17 @@ export const AssignmentQuerySchema = z.object({
   courseId: z.string().cuid("Invalid course ID format").optional(),
   status: z.enum(ASSIGNMENT_STATUSES).optional(),
   priority: z.enum(ASSIGNMENT_PRIORITIES).optional(),
+  // Date range filters for calendar view
+  startDate: z
+    .string()
+    .datetime("Invalid start date format")
+    .transform((str) => new Date(str))
+    .optional(),
+  endDate: z
+    .string()
+    .datetime("Invalid end date format")
+    .transform((str) => new Date(str))
+    .optional(),
   limit: z
     .string()
     .regex(/^\d+$/, "Limit must be a number")

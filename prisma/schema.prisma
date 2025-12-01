@@ -62,11 +62,39 @@ model User {
   updatedAt     DateTime  @updatedAt
 
   // Relations
-  accounts    Account[]
-  sessions    Session[]
-  courses     Course[]
-  semesters   Semester[]
-  assignments Assignment[]
+  accounts      Account[]
+  sessions      Session[]
+  courses       Course[]
+  semesters     Semester[]
+  assignments   Assignment[]
+  preferences   UserPreferences?
+  notifications Notification[]
+}
+
+// ========================================
+// User Preferences Model
+// ========================================
+
+model UserPreferences {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Notifications
+  emailNotifications Boolean @default(false) // Disabled by default
+  inAppNotifications Boolean @default(true)
+  reminderDaysBefore Int[]   @default([1]) // Default: 24h before only
+  quietHoursStart    Int? // Hour (0-23) - null = disabled
+  quietHoursEnd      Int?
+
+  // Display
+  theme String @default("system") // light/dark/system
+
+  // Onboarding
+  onboardingComplete Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // ========================================
@@ -148,13 +176,38 @@ model Assignment {
   updatedAt   DateTime           @updatedAt
 
   // Relations
-  courseId String
-  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  userId   String
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId      String
+  course        Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notifications Notification[]
 
   @@index([courseId])
   @@index([userId])
   @@index([dueDate])
   @@index([status])
+}
+
+// ========================================
+// Notification Model
+// ========================================
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type      String   // "deadline_reminder" | "assignment_due"
+  title     String
+  message   String
+  actionUrl String?
+
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  assignmentId String?
+  assignment   Assignment? @relation(fields: [assignmentId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([isRead])
 }

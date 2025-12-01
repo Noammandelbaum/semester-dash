@@ -75,27 +75,47 @@ A feature no other app offers:
 
 ## 🌈 Color Palette
 
-> **Brand Decision (Nov 27, 2025):** "Playful Energy" palette chosen to align with Moodle's orange
-> branding while maintaining a stress-reducing, student-friendly feel.
-> See `docs/private/planning/naming-branding.md` for full rationale.
+> **Brand Decision (Dec 1, 2025):** "Calm Authority" palette chosen based on color psychology research.
+> Teal primary for anxiety reduction (75% of students are overwhelmed); Orange secondary maintains Moodle connection.
+> See `docs/private/research/color-branding-research.md` for full rationale.
 
 ### Primary Colors
 ```css
---color-primary: #ff6b35;        /* Vibrant Orange - main brand color (Moodle-aligned) */
---color-primary-light: #ff8c5a;  /* Hover states */
---color-primary-dark: #e55a2b;   /* Active states */
+--color-primary: #0f766e;        /* Deep Teal - calm, focus, trust */
+--color-primary-light: #14b8a6;  /* Hover states */
+--color-primary-dark: #0d5f58;   /* Active states */
 ```
 
 ### Secondary & Accent
 ```css
---color-secondary: #0f766e;      /* Deep Teal - calm, focus */
---color-secondary-light: #14b8a6;
---color-secondary-dark: #0d5f58;
+--color-secondary: #ff6b35;      /* Warm Orange - energy, action, Moodle connection */
+--color-secondary-light: #ff8c5a;
+--color-secondary-dark: #e55a2b;
 
---color-accent: #fbbf24;         /* Sunny Yellow - optimism, highlights */
---color-accent-light: #fcd34d;
---color-accent-dark: #f59e0b;
+--color-accent: #10B981;         /* Soft Green - success, growth, calm progress */
+--color-accent-light: #34D399;
+--color-accent-dark: #059669;
 ```
+
+### Color Usage Guidelines
+
+| Color | Use For | Never Use For |
+|-------|---------|---------------|
+| **Teal (Primary)** | Navigation, headers, primary CTAs, progress bars | Warnings, errors |
+| **Orange (Secondary)** | Action buttons, highlights, "Add" actions | Deadlines, warnings, stress indicators |
+| **Green (Accent)** | Success states, completed items, positive feedback | Neutral states |
+
+### Deadline Colors (Anxiety-Aware)
+
+| Timeframe | Color | Tone |
+|-----------|-------|------|
+| >7 days | Gray | Neutral |
+| 3-7 days | Teal | "Coming up" |
+| 1-3 days | Amber | "Soon" |
+| Today | Soft orange | "Today" (supportive) |
+| Overdue | Coral (#F87171) | "Let's address" |
+
+**Never use:** Pure red, orange for warnings, flashing animations, "!" with warm colors
 
 ### Semantic Colors
 ```css
@@ -108,10 +128,10 @@ A feature no other app offers:
 ### Course Colors (User-selectable)
 ```css
 --course-red: #EF4444;
---course-orange: #ff6b35;        /* Primary brand */
+--course-orange: #ff6b35;        /* Secondary brand */
 --course-amber: #F59E0B;
 --course-green: #22C55E;
---course-teal: #0f766e;          /* Secondary brand */
+--course-teal: #0f766e;          /* Primary brand */
 --course-blue: #3B82F6;
 --course-indigo: #6366F1;
 --course-purple: #8B5CF6;
@@ -146,7 +166,7 @@ A feature no other app offers:
 > **Note:** Rubik was chosen over Heebo for its modern design optimized for Hebrew.
 > See `docs/private/planning/naming-branding.md` for typography rationale.
 
-### Scale
+### Scale (English)
 ```css
 --text-xs: 0.75rem;    /* 12px - labels, hints */
 --text-sm: 0.875rem;   /* 14px - secondary text */
@@ -157,12 +177,37 @@ A feature no other app offers:
 --text-3xl: 1.875rem;  /* 30px - hero text */
 ```
 
+### Hebrew Typography Scale (10-15% larger)
+
+> **UX Research:** Hebrew requires 10-15% larger font sizes than English for equivalent readability.
+
+```css
+--text-xs-he: 0.8125rem;    /* 13px (vs 12px) */
+--text-sm-he: 0.9375rem;    /* 15px (vs 14px) */
+--text-base-he: 1.125rem;   /* 18px (vs 16px) - DEFAULT for RTL */
+--text-lg-he: 1.25rem;      /* 20px (vs 18px) */
+--text-xl-he: 1.5rem;       /* 24px (vs 20px) */
+--text-2xl-he: 1.75rem;     /* 28px (vs 24px) */
+--text-3xl-he: 2.125rem;    /* 34px (vs 30px) */
+
+/* Line heights - more generous for Hebrew */
+--leading-normal-he: 1.6;   /* vs 1.5 English */
+```
+
+### Hebrew Typography Rules
+
+| Rule | Implementation |
+|------|----------------|
+| **No bold** | Use `font-weight: 500` max |
+| **No italics** | Use underline or color instead |
+| **Larger base** | 18px default in RTL context |
+
 ### Weights
 ```css
 --font-normal: 400;
 --font-medium: 500;
 --font-semibold: 600;
---font-bold: 700;
+--font-bold: 700;       /* Avoid in Hebrew */
 ```
 
 ## 📏 Spacing & Layout
@@ -217,14 +262,14 @@ Danger: Background danger for destructive actions
 ### Progress Indicators
 - Circular progress for overall course progress
 - Linear progress bar for assignment completion
-- Color coding: green (>70%), yellow (40-70%), red (<40%)
+- Color coding: green (>70%), amber (40-70%), coral (<40%) - anxiety-aware, never pure red
 
 ### Status Badges
 ```
 Not Started: Gray background, gray text
-In Progress: Blue background, blue text
+In Progress: Teal background, teal text
 Completed: Green background, green text
-Overdue: Red background, red text
+Overdue: Coral background (#F87171), coral text (soft, not alarming)
 ```
 
 ### Empty States
@@ -360,7 +405,7 @@ Use Lucide React for consistent iconography.
 - ✅ Progress rings/bars with smooth animations
 - ✅ Micro-celebrations (0.3s confetti when assignment completed)
 - ✅ Encouraging messages ("Great! 3 more this week")
-- ✅ Color-coded status (green = good, yellow = attention, red = urgent)
+- ✅ Color-coded status (green = good, amber = attention, coral = needs action)
 - ✅ Weekly recaps ("You completed 12/15 assignments this week!")
 - ✅ Subtle achievements ("First course created! 🎓")
 
@@ -393,7 +438,7 @@ Use Lucide React for consistent iconography.
 **Progress Visualization:**
 ```
 - Circular progress (Apple Watch style)
-- Color transitions: Red (0-40%) → Yellow (40-70%) → Green (70%+)
+- Color transitions: Coral (0-40%) → Amber (40-70%) → Green (70%+)
 - Smooth animations (ease-out, 500ms)
 - Numbers count up when updated
 ```
@@ -485,7 +530,7 @@ Students don't need another task manager. They need to **see their entire semest
 - ✅ **Progress rings** (Apple Watch style) - smooth animations
 - ✅ **Micro-celebrations** - 0.3s confetti when assignment completed
 - ✅ **Encouraging messages** - "כל הכבוד! עוד 3 מטלות השבוע"
-- ✅ **Color-coded status** - Green = good, Yellow = attention, Red = urgent
+- ✅ **Color-coded status** - Green = good, Amber = attention, Coral = needs action
 - ✅ **Weekly recaps** - "השלמת 12/15 מטלות השבוע!"
 - ✅ **Subtle achievements** - "הקורס הראשון נוסף! 🎓"
 
@@ -777,6 +822,6 @@ Dashboard (with gentle tips)
 
 ---
 
-**Document Updated:** 2025-11-30
-**Based on:** Research phase findings, naming-branding.md, user-pain-points.md
+**Document Updated:** 2025-12-01
+**Based on:** Research phase findings, naming-branding.md, user-pain-points.md, color-branding-research.md
 **Next Review:** After Sprint 2 completion

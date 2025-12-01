@@ -1,12 +1,25 @@
 @import "tailwindcss";
 
-/* ===== SemesterDash Design System ===== */
+/* ===== SemesterHub Design System ===== */
+/* Brand: "Calm Authority" - Teal (calm, focus), Orange (energy, Moodle connection) */
+/* Decision: Dec 1, 2025 - Based on color psychology research for anxiety reduction */
+/* See: docs/public/DESIGN_SYSTEM.md for full documentation */
 
 :root {
-  /* Primary Colors */
-  --color-primary: #6366F1;
-  --color-primary-light: #818CF8;
-  --color-primary-dark: #4F46E5;
+  /* Primary Colors - Deep Teal (calm, focus, trust) */
+  --color-primary: #0f766e;
+  --color-primary-light: #14b8a6;
+  --color-primary-dark: #0d5f58;
+
+  /* Secondary Colors - Warm Orange (energy, action, Moodle connection) */
+  --color-secondary: #ff6b35;
+  --color-secondary-light: #ff8c5a;
+  --color-secondary-dark: #e55a2b;
+
+  /* Accent Colors - Soft Green (success, growth, calm progress) */
+  --color-accent: #10B981;
+  --color-accent-light: #34D399;
+  --color-accent-dark: #059669;
 
   /* Semantic Colors */
   --color-success: #10B981;
@@ -16,17 +29,17 @@
 
   /* Course Colors (User-selectable) */
   --color-course-red: #EF4444;
-  --color-course-orange: #F97316;
+  --color-course-orange: #ff6b35;   /* Primary brand */
   --color-course-amber: #F59E0B;
   --color-course-green: #22C55E;
-  --color-course-teal: #14B8A6;
+  --color-course-teal: #0f766e;     /* Secondary brand */
   --color-course-blue: #3B82F6;
   --color-course-indigo: #6366F1;
   --color-course-purple: #8B5CF6;
   --color-course-pink: #EC4899;
 
   /* Neutrals - Light Mode */
-  --color-background: #FAFAFA;
+  --color-background: #fafaf9;      /* Warm white */
   --color-surface: #FFFFFF;
   --color-border: #E5E7EB;
   --color-text-primary: #111827;
@@ -61,10 +74,22 @@
 
 /* Tailwind 4 Theme Configuration */
 @theme inline {
-  /* Colors */
+  /* Primary Colors */
   --color-primary: var(--color-primary);
   --color-primary-light: var(--color-primary-light);
   --color-primary-dark: var(--color-primary-dark);
+
+  /* Secondary Colors */
+  --color-secondary: var(--color-secondary);
+  --color-secondary-light: var(--color-secondary-light);
+  --color-secondary-dark: var(--color-secondary-dark);
+
+  /* Accent Colors */
+  --color-accent: var(--color-accent);
+  --color-accent-light: var(--color-accent-light);
+  --color-accent-dark: var(--color-accent-dark);
+
+  /* Semantic Colors */
   --color-success: var(--color-success);
   --color-warning: var(--color-warning);
   --color-danger: var(--color-danger);
@@ -89,9 +114,9 @@
   --color-text-secondary: var(--color-text-secondary);
   --color-text-muted: var(--color-text-muted);
 
-  /* Fonts */
-  --font-sans: 'Inter', 'Heebo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-hebrew: 'Heebo', 'Inter', sans-serif;
+  /* Fonts - Rubik for Hebrew (modern), Inter for English */
+  --font-sans: 'Inter', 'Rubik', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-hebrew: 'Rubik', 'Inter', sans-serif;
 
   /* Shadows */
   --shadow-sm: var(--shadow-sm);
@@ -115,9 +140,111 @@ body {
   direction: rtl; /* Hebrew default */
 }
 
+/* ===== Hebrew Typography Scale ===== */
+/* UX Research: Hebrew requires 10-15% larger font sizes than English */
+/* No bold/italics for Hebrew - use color/size for emphasis instead */
+
+/* Hebrew-optimized font sizes (base 16px → 18px for Hebrew) */
+:root {
+  --text-xs-he: 0.8125rem;    /* 13px (vs 12px English) */
+  --text-sm-he: 0.9375rem;    /* 15px (vs 14px English) */
+  --text-base-he: 1.125rem;   /* 18px (vs 16px English) */
+  --text-lg-he: 1.25rem;      /* 20px (vs 18px English) */
+  --text-xl-he: 1.5rem;       /* 24px (vs 20px English) */
+  --text-2xl-he: 1.75rem;     /* 28px (vs 24px English) */
+  --text-3xl-he: 2.125rem;    /* 34px (vs 30px English) */
+
+  /* Hebrew line heights - more generous for readability */
+  --leading-tight-he: 1.3;
+  --leading-normal-he: 1.6;
+  --leading-relaxed-he: 1.75;
+}
+
+/* Apply Hebrew typography when RTL is active */
+[dir="rtl"] {
+  font-size: var(--text-base-he);
+  line-height: var(--leading-normal-he);
+}
+
+/* Hebrew emphasis utilities - no bold/italics, use these instead */
+.emphasis-he {
+  color: var(--color-primary);
+  font-weight: 500; /* Medium, not bold */
+}
+
+.emphasis-size-he {
+  font-size: 1.1em; /* 10% larger */
+}
+
+/* Prevent bold/italics in Hebrew context */
+[dir="rtl"] strong,
+[dir="rtl"] b {
+  font-weight: 500; /* Reduce bold to medium */
+}
+
+[dir="rtl"] em,
+[dir="rtl"] i {
+  font-style: normal;
+  text-decoration: underline;
+  text-decoration-color: var(--color-primary);
+  text-underline-offset: 2px;
+}
+
 /* RTL Support - Logical Properties */
 [dir="ltr"] body {
   direction: ltr;
+}
+
+/* RTL Utility Classes */
+/* Use Tailwind 4's logical properties: ms-*, me-*, ps-*, pe-*, start-*, end-* */
+/* These utilities are for cases that need explicit RTL handling */
+
+/* Flip icons/elements in RTL (arrows, chevrons, etc.) */
+.rtl-flip {
+  transform: scaleX(-1);
+}
+[dir="rtl"] .rtl-auto-flip {
+  transform: scaleX(-1);
+}
+
+/* Text alignment that respects direction */
+.text-start {
+  text-align: start;
+}
+.text-end {
+  text-align: end;
+}
+
+/* Float utilities using logical properties */
+.float-start {
+  float: inline-start;
+}
+.float-end {
+  float: inline-end;
+}
+
+/* Inset utilities (for absolute positioning) */
+.inset-inline-start-0 {
+  inset-inline-start: 0;
+}
+.inset-inline-end-0 {
+  inset-inline-end: 0;
+}
+
+/* Border utilities for RTL */
+.border-start {
+  border-inline-start-width: 1px;
+}
+.border-end {
+  border-inline-end-width: 1px;
+}
+.rounded-start {
+  border-start-start-radius: var(--radius-md);
+  border-end-start-radius: var(--radius-md);
+}
+.rounded-end {
+  border-start-end-radius: var(--radius-md);
+  border-end-end-radius: var(--radius-md);
 }
 
 /* Smooth animations - respect user preferences */
@@ -203,6 +330,11 @@ body {
   50% { opacity: 0.5; }
 }
 
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
 /* Utility Classes */
 .animate-fade-in {
   animation: fadeIn 200ms ease-out;
@@ -218,6 +350,10 @@ body {
 
 .animate-scale-in {
   animation: scaleIn 200ms ease-out;
+}
+
+.animate-fade-out {
+  animation: fadeOut 150ms ease-in;
 }
 
 /* Card hover effect */

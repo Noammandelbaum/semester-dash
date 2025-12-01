@@ -3,6 +3,11 @@
 import * as React from "react";
 import { cn, getProgressColor } from "@/lib/utils";
 
+/**
+ * Linear Progress Bar
+ * RTL-aware: Fills from right-to-left in RTL mode
+ * Accessible: WCAG 2.1 AA compliant with proper ARIA attributes
+ */
 interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
   value: number;
   max?: number;
@@ -10,6 +15,8 @@ interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
   size?: "sm" | "md" | "lg";
   colorByProgress?: boolean;
   color?: string;
+  /** Accessible label for screen readers */
+  label?: string;
 }
 
 const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
@@ -22,6 +29,7 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
       size = "md",
       colorByProgress = true,
       color,
+      label = "התקדמות",
       ...props
     },
     ref
@@ -40,7 +48,7 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
         {showLabel && (
           <div className="flex justify-between mb-1">
             <span className="text-sm text-[var(--color-text-secondary)]">
-              התקדמות
+              {label}
             </span>
             <span className="text-sm font-medium text-[var(--color-text-primary)]">
               {Math.round(percentage)}%
@@ -48,11 +56,17 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
           </div>
         )}
         <div
+          role="progressbar"
+          aria-valuenow={Math.round(percentage)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={label}
           className={cn(
             "w-full bg-[var(--color-border)] rounded-full overflow-hidden",
             heights[size]
           )}
         >
+          {/* RTL: Progress bar fills from right using margin-inline-start */}
           <div
             className="h-full rounded-full transition-all duration-500 ease-out"
             style={{
@@ -68,7 +82,16 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
 
 Progress.displayName = "Progress";
 
-// Circular progress for course cards
+/**
+ * Circular Progress Ring
+ * Universal clockwise direction (consistent across LTR/RTL)
+ * Accessible: WCAG 2.1 AA compliant with proper ARIA attributes
+ *
+ * Usage:
+ * - Semester completion percentage
+ * - Course grade progress
+ * - Individual goal tracking
+ */
 interface CircularProgressProps {
   value: number;
   max?: number;
@@ -78,6 +101,8 @@ interface CircularProgressProps {
   colorByProgress?: boolean;
   color?: string;
   className?: string;
+  /** Accessible label for screen readers */
+  label?: string;
 }
 
 export function CircularProgress({
@@ -89,6 +114,7 @@ export function CircularProgress({
   colorByProgress = true,
   color,
   className,
+  label = "התקדמות",
 }: CircularProgressProps) {
   const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
   const progressColor = color || (colorByProgress ? getProgressColor(percentage) : "var(--color-primary)");
@@ -98,7 +124,14 @@ export function CircularProgress({
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   return (
-    <div className={cn("relative inline-flex items-center justify-center", className)}>
+    <div
+      role="progressbar"
+      aria-valuenow={Math.round(percentage)}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label={label}
+      className={cn("relative inline-flex items-center justify-center", className)}
+    >
       <svg width={size} height={size} className="transform -rotate-90">
         {/* Background circle */}
         <circle
@@ -109,7 +142,7 @@ export function CircularProgress({
           stroke="var(--color-border)"
           strokeWidth={strokeWidth}
         />
-        {/* Progress circle */}
+        {/* Progress circle - clockwise fill (universal) */}
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -127,6 +160,7 @@ export function CircularProgress({
         <span
           className="absolute text-sm font-semibold"
           style={{ color: "var(--color-text-primary)" }}
+          aria-hidden="true"
         >
           {Math.round(percentage)}%
         </span>

@@ -1,7 +1,7 @@
 # SemesterHub - Project Memory
 
 > **Read this FIRST in every session**
-> **Last Updated:** 2025-11-30
+> **Last Updated:** 2025-12-01
 
 ---
 
@@ -22,6 +22,7 @@ Before starting ANY work, read these:
 3. **ADR-003 (Refactor Decision):** `docs/private/decisions/003-refactor-existing-project.md`
 4. **Roadmap:** `docs/private/planning/roadmap.md`
 5. **UX Research:** `docs/private/research/ux-research.md` (comprehensive UX guidelines)
+6. **Color & Branding:** `docs/private/research/color-branding-research.md` (palette rationale)
 
 ---
 
@@ -52,7 +53,8 @@ See `docs/planning/roadmap.md` for Sprint 2 details.
 | 3 | Dec 29 - Jan 11 | Dashboard + Courses | Pending |
 | 4 | Jan 12 - Jan 25 | Assignments + Calendar | Pending |
 | 5 | Jan 26 - Feb 8 | Settings + Hebrew | Pending |
-| 6 | Feb 9 - Feb 22 | Polish + Launch | Pending |
+| 6 | Feb 9 - Feb 22 | Brand & Marketing | Pending |
+| 7 | Feb 23 - Mar 8 | Polish + Launch | Pending |
 
 ---
 
@@ -64,6 +66,7 @@ See `docs/planning/roadmap.md` for Sprint 2 details.
 4. **Name:** SemesterHub (English) / מצפן as alternative
 5. **Tech Stack:** Next.js 16, Prisma 7, Tailwind 4, NextAuth 5
 6. **Pricing:** Freemium, ₪25/month premium
+7. **Color Palette:** "Calm Authority" - Teal primary (#0f766e), Orange secondary (#ff6b35)
 
 ---
 
@@ -71,7 +74,7 @@ See `docs/planning/roadmap.md` for Sprint 2 details.
 
 **Core Design Philosophy:**
 - "Less is more" - Maximum 5-7 data points on dashboard
-- Anxiety-reducing design - calming colors (blue/green), supportive messaging
+- Anxiety-reducing design - Teal primary (#0f766e), Green for success, Orange for action only
 - RTL-first - Hebrew native experience, not retrofit
 - Mobile-first - PWA with offline capabilities
 
@@ -184,6 +187,7 @@ semester-dash/
 - Test before marking done
 
 ### After Finishing
+- **STOP any running dev servers** (use KillShell or Ctrl+C)
 - Update Jira status (after user approval!)
 - Commit with clear message
 - Summarize what was done
@@ -306,9 +310,18 @@ rm -rf .next && npm run dev
 
 ### Port 3000 in use (Windows)
 ```bash
+# Find the PID using port 3000
 netstat -ano | findstr :3000
+
+# Kill that specific process (replace <PID> with the actual number)
+# In PowerShell or CMD:
 taskkill /PID <PID> /F
+
+# In Git Bash (must wrap with cmd):
+cmd //c "taskkill /PID <PID> /F"
 ```
+
+> **Claude note:** If you (Claude) ran `npm run dev` in a previous session and didn't stop it, use `KillShell` or the commands above. **NEVER use `taskkill /F /IM node.exe`** - it will kill Claude Code too!
 
 ### Prisma out of sync
 ```bash

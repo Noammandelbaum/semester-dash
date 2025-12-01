@@ -1,0 +1,15 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer orange ring -->
+  <circle cx="100" cy="100" r="90" stroke="#ff6b35" stroke-width="4" fill="none" opacity="0.6"/>
+
+  <!-- Inner teal ring -->
+  <circle cx="100" cy="100" r="82" stroke="#0f766e" stroke-width="2" fill="none"/>
+
+  <!-- Teal filled circle (two-tone) -->
+  <circle cx="100" cy="100" r="78" fill="#0f766e"/>
+  <path d="M100 22 A78 78 0 0 1 100 178 L100 100 Z" fill="#115e59"/>
+
+  <!-- Plus sign -->
+  <line x1="100" y1="70" x2="100" y2="130" stroke="#f59e0b" stroke-width="4" stroke-linecap="round"/>
+  <line x1="70" y1="100" x2="130" y2="100" stroke="#f59e0b" stroke-width="4" stroke-linecap="round"/>
+</svg>
