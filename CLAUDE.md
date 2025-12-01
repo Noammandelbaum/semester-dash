@@ -21,6 +21,7 @@ Before starting ANY work, read these:
 2. **Gap Analysis:** `docs/private/planning/gap-analysis.md`
 3. **ADR-003 (Refactor Decision):** `docs/private/decisions/003-refactor-existing-project.md`
 4. **Roadmap:** `docs/private/planning/roadmap.md`
+5. **UX Research:** `docs/private/research/ux-research.md` (comprehensive UX guidelines)
 
 ---
 
@@ -63,6 +64,31 @@ See `docs/planning/roadmap.md` for Sprint 2 details.
 4. **Name:** SemesterHub (English) / מצפן as alternative
 5. **Tech Stack:** Next.js 16, Prisma 7, Tailwind 4, NextAuth 5
 6. **Pricing:** Freemium, ₪25/month premium
+
+---
+
+## UX Principles (from research)
+
+**Core Design Philosophy:**
+- "Less is more" - Maximum 5-7 data points on dashboard
+- Anxiety-reducing design - calming colors (blue/green), supportive messaging
+- RTL-first - Hebrew native experience, not retrofit
+- Mobile-first - PWA with offline capabilities
+
+**Key UX Rules:**
+1. **Dashboard:** <2 seconds to understand status, traffic light system (🟢🟡🔴)
+2. **Onboarding:** Maximum 3-4 steps, <2 minutes total
+3. **Notifications:** Default to deadline reminders only, no guilt messaging
+4. **Empty States:** Always with illustration + clear CTA
+5. **Gamification:** Streaks yes, leaderboards NO (causes anxiety)
+
+**RTL Requirements:**
+- CSS Logical Properties (`margin-inline-start` not `margin-left`)
+- Hebrew fonts 10-15% larger than English
+- No bold/italics in Hebrew - use color/size for emphasis
+- Progress bars fill right-to-left
+
+**Reference:** Full UX research in `docs/private/research/ux-research.md`
 
 ---
 
