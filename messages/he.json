@@ -1,0 +1,171 @@
+{
+  "common": {
+    "loading": "טוען...",
+    "save": "שמור",
+    "cancel": "ביטול",
+    "delete": "מחק",
+    "edit": "עריכה",
+    "add": "הוסף",
+    "search": "חיפוש",
+    "error": "שגיאה",
+    "success": "הצלחה",
+    "close": "סגור",
+    "confirm": "אישור",
+    "back": "חזור",
+    "next": "הבא",
+    "submit": "שלח"
+  },
+  "nav": {
+    "home": "בית",
+    "courses": "קורסים",
+    "assignments": "מטלות",
+    "calendar": "לוח שנה",
+    "settings": "הגדרות",
+    "add": "הוסף"
+  },
+  "dashboard": {
+    "title": "הדשבורד שלך",
+    "weekOf": "שבוע {current} מתוך {total}",
+    "semesterProgress": "התקדמות סמסטר",
+    "upcomingDeadlines": "דדליינים קרובים",
+    "noCourses": "עדיין אין לך קורסים",
+    "noDeadlines": "אין דדליינים קרובים",
+    "addFirstCourse": "הוסף את הקורס הראשון שלך",
+    "greeting": "שלום, {name}",
+    "todayTasks": "משימות להיום",
+    "weeklyOverview": "סקירה שבועית"
+  },
+  "courses": {
+    "title": "הקורסים שלי",
+    "addCourse": "הוסף קורס",
+    "courseName": "שם הקורס",
+    "credits": "נקודות זכות",
+    "color": "צבע",
+    "instructor": "מרצה",
+    "description": "תיאור",
+    "schedule": "מערכת שעות",
+    "noCourses": "אין קורסים עדיין",
+    "editCourse": "ערוך קורס",
+    "deleteCourse": "מחק קורס",
+    "deleteConfirm": "האם אתה בטוח שברצונך למחוק את הקורס הזה?",
+    "courseAdded": "הקורס נוסף בהצלחה",
+    "courseUpdated": "הקורס עודכן בהצלחה",
+    "courseDeleted": "הקורס נמחק בהצלחה"
+  },
+  "assignments": {
+    "title": "משימות",
+    "addAssignment": "הוסף משימה",
+    "assignmentTitle": "כותרת המשימה",
+    "dueDate": "תאריך הגשה",
+    "priority": "עדיפות",
+    "course": "קורס",
+    "description": "תיאור",
+    "status": {
+      "notStarted": "טרם התחיל",
+      "inProgress": "בתהליך",
+      "completed": "הושלם"
+    },
+    "priorityLevels": {
+      "low": "נמוכה",
+      "medium": "בינונית",
+      "high": "גבוהה"
+    },
+    "noAssignments": "אין משימות",
+    "editAssignment": "ערוך משימה",
+    "deleteAssignment": "מחק משימה",
+    "deleteConfirm": "האם אתה בטוח שברצונך למחוק את המשימה הזו?",
+    "markComplete": "סמן כהושלם",
+    "markIncomplete": "סמן כלא הושלם",
+    "dueSoon": "מועד הגשה קרוב",
+    "overdue": "באיחור"
+  },
+  "calendar": {
+    "title": "לוח שנה",
+    "today": "היום",
+    "week": "שבוע",
+    "month": "חודש",
+    "noEvents": "אין אירועים"
+  },
+  "notifications": {
+    "title": "התראות",
+    "markAllRead": "סמן הכל כנקרא",
+    "noNotifications": "אין התראות חדשות",
+    "reminder": "רק תזכורת: {title} מחר",
+    "deadlineToday": "{title} - מועד הגשה היום",
+    "deadlineTomorrow": "{title} - מועד הגשה מחר"
+  },
+  "settings": {
+    "title": "הגדרות",
+    "profile": "פרופיל",
+    "notifications": "התראות",
+    "display": "תצוגה",
+    "account": "חשבון",
+    "logout": "התנתק",
+    "deleteAccount": "מחק חשבון",
+    "theme": "ערכת נושא",
+    "language": "שפה"
+  },
+  "semesters": {
+    "title": "סמסטרים",
+    "current": "סמסטר נוכחי",
+    "selectSemester": "בחר סמסטר",
+    "addSemester": "הוסף סמסטר",
+    "types": {
+      "A": "סמסטר א׳",
+      "B": "סמסטר ב׳",
+      "SUMMER": "סמסטר קיץ"
+    }
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "ברוך הבא ל-SemesterHub",
+      "subtitle": "הסמסטר שלך, במבט אחד",
+      "start": "בוא נתחיל",
+      "skip": "דלג"
+    },
+    "semester": {
+      "title": "בחר את הסמסטר שלך",
+      "selectType": "סוג סמסטר"
+    },
+    "course": {
+      "title": "הוסף את הקורס הראשון שלך",
+      "addAnother": "הוסף עוד",
+      "finish": "סיים"
+    },
+    "complete": {
+      "title": "הדשבורד שלך מוכן!",
+      "subtitle": "עכשיו אתה יכול לראות את כל הסמסטר במבט אחד",
+      "goToDashboard": "לדשבורד"
+    }
+  },
+  "errors": {
+    "required": "שדה חובה",
+    "invalidDate": "תאריך לא תקין",
+    "networkError": "שגיאת רשת, נסה שוב",
+    "unauthorized": "נדרשת התחברות",
+    "notFound": "לא נמצא",
+    "generic": "משהו השתבש, נסה שוב"
+  },
+  "auth": {
+    "login": "התחברות",
+    "logout": "התנתק",
+    "signInWith": "התחבר עם {provider}",
+    "signingIn": "מתחבר..."
+  },
+  "emptyStates": {
+    "courses": {
+      "title": "אין קורסים עדיין",
+      "description": "התחל להוסיף קורסים כדי לעקוב אחרי הסמסטר שלך",
+      "action": "הוסף קורס ראשון"
+    },
+    "assignments": {
+      "title": "אין משימות",
+      "description": "הוסף משימות כדי לעקוב אחרי מה שצריך לעשות",
+      "action": "הוסף משימה"
+    },
+    "notifications": {
+      "title": "אין התראות",
+      "description": "כשיהיו התראות חדשות, הן יופיעו כאן"
+    }
+  }
+}
