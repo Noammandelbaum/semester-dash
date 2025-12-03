@@ -18,6 +18,7 @@
   "nav": {
     "home": "בית",
     "courses": "קורסים",
+    "semesters": "סמסטרים",
     "assignments": "מטלות",
     "calendar": "לוח שנה",
     "settings": "הגדרות",
@@ -70,6 +71,11 @@
       "medium": "בינונית",
       "high": "גבוהה"
     },
+    "filters": {
+      "allCourses": "כל הקורסים",
+      "allStatuses": "כל הסטטוסים",
+      "allPriorities": "כל העדיפויות"
+    },
     "noAssignments": "אין משימות",
     "editAssignment": "ערוך משימה",
     "deleteAssignment": "מחק משימה",
@@ -103,7 +109,12 @@
     "logout": "התנתק",
     "deleteAccount": "מחק חשבון",
     "theme": "ערכת נושא",
-    "language": "שפה"
+    "language": "שפה",
+    "themeOptions": {
+      "system": "אוטומטי (לפי המערכת)",
+      "light": "בהיר",
+      "dark": "כהה"
+    }
   },
   "semesters": {
     "title": "סמסטרים",

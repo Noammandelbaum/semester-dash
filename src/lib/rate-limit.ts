@@ -51,6 +51,12 @@ export const apiReadLimiter = rateLimit({
   uniqueTokenPerInterval: 500,
 });
 
+// API sync operations (Moodle extension) - 10 requests per minute
+export const apiSyncLimiter = rateLimit({
+  interval: 60 * 1000, // 1 minute
+  uniqueTokenPerInterval: 500,
+});
+
 /**
  * Helper to get rate limit identifier from request
  * Uses user ID if authenticated, otherwise IP address

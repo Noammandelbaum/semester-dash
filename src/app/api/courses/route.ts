@@ -29,6 +29,7 @@ export async function POST(req: Request) {
         courseCode: validatedData.courseCode,
         credits: validatedData.credits,
         color: validatedData.color || "indigo",
+        semesterId: validatedData.semesterId,
         userId: session.user.id,
       },
     });

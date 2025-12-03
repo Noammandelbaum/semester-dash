@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "SemesterHub - סנכרון Moodle",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "סנכרן את הקורסים והמשימות שלך מ-Moodle אל SemesterHub",
+    "description": "Extension description"
+  }
+}

@@ -173,7 +173,7 @@ export default function CoursesPage() {
                     className="text-[var(--color-danger)] hover:bg-[var(--color-danger)]/10"
                     onClick={() => handleDeleteCourse(course.id)}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4 ms-2" />
                     מחק
                   </Button>
                 </div>

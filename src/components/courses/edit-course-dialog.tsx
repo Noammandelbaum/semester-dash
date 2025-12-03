@@ -128,7 +128,7 @@ export function EditCourseDialog({
       <DialogTrigger asChild>
         {trigger || (
           <Button variant="ghost" size="sm">
-            <Pencil className="h-4 w-4" />
+            <Pencil className="h-4 w-4 ms-2" />
             ערוך
           </Button>
         )}

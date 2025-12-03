@@ -123,8 +123,8 @@ export const mainNavItems: NavItemConfig[] = [
     icon: <HomeIcon />,
   },
   {
-    href: "/dashboard/courses",
-    labelKey: "courses",
+    href: "/dashboard/semesters",
+    labelKey: "semesters",
     icon: <BookIcon />,
   },
   {

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SemesterHub</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <span class="logo-icon">📚</span>
+        <span class="logo-text">SemesterHub</span>
+      </div>
+    </header>
+
+    <!-- Status Section -->
+    <section id="status-section" class="section">
+      <div id="connection-status" class="status-badge disconnected">
+        <span class="status-dot"></span>
+        <span class="status-text">לא מחובר</span>
+      </div>
+      <div id="university-info" class="university-info hidden">
+        <span class="university-icon">🎓</span>
+        <span id="university-name">-</span>
+      </div>
+    </section>
+
+    <!-- Auth Section (shown when not logged in) -->
+    <section id="auth-section" class="section">
+      <p class="info-text">התחבר ל-SemesterHub כדי לסנכרן את הקורסים והמשימות שלך</p>
+      <button id="login-btn" class="btn btn-primary">
+        התחבר ל-SemesterHub
+      </button>
+      <div id="post-login-actions" class="post-login-actions hidden">
+        <p class="info-text small">התחברת? לחץ כדי לקבל גישה:</p>
+        <button id="get-token-btn" class="btn btn-primary">
+          <span class="btn-icon">🔑</span>
+          קבל token
+        </button>
+      </div>
+      <div id="token-error" class="error-message hidden"></div>
+    </section>
+
+    <!-- Sync Section (shown when logged in) -->
+    <section id="sync-section" class="section hidden">
+      <div id="page-status" class="page-status">
+        <span id="page-type-icon">📄</span>
+        <span id="page-type-text">בודק עמוד...</span>
+      </div>
+
+      <button id="sync-btn" class="btn btn-primary">
+        <span class="btn-icon">🔄</span>
+        סנכרן עכשיו
+      </button>
+
+      <div id="sync-progress" class="progress-container hidden">
+        <div class="progress-bar">
+          <div id="progress-fill" class="progress-fill"></div>
+        </div>
+        <span id="progress-text" class="progress-text">מסנכרן...</span>
+      </div>
+
+      <div id="sync-result" class="sync-result hidden">
+        <span id="result-icon">✅</span>
+        <span id="result-text">-</span>
+      </div>
+
+      <div id="last-sync" class="last-sync hidden">
+        <span>סנכרון אחרון:</span>
+        <span id="last-sync-time">-</span>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <a id="open-app-btn" href="#" class="link">
+        פתח את SemesterHub ←
+      </a>
+    </footer>
+  </div>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

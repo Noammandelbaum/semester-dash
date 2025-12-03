@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -20,19 +21,20 @@ interface DisplayPreferencesProps {
   onPreferencesUpdated?: () => void;
 }
 
-const THEME_OPTIONS = [
-  { value: "system", label: "אוטומטי (לפי המערכת)" },
-  { value: "light", label: "בהיר" },
-  { value: "dark", label: "כהה" },
-];
-
 export function DisplayPreferences({
   preferences,
   onPreferencesUpdated,
 }: DisplayPreferencesProps) {
+  const t = useTranslations("settings");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [theme, setTheme] = useState(preferences.theme);
+
+  const THEME_OPTIONS = [
+    { value: "system", label: t("themeOptions.system") },
+    { value: "light", label: t("themeOptions.light") },
+    { value: "dark", label: t("themeOptions.dark") },
+  ];
 
   const handleThemeChange = async (newTheme: string) => {
     setTheme(newTheme);

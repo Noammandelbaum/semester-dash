@@ -37,6 +37,7 @@ export const CreateCourseSchema = z.object({
     })
     .default("indigo")
     .optional(),
+  semesterId: z.string().optional(),
 });
 
 /**

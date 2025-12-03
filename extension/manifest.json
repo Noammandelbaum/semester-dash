@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+  "name": "SemesterHub - Moodle Sync",
+  "version": "1.0.0",
+  "description": "Sync your Moodle courses and assignments to SemesterHub",
+  "default_locale": "he",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "alarms",
+    "tabs"
+  ],
+  "host_permissions": [
+    "*://moodle.tau.ac.il/*",
+    "*://moodle.huji.ac.il/*",
+    "*://moodle.technion.ac.il/*",
+    "*://moodle.bgu.ac.il/*",
+    "*://moodle4.cs.tau.ac.il/*"
+  ],
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://moodle.tau.ac.il/*",
+        "*://moodle.huji.ac.il/*",
+        "*://moodle.technion.ac.il/*",
+        "*://moodle.bgu.ac.il/*",
+        "*://moodle4.cs.tau.ac.il/*"
+      ],
+      "js": ["content/content-script.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html"
+  }
+}

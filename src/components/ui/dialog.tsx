@@ -122,7 +122,7 @@ function DialogContent({ children, className }: DialogContentProps) {
           type="button"
           onClick={() => onOpenChange(false)}
           className={cn(
-            "absolute top-4 end-4 p-1 rounded-lg",
+            "absolute top-4 start-4 p-1 rounded-lg",
             "text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]",
             "hover:bg-[var(--color-border)] transition-colors"
           )}

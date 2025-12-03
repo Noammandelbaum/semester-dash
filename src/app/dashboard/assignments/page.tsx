@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import {
@@ -56,6 +57,7 @@ type ViewMode = "list" | "kanban";
 export default function AssignmentsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations("assignments");
 
   // Data state
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -291,10 +293,10 @@ export default function AssignmentsPage() {
         {/* Course filter */}
         <Select value={courseFilter} onValueChange={handleCourseChange}>
           <SelectTrigger className="w-[160px] min-h-[44px]">
-            <SelectValue placeholder="כל הקורסים" />
+            <SelectValue placeholder={t("filters.allCourses")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">כל הקורסים</SelectItem>
+            <SelectItem value="all">{t("filters.allCourses")}</SelectItem>
             {courses.map((course) => (
               <SelectItem key={course.id} value={course.id}>
                 {course.name}
@@ -306,10 +308,10 @@ export default function AssignmentsPage() {
         {/* Status filter */}
         <Select value={statusFilter} onValueChange={handleStatusChange}>
           <SelectTrigger className="w-[140px] min-h-[44px]">
-            <SelectValue placeholder="כל הסטטוסים" />
+            <SelectValue placeholder={t("filters.allStatuses")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">כל הסטטוסים</SelectItem>
+            <SelectItem value="all">{t("filters.allStatuses")}</SelectItem>
             <SelectItem value="NOT_STARTED">לא התחיל</SelectItem>
             <SelectItem value="IN_PROGRESS">בתהליך</SelectItem>
             <SelectItem value="COMPLETED">הושלם</SelectItem>
@@ -319,10 +321,10 @@ export default function AssignmentsPage() {
         {/* Priority filter */}
         <Select value={priorityFilter} onValueChange={handlePriorityChange}>
           <SelectTrigger className="w-[140px] min-h-[44px]">
-            <SelectValue placeholder="כל העדיפויות" />
+            <SelectValue placeholder={t("filters.allPriorities")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">כל העדיפויות</SelectItem>
+            <SelectItem value="all">{t("filters.allPriorities")}</SelectItem>
             <SelectItem value="HIGH">גבוהה</SelectItem>
             <SelectItem value="MEDIUM">בינונית</SelectItem>
             <SelectItem value="LOW">נמוכה</SelectItem>

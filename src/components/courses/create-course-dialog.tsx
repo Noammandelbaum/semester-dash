@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import {
   Dialog,
@@ -14,9 +14,22 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { COURSE_COLORS, CreateCourseSchema } from "@/schemas/course";
 import type { CreateCourseInput } from "@/schemas/course";
 import { cn } from "@/lib/utils";
+
+interface Semester {
+  id: string;
+  name: string;
+  isActive: boolean;
+}
 
 interface CreateCourseDialogProps {
   onCourseCreated?: () => void;
@@ -26,13 +39,40 @@ export function CreateCourseDialog({ onCourseCreated }: CreateCourseDialogProps)
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [semesters, setSemesters] = useState<Semester[]>([]);
 
   const [formData, setFormData] = useState<CreateCourseInput>({
     name: "",
     courseCode: "",
     credits: undefined,
     color: "indigo",
+    semesterId: undefined,
   });
+
+  // Fetch semesters when dialog opens
+  useEffect(() => {
+    if (open) {
+      fetchSemesters();
+    }
+  }, [open]);
+
+  const fetchSemesters = async () => {
+    try {
+      const response = await fetch("/api/semesters");
+      if (response.ok) {
+        const data = await response.json();
+        setSemesters(data.semesters || []);
+
+        // Set default to active semester if exists
+        const activeSemester = data.semesters?.find((s: Semester) => s.isActive);
+        if (activeSemester) {
+          setFormData((prev) => ({ ...prev, semesterId: activeSemester.id }));
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching semesters:", err);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,6 +127,7 @@ export function CreateCourseDialog({ onCourseCreated }: CreateCourseDialogProps)
         courseCode: "",
         credits: undefined,
         color: "indigo",
+        semesterId: undefined,
       });
 
       // Notify parent
@@ -175,6 +216,34 @@ export function CreateCourseDialog({ onCourseCreated }: CreateCourseDialogProps)
               }}
               disabled={isLoading}
             />
+          </div>
+
+          {/* Semester Selection */}
+          <div className="space-y-2">
+            <Label htmlFor="semester">סמסטר (אופציונלי)</Label>
+            <Select
+              value={formData.semesterId || "none"}
+              onValueChange={(value) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  semesterId: value === "none" ? undefined : value,
+                }))
+              }
+              disabled={isLoading}
+            >
+              <SelectTrigger id="semester" className="w-full">
+                <SelectValue placeholder="בחר סמסטר" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">ללא סמסטר</SelectItem>
+                {semesters.map((semester) => (
+                  <SelectItem key={semester.id} value={semester.id}>
+                    {semester.name}
+                    {semester.isActive && " (פעיל)"}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Color Picker */}

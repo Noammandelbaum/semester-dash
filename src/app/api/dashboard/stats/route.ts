@@ -107,8 +107,10 @@ export async function GET(req: Request) {
     const courses = await prisma.course.findMany({
       where: {
         userId,
-        // If there's an active semester, filter by it; otherwise show all
-        ...(activeSemester ? { semesterId: activeSemester.id } : {}),
+        // If there's an active semester, show courses in that semester OR without a semester
+        ...(activeSemester
+          ? { OR: [{ semesterId: activeSemester.id }, { semesterId: null }] }
+          : {}),
       },
       include: {
         assignments: {

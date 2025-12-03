@@ -136,6 +136,11 @@ model Course {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  // Moodle sync fields
+  moodleId     String?   // Moodle course ID
+  moodleUrl    String?   // Full URL to course in Moodle
+  lastSyncedAt DateTime? // Last successful sync timestamp
+
   // Relations
   userId      String
   user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -143,6 +148,7 @@ model Course {
   semester    Semester?    @relation(fields: [semesterId], references: [id])
   assignments Assignment[]
 
+  @@unique([userId, moodleId]) // Unique moodleId per user
   @@index([userId])
   @@index([semesterId])
 }
@@ -163,6 +169,13 @@ enum AssignmentPriority {
   HIGH
 }
 
+enum AssignmentType {
+  ASSIGNMENT // Regular assignment (מטלה)
+  QUIZ       // Quiz/exam (בוחן/מבחן)
+  FORUM      // Forum post (פורום)
+  OTHER      // Other activity types
+}
+
 model Assignment {
   id          String             @id @default(cuid())
   title       String
@@ -171,9 +184,15 @@ model Assignment {
   weight      Float?             // Percentage of grade (0-100, optional)
   priority    AssignmentPriority @default(MEDIUM)
   status      AssignmentStatus   @default(NOT_STARTED)
+  type        AssignmentType     @default(ASSIGNMENT) // Moodle activity type
   completedAt DateTime?
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
+
+  // Moodle sync fields
+  moodleId     String?   // Moodle assignment/activity ID
+  moodleUrl    String?   // Full URL to assignment in Moodle
+  lastSyncedAt DateTime? // Last successful sync timestamp
 
   // Relations
   courseId      String
@@ -182,6 +201,7 @@ model Assignment {
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   notifications Notification[]
 
+  @@unique([moodleId, courseId]) // Prevent duplicate Moodle assignments per course
   @@index([courseId])
   @@index([userId])
   @@index([dueDate])

@@ -28,7 +28,7 @@ export function NotificationDropdown({
     <div
       className={cn(
         "absolute inset-inline-end-0 top-full mt-2",
-        "w-80 max-h-[400px] overflow-hidden",
+        "w-64 max-h-[400px] overflow-hidden",
         "bg-[var(--color-surface)] rounded-lg shadow-lg",
         "border border-[var(--color-border)]",
         "z-50"

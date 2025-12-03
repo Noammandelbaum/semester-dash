@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "SemesterHub - Moodle Sync",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Sync your courses and assignments from Moodle to SemesterHub",
+    "description": "Extension description"
+  }
+}
