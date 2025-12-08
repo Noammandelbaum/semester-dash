@@ -6,11 +6,12 @@ import type {
   SyncHistoryEntry,
   ScrapeProgress,
   AuthStatus,
+  ScrapedAssignment,
 } from '../shared/types';
 import { syncMoodleData, getAuthStatus, storeToken, clearToken, ApiError } from '../shared/api';
 
 // Current sync status
-let syncStatus: SyncStatus = {
+const syncStatus: SyncStatus = {
   status: "idle",
   isSyncing: false,
   lastSyncTime: null,
@@ -129,6 +130,13 @@ async function handleMessage(
     case 'SYNC_TO_BACKEND':
       return handleSyncToBackend(message.payload as ScrapeCompletePayload);
 
+    case 'SYNC_ASSIGNMENTS_BACKGROUND':
+      return handleBackgroundAssignmentSync(message.payload as {
+        courses: Array<{ moodleId: string; name: string; url: string }>;
+        universityId: string;
+        moodleUrl: string;
+      });
+
     case 'SCRAPE_REQUEST':
       return forwardToContentScript(message);
 
@@ -136,7 +144,16 @@ async function handleMessage(
     case 'SCRAPE_ASSIGNMENTS':
     case 'SCRAPE_ALL':
     case 'GET_PAGE_INFO':
+    case 'GET_COURSE_SECTIONS':
       return forwardToContentScript(message);
+
+    case 'FETCH_SECTIONS_FOR_COURSES':
+      return handleFetchSectionsForCourses(message.payload as {
+        courses: Array<{ moodleId: string; name: string; url: string }>;
+      });
+
+    case 'WEBAPP_SYNC_REQUEST':
+      return handleWebappSyncRequest(message.payload as { action?: string } | undefined);
 
     default:
       throw new Error(`Unknown message type: ${message.type}`);
@@ -303,6 +320,313 @@ async function handleSyncToBackend(payload: ScrapeCompletePayload): Promise<{ su
 }
 
 /**
+ * Handle background assignment sync - opens tabs for each course and scrapes assignments
+ */
+async function handleBackgroundAssignmentSync(payload: {
+  courses: Array<{ moodleId: string; name: string; url: string; selectedSections?: string[] }>;
+  universityId: string;
+  moodleUrl: string;
+}): Promise<{ success: boolean; assignments: ScrapedAssignment[]; error?: string }> {
+  console.log('[ServiceWorker] Starting background assignment sync for', payload.courses.length, 'courses');
+
+  if (syncStatus.isSyncing) {
+    return { success: false, assignments: [], error: 'Sync already in progress' };
+  }
+
+  keepAlive();
+
+  const allAssignments: ScrapedAssignment[] = [];
+  const errors: string[] = [];
+
+  updateSyncStatus('syncing', {
+    progress: {
+      stage: 'assignments',
+      message: 'מתחיל סנכרון משימות...',
+      current: 0,
+      total: payload.courses.length,
+    },
+  });
+
+  for (let i = 0; i < payload.courses.length; i++) {
+    const course = payload.courses[i];
+
+    updateSyncStatus('syncing', {
+      progress: {
+        stage: 'assignments',
+        message: `מאסף משימות מ: ${course.name}`,
+        current: i + 1,
+        total: payload.courses.length,
+      },
+    });
+
+    try {
+      // Build assignment index URL from course URL
+      const courseUrl = new URL(course.url);
+      const assignmentIndexUrl = `${courseUrl.origin}/mod/assign/index.php?id=${course.moodleId}`;
+
+      console.log(`[ServiceWorker] Opening background tab for: ${course.name}`);
+
+      // Open tab in background
+      const tab = await chrome.tabs.create({
+        url: assignmentIndexUrl,
+        active: false,
+      });
+
+      if (!tab.id) {
+        console.warn(`[ServiceWorker] Failed to create tab for ${course.name}`);
+        continue;
+      }
+
+      // Wait for page to load
+      await waitForTabLoad(tab.id);
+
+      // Small delay to ensure content script is ready
+      await sleep(500);
+
+      // Send scrape message to content script with section filter
+      try {
+        const result = await chrome.tabs.sendMessage(tab.id, {
+          type: 'SCRAPE_ASSIGNMENTS',
+          payload: {
+            courseMoodleId: course.moodleId,
+            filterSections: course.selectedSections, // Filter by selected sections
+          },
+        }) as { assignments: ScrapedAssignment[] };
+
+        if (result.assignments && result.assignments.length > 0) {
+          console.log(`[ServiceWorker] Found ${result.assignments.length} assignments in ${course.name}`);
+          allAssignments.push(...result.assignments);
+        } else {
+          console.log(`[ServiceWorker] No assignments found in ${course.name}`);
+        }
+      } catch (scrapeError) {
+        console.warn(`[ServiceWorker] Failed to scrape ${course.name}:`, scrapeError);
+        errors.push(`${course.name}: ${scrapeError instanceof Error ? scrapeError.message : 'Unknown error'}`);
+      }
+
+      // Close the tab
+      await chrome.tabs.remove(tab.id);
+
+    } catch (error) {
+      console.error(`[ServiceWorker] Error processing ${course.name}:`, error);
+      errors.push(`${course.name}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  stopKeepAlive();
+
+  console.log(`[ServiceWorker] Background sync complete. Found ${allAssignments.length} total assignments`);
+
+  // Now sync to backend if we have assignments
+  if (allAssignments.length > 0) {
+    updateSyncStatus('syncing', {
+      progress: {
+        stage: 'assignments',
+        message: `מסנכרן ${allAssignments.length} משימות...`,
+      },
+    });
+
+    try {
+      const syncResult = await syncMoodleData({
+        universityId: payload.universityId,
+        moodleUrl: payload.moodleUrl,
+        courses: [],
+        assignments: allAssignments,
+      });
+
+      syncStatus.lastSyncTime = Date.now();
+      await chrome.storage.local.set({ lastSyncTime: syncStatus.lastSyncTime });
+
+      updateSyncStatus('success', {
+        progress: {
+          stage: 'complete',
+          message: `סונכרנו ${syncResult.assignments.created + syncResult.assignments.updated} משימות`,
+        },
+      });
+
+      setTimeout(() => updateSyncStatus('idle'), 3000);
+
+      return { success: true, assignments: allAssignments };
+    } catch (syncError) {
+      const errorMessage = syncError instanceof ApiError ? syncError.message : 'Sync failed';
+      updateSyncStatus('error', { error: errorMessage });
+      return { success: false, assignments: allAssignments, error: errorMessage };
+    }
+  } else {
+    updateSyncStatus('success', {
+      progress: {
+        stage: 'complete',
+        message: 'לא נמצאו משימות חדשות',
+      },
+    });
+
+    setTimeout(() => updateSyncStatus('idle'), 3000);
+
+    return {
+      success: true,
+      assignments: [],
+      error: errors.length > 0 ? errors.join('; ') : undefined,
+    };
+  }
+}
+
+/**
+ * Fetch sections for multiple courses by opening background tabs
+ */
+async function handleFetchSectionsForCourses(payload: {
+  courses: Array<{ moodleId: string; name: string; url: string }>;
+}): Promise<{
+  success: boolean;
+  courseSections: Array<{ moodleId: string; name: string; sections: string[] }>;
+  error?: string;
+}> {
+  console.log('[ServiceWorker] Fetching sections for', payload.courses.length, 'courses');
+
+  const courseSections: Array<{ moodleId: string; name: string; sections: string[] }> = [];
+
+  for (const course of payload.courses) {
+    try {
+      // Build assignment index URL
+      const courseUrl = new URL(course.url);
+      const assignmentIndexUrl = `${courseUrl.origin}/mod/assign/index.php?id=${course.moodleId}`;
+
+      console.log(`[ServiceWorker] Fetching sections for: ${course.name}`);
+
+      // Open tab in background
+      const tab = await chrome.tabs.create({
+        url: assignmentIndexUrl,
+        active: false,
+      });
+
+      if (!tab.id) {
+        console.warn(`[ServiceWorker] Failed to create tab for ${course.name}`);
+        courseSections.push({ moodleId: course.moodleId, name: course.name, sections: [] });
+        continue;
+      }
+
+      // Wait for page to load
+      await waitForTabLoad(tab.id);
+      await sleep(500);
+
+      // Get sections from content script
+      try {
+        const result = await chrome.tabs.sendMessage(tab.id, {
+          type: 'GET_COURSE_SECTIONS',
+          payload: { courseMoodleId: course.moodleId },
+        }) as { sections: string[] };
+
+        courseSections.push({
+          moodleId: course.moodleId,
+          name: course.name,
+          sections: result.sections || [],
+        });
+
+        console.log(`[ServiceWorker] Found ${result.sections?.length || 0} sections in ${course.name}`);
+      } catch (error) {
+        console.warn(`[ServiceWorker] Failed to get sections for ${course.name}:`, error);
+        courseSections.push({ moodleId: course.moodleId, name: course.name, sections: [] });
+      }
+
+      // Close the tab
+      await chrome.tabs.remove(tab.id);
+
+    } catch (error) {
+      console.error(`[ServiceWorker] Error processing ${course.name}:`, error);
+      courseSections.push({ moodleId: course.moodleId, name: course.name, sections: [] });
+    }
+  }
+
+  return { success: true, courseSections };
+}
+
+/**
+ * Handle sync request from webapp
+ * This is triggered when the webapp dispatches a 'semesterhub:request-sync' event
+ */
+async function handleWebappSyncRequest(payload?: { action?: string }): Promise<{
+  success: boolean;
+  message: string;
+  assignmentsCount?: number;
+}> {
+  console.log('[ServiceWorker] Webapp requested sync:', payload);
+
+  // Get stored courses configuration
+  const { syncedCourses, syncedUniversityId, syncedMoodleUrl } = await chrome.storage.local.get([
+    'syncedCourses',
+    'syncedUniversityId',
+    'syncedMoodleUrl',
+  ]);
+
+  if (!syncedCourses || syncedCourses.length === 0) {
+    return {
+      success: false,
+      message: 'No courses configured. Please set up courses in the extension first.',
+    };
+  }
+
+  // Check if authenticated
+  const authStatus = await getAuthStatus();
+  if (!authStatus.isAuthenticated) {
+    return {
+      success: false,
+      message: 'Not authenticated. Please log in via the extension.',
+    };
+  }
+
+  // Trigger background assignment sync
+  try {
+    const result = await handleBackgroundAssignmentSync({
+      courses: syncedCourses,
+      universityId: syncedUniversityId || 'unknown',
+      moodleUrl: syncedMoodleUrl || '',
+    });
+
+    return {
+      success: result.success,
+      message: result.success
+        ? `Synced ${result.assignments?.length || 0} assignments`
+        : result.error || 'Sync failed',
+      assignmentsCount: result.assignments?.length || 0,
+    };
+  } catch (error) {
+    console.error('[ServiceWorker] Webapp sync request failed:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+/**
+ * Wait for a tab to finish loading
+ */
+function waitForTabLoad(tabId: number): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      chrome.tabs.onUpdated.removeListener(listener);
+      reject(new Error('Tab load timeout'));
+    }, 30000); // 30 second timeout
+
+    const listener = (updatedTabId: number, changeInfo: chrome.tabs.TabChangeInfo) => {
+      if (updatedTabId === tabId && changeInfo.status === 'complete') {
+        clearTimeout(timeout);
+        chrome.tabs.onUpdated.removeListener(listener);
+        resolve();
+      }
+    };
+
+    chrome.tabs.onUpdated.addListener(listener);
+  });
+}
+
+/**
+ * Sleep helper
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
  * Add entry to sync history
  */
 async function addToSyncHistory(entry: SyncHistoryEntry): Promise<void> {
@@ -326,23 +650,88 @@ async function forwardToContentScript(message: ExtensionMessage): Promise<unknow
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-    if (!tab?.id) {
+    if (!tab?.id || !tab.url) {
       return getDefaultResponseForMessage(message);
     }
 
-    // Check if URL is a Moodle page before trying to send message
-    const url = tab.url || '';
-    const isMoodlePage = url.includes('moodle') || url.includes('/course/') || url.includes('/my/');
+    const url = tab.url;
 
-    if (!isMoodlePage) {
-      return getDefaultResponseForMessage(message);
+    // For GET_PAGE_INFO, we can determine this from URL without content script
+    if (message.type === 'GET_PAGE_INFO') {
+      return getPageInfoFromUrl(url);
     }
 
-    return await chrome.tabs.sendMessage(tab.id, message);
+    // For scraping, we need the content script
+    try {
+      return await chrome.tabs.sendMessage(tab.id, message);
+    } catch {
+      // Content script not available
+      return getDefaultResponseForMessage(message);
+    }
   } catch {
-    // Any error - return default response silently
     return getDefaultResponseForMessage(message);
   }
+}
+
+/**
+ * Determine page info from URL alone (no content script needed)
+ */
+function getPageInfoFromUrl(url: string): {
+  isMoodlePage: boolean;
+  isDashboard: boolean;
+  isCoursePage: boolean;
+  currentCourseId: string | null;
+  universityId: string | null;
+} {
+  const urlLower = url.toLowerCase();
+
+  // Check if it's a Moodle page
+  const isMoodlePage = urlLower.includes('moodle') ||
+                       urlLower.includes('/course/') ||
+                       urlLower.includes('/my/') ||
+                       urlLower.includes('/mod/');
+
+  if (!isMoodlePage) {
+    return {
+      isMoodlePage: false,
+      isDashboard: false,
+      isCoursePage: false,
+      currentCourseId: null,
+      universityId: null,
+    };
+  }
+
+  // Determine page type
+  const isDashboard = urlLower.includes('/my/') || urlLower.includes('/my?');
+  const isCoursePage = urlLower.includes('/course/view.php');
+
+  // Extract course ID
+  let currentCourseId: string | null = null;
+  const courseIdMatch = url.match(/[?&]id=(\d+)/);
+  if (courseIdMatch && isCoursePage) {
+    currentCourseId = courseIdMatch[1];
+  }
+
+  // Extract university ID from hostname
+  let universityId: string | null = null;
+  try {
+    const hostname = new URL(url).hostname;
+    // Pattern: moodle.XXX.ac.il -> XXX
+    const match = hostname.match(/moodle\.([^.]+)\./);
+    if (match) {
+      universityId = match[1];
+    }
+  } catch {
+    // Invalid URL
+  }
+
+  return {
+    isMoodlePage,
+    isDashboard,
+    isCoursePage,
+    currentCourseId,
+    universityId,
+  };
 }
 
 /**

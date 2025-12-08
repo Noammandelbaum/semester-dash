@@ -25,14 +25,15 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       input: {
+        // Service worker and popup use ES modules (they can share chunks)
         'background/service-worker': resolve(__dirname, 'src/background/service-worker.ts'),
-        'content/content-script': resolve(__dirname, 'src/content/content-script.ts'),
         'popup/popup': resolve(__dirname, 'src/popup/popup.ts'),
       },
       output: {
         entryFileNames: '[name].js',
         chunkFileNames: 'shared/[name].js',
         assetFileNames: '[name].[ext]',
+        format: 'es',
       },
     },
     target: 'esnext',

@@ -12,4 +12,3 @@ export { SemesterProgressRing } from "./SemesterProgressRing";
 export { CourseCard } from "./CourseCard";
 export { UpcomingDeadlines } from "./UpcomingDeadlines";
 export { QuickStats } from "./QuickStats";
-export { QuickAddButtons } from "./QuickAddButtons";

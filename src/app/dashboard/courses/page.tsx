@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CreateCourseDialog } from "@/components/courses/create-course-dialog";
 import { EditCourseDialog } from "@/components/courses/edit-course-dialog";
 import { PageHeader } from "@/components/layout";
 import { BookOpen, Trash2 } from "lucide-react";
@@ -93,11 +92,6 @@ export default function CoursesPage() {
       <PageHeader
         title="הקורסים שלי"
         subtitle="נהל את כל הקורסים שלך במקום אחד"
-        actions={
-          !isLoading && courses.length > 0 ? (
-            <CreateCourseDialog onCourseCreated={fetchCourses} />
-          ) : undefined
-        }
       />
 
       {/* Loading State */}
@@ -123,9 +117,14 @@ export default function CoursesPage() {
               אין קורסים עדיין
             </h3>
             <p className="text-[var(--color-text-secondary)] mb-6">
-              בוא נוסיף את הקורס הראשון שלך!
+              סנכרן את הקורסים שלך מ-Moodle באמצעות התוסף של SemesterHub
             </p>
-            <CreateCourseDialog onCourseCreated={fetchCourses} />
+            <Button
+              onClick={() => window.open("https://moodle.jct.ac.il/my/courses.php", "_blank")}
+              className="min-h-[44px]"
+            >
+              פתח את Moodle
+            </Button>
           </CardContent>
         </Card>
       )}

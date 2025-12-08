@@ -5,7 +5,6 @@ import { useRouter, useParams } from "next/navigation";
 import { CourseHeader } from "@/components/courses/CourseHeader";
 import { CourseStats } from "@/components/courses/CourseStats";
 import { AssignmentList, type Assignment } from "@/components/courses/AssignmentList";
-import { CreateAssignmentDialog } from "@/components/courses/CreateAssignmentDialog";
 import { EditAssignmentDialog } from "@/components/courses/EditAssignmentDialog";
 import { EditCourseDialog } from "@/components/courses/edit-course-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -293,10 +292,9 @@ export default function CourseDetailPage() {
           <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">
             משימות
           </h2>
-          <CreateAssignmentDialog
-            courseId={course.id}
-            onAssignmentCreated={fetchCourse}
-          />
+          <span className="text-sm text-[var(--color-text-secondary)]">
+            סנכרן מ-Moodle
+          </span>
         </div>
 
         <AssignmentList

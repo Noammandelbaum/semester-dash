@@ -34,12 +34,9 @@
       <button id="login-btn" class="btn btn-primary">
         התחבר ל-SemesterHub
       </button>
-      <div id="post-login-actions" class="post-login-actions hidden">
-        <p class="info-text small">התחברת? לחץ כדי לקבל גישה:</p>
-        <button id="get-token-btn" class="btn btn-primary">
-          <span class="btn-icon">🔑</span>
-          קבל token
-        </button>
+      <div id="auth-polling" class="auth-polling hidden">
+        <div class="spinner-small"></div>
+        <span class="info-text small">ממתין להתחברות...</span>
       </div>
       <div id="token-error" class="error-message hidden"></div>
     </section>
@@ -51,9 +48,68 @@
         <span id="page-type-text">בודק עמוד...</span>
       </div>
 
-      <button id="sync-btn" class="btn btn-primary">
-        <span class="btn-icon">🔄</span>
-        סנכרן עכשיו
+      <!-- Initial sync buttons -->
+      <div id="sync-initial">
+        <button id="sync-btn" class="btn btn-primary">
+          <span class="btn-icon">🔄</span>
+          סנכרן קורסים
+        </button>
+        <button id="sync-assignments-btn" class="btn btn-secondary" style="margin-top: 8px;">
+          <span class="btn-icon">📝</span>
+          סנכרן משימות
+        </button>
+      </div>
+
+      <!-- Course selection UI (shown after scraping) -->
+      <div id="course-selection" class="course-selection hidden">
+        <div class="course-selection-header">
+          <span class="course-count">נמצאו <strong id="courses-found">0</strong> קורסים</span>
+          <div class="select-actions">
+            <button id="select-all-btn" class="btn-link">בחר הכל</button>
+            <span class="separator">|</span>
+            <button id="select-none-btn" class="btn-link">נקה הכל</button>
+          </div>
+        </div>
+
+        <div id="course-list" class="course-list">
+          <!-- Courses will be added dynamically -->
+        </div>
+
+        <div class="course-selection-actions">
+          <button id="continue-to-sections-btn" class="btn btn-primary">
+            <span class="btn-icon">➡️</span>
+            המשך (<span id="selected-count">0</span>)
+          </button>
+          <button id="cancel-selection-btn" class="btn btn-secondary btn-small">
+            ביטול
+          </button>
+        </div>
+      </div>
+
+      <!-- Section selection UI (shown after course selection) -->
+      <div id="section-selection" class="section-selection hidden">
+        <div class="section-selection-header">
+          <h3>בחר יחידות הוראה</h3>
+          <p class="info-text small">סמן את היחידות הרלוונטיות לך בכל קורס</p>
+        </div>
+
+        <div id="section-list" class="section-list">
+          <!-- Sections will be added dynamically -->
+        </div>
+
+        <div class="section-selection-actions">
+          <button id="save-and-sync-btn" class="btn btn-primary">
+            <span class="btn-icon">✅</span>
+            שמור וסנכרן
+          </button>
+          <button id="back-to-courses-btn" class="btn btn-secondary btn-small">
+            חזור
+          </button>
+        </div>
+      </div>
+
+      <button id="logout-btn" class="btn btn-secondary btn-small">
+        התנתק
       </button>
 
       <div id="sync-progress" class="progress-container hidden">

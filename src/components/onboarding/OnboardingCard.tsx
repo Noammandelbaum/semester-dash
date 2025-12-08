@@ -22,7 +22,7 @@ interface OnboardingCardProps {
 
 export function OnboardingCard({
   currentStep,
-  totalSteps = 4,
+  totalSteps = 3,
   showProgress = true,
   className,
   children,

@@ -190,9 +190,10 @@ model Assignment {
   updatedAt   DateTime           @updatedAt
 
   // Moodle sync fields
-  moodleId     String?   // Moodle assignment/activity ID
-  moodleUrl    String?   // Full URL to assignment in Moodle
-  lastSyncedAt DateTime? // Last successful sync timestamp
+  moodleId               String?   // Moodle assignment/activity ID
+  moodleUrl              String?   // Full URL to assignment in Moodle
+  moodleSubmissionStatus String?   // "submitted", "draft", "new", etc.
+  lastSyncedAt           DateTime? // Last successful sync timestamp
 
   // Relations
   courseId      String

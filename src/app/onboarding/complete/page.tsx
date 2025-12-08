@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { OnboardingCard } from "@/components/onboarding";
 
 /**
- * Complete Step (Step 4)
+ * Complete Step (Step 3)
  *
  * Celebration screen:
  * - Congratulate user
@@ -63,7 +63,7 @@ export default function CompletePage() {
   };
 
   return (
-    <OnboardingCard currentStep={4}>
+    <OnboardingCard currentStep={3}>
       {/* Celebration Icon */}
       <div className="flex justify-center mb-6">
         <div className="w-24 h-24 rounded-full bg-[var(--color-success)]/10 flex items-center justify-center animate-bounce">

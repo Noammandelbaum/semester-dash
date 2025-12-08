@@ -6,7 +6,6 @@ import { SemesterProgressRing } from "./SemesterProgressRing";
 import { QuickStats } from "./QuickStats";
 import { CourseCard } from "./CourseCard";
 import { UpcomingDeadlines } from "./UpcomingDeadlines";
-import { QuickAddButtons } from "./QuickAddButtons";
 import { DashboardSkeleton } from "./DashboardSkeleton";
 import { DashboardEmptyState } from "./DashboardEmptyState";
 import type { DashboardStats } from "@/app/api/dashboard/stats/route";
@@ -137,16 +136,13 @@ export function DashboardContent({ initialData }: DashboardContentProps) {
           </div>
         </div>
 
-        {/* Right column: Deadlines + Actions */}
+        {/* Right column: Deadlines */}
         <div className="space-y-6">
           {/* Upcoming deadlines */}
           <UpcomingDeadlines
             assignments={data.assignments.upcoming}
             maxItems={5}
           />
-
-          {/* Quick add buttons */}
-          <QuickAddButtons onCourseCreated={refresh} />
         </div>
       </div>
     </div>

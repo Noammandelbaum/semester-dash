@@ -1,27 +1,61 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { GraduationCap, ArrowLeft, Sparkles } from "lucide-react";
+import { GraduationCap, ArrowLeft, Sparkles, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { OnboardingCard } from "@/components/onboarding";
+import { INSTITUTIONS, getInstitutionsByType } from "@/lib/institutions";
 
 /**
  * Welcome Step (Step 1)
  *
  * First onboarding screen:
  * - Greeting + value proposition
- * - Call to action to start
- * - Skip option always visible in header
+ * - Institution selection dropdown
+ * - Call to action to continue to extension check
  *
- * UX: 5 seconds to read, clear value proposition
+ * UX: Quick selection, clear value proposition
  */
 
 export default function WelcomePage() {
   const router = useRouter();
+  const [selectedInstitution, setSelectedInstitution] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleStart = () => {
-    router.push("/onboarding/semester");
+  const { universities, colleges } = getInstitutionsByType();
+
+  const handleStart = async () => {
+    if (!selectedInstitution) return;
+
+    setIsLoading(true);
+    try {
+      // Save institution preference to user profile
+      await fetch("/api/user/preferences", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ institutionId: selectedInstitution }),
+      });
+
+      router.push("/onboarding/extension");
+    } catch (error) {
+      console.error("Failed to save institution:", error);
+      // Continue anyway - preference is not critical
+      router.push("/onboarding/extension");
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  const selectedInst = INSTITUTIONS.find((i) => i.id === selectedInstitution);
 
   return (
     <OnboardingCard currentStep={1}>
@@ -43,16 +77,70 @@ export default function WelcomePage() {
       </p>
 
       {/* Value propositions */}
-      <div className="space-y-3 mb-8">
+      <div className="space-y-3 mb-6">
+        <ValueProp icon={<Sparkles className="w-5 h-5" />}>
+          סנכרן אוטומטית מ-Moodle
+        </ValueProp>
         <ValueProp icon={<Sparkles className="w-5 h-5" />}>
           צפה בכל המטלות והדדליינים במקום אחד
         </ValueProp>
         <ValueProp icon={<Sparkles className="w-5 h-5" />}>
           עקוב אחרי ההתקדמות שלך בכל קורס
         </ValueProp>
-        <ValueProp icon={<Sparkles className="w-5 h-5" />}>
-          קבל תזכורות חכמות לפני ההגשות
-        </ValueProp>
+      </div>
+
+      {/* Institution Selection */}
+      <div className="space-y-2 mb-6">
+        <Label htmlFor="institution">באיזה מוסד אתה לומד?</Label>
+        <Select value={selectedInstitution} onValueChange={setSelectedInstitution}>
+          <SelectTrigger id="institution" disabled={isLoading}>
+            <SelectValue placeholder="בחר מוסד לימודים" />
+          </SelectTrigger>
+          <SelectContent>
+            {/* Universities */}
+            <div className="px-2 py-1.5 text-xs font-medium text-[var(--color-text-muted)]">
+              אוניברסיטאות
+            </div>
+            {universities.map((inst) => (
+              <SelectItem key={inst.id} value={inst.id}>
+                <span className="flex items-center gap-2">
+                  {inst.name}
+                  {inst.supported && (
+                    <CheckCircle className="w-3.5 h-3.5 text-[var(--color-success)]" />
+                  )}
+                </span>
+              </SelectItem>
+            ))}
+
+            {/* Colleges */}
+            <div className="px-2 py-1.5 text-xs font-medium text-[var(--color-text-muted)] mt-2">
+              מכללות
+            </div>
+            {colleges.map((inst) => (
+              <SelectItem key={inst.id} value={inst.id}>
+                <span className="flex items-center gap-2">
+                  {inst.name}
+                  {inst.supported && (
+                    <CheckCircle className="w-3.5 h-3.5 text-[var(--color-success)]" />
+                  )}
+                </span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {/* Supported badge */}
+        {selectedInst?.supported && (
+          <p className="text-sm text-[var(--color-success)] flex items-center gap-1">
+            <CheckCircle className="w-4 h-4" />
+            מוסד נתמך - סנכרון מלא זמין
+          </p>
+        )}
+        {selectedInst && !selectedInst.supported && (
+          <p className="text-sm text-[var(--color-text-muted)]">
+            המוסד עדיין לא נבדק - נשמח לתמיכה שלך בבדיקות
+          </p>
+        )}
       </div>
 
       {/* CTA */}
@@ -61,8 +149,10 @@ export default function WelcomePage() {
         size="lg"
         className="w-full min-h-[48px]"
         onClick={handleStart}
+        disabled={!selectedInstitution || isLoading}
+        isLoading={isLoading}
       >
-        <span>בוא נתחיל</span>
+        <span>המשך</span>
         <ArrowLeft className="w-5 h-5 mr-2" />
       </Button>
 

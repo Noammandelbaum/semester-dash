@@ -107,11 +107,6 @@ export function CourseCard({
             <h3 className="font-semibold text-[var(--color-text-primary)] truncate">
               {name}
             </h3>
-            {courseCode && (
-              <span className="text-sm text-[var(--color-text-secondary)]">
-                {courseCode}
-              </span>
-            )}
           </div>
 
           {/* Traffic light status indicator */}

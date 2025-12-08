@@ -146,8 +146,11 @@ export type ExtensionMessageType =
   | "SCRAPE_ASSIGNMENTS"
   | "SCRAPE_ALL"
   | "SCRAPE_COMPLETE"
+  | "GET_COURSE_SECTIONS"
+  | "FETCH_SECTIONS_FOR_COURSES"
   // Sync
   | "SYNC_TO_BACKEND"
+  | "SYNC_ASSIGNMENTS_BACKGROUND"
   | "SYNC_COMPLETE"
   | "SYNC_ERROR"
   // Status
@@ -185,6 +188,7 @@ export interface PageInfo {
   isMoodlePage: boolean;
   isDashboard: boolean;
   isCoursePage: boolean;
+  isAssignmentIndexPage?: boolean;
   currentCourseId: string | null;
   currentCourseName?: string | null;
   universityId: UniversityId | null;

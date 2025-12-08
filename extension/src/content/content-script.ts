@@ -19,6 +19,7 @@ import { detectUniversity, detectMoodleVersion, UNIVERSITIES } from '../shared/c
 import { detectMoodleVersionFromPage } from '../shared/selectors';
 import { scrapeCourses } from './scrapers/courses';
 import { scrapeAssignments } from './scrapers/assignments';
+import { isAssignmentIndexPage, scrapeAssignmentIndex, scrapeCourseSections, getCourseIdFromUrl as getAssignmentIndexCourseId } from './scrapers/assignment-index';
 
 // ========================================
 // Initialization
@@ -28,20 +29,10 @@ import { scrapeAssignments } from './scrapers/assignments';
  * Initialize content script on Moodle pages
  */
 function initialize(): void {
-  console.log('[SemesterHub] Content script loaded');
+  console.log('[SemesterHub] Content script loaded on:', window.location.href);
 
-  // Check if we're on a Moodle page
-  if (!isMoodlePage()) {
-    console.debug('[SemesterHub] Not a Moodle page, content script inactive');
-    return;
-  }
-
-  const university = detectUniversity(window.location.href);
-  if (university) {
-    console.log(`[SemesterHub] Detected university: ${university.name}`);
-  }
-
-  // Listen for messages from background/popup
+  // Always listen for messages, even if not a Moodle page
+  // This way we can always respond with accurate page info
   chrome.runtime.onMessage.addListener(
     (message: ExtensionMessage, _sender, sendResponse) => {
       handleMessage(message)
@@ -55,8 +46,17 @@ function initialize(): void {
     }
   );
 
-  // Notify background that content script is ready
-  sendProgressUpdate('Content script ready');
+  // Log page detection results for debugging
+  const isMoodle = isMoodlePage();
+  console.log('[SemesterHub] Is Moodle page:', isMoodle);
+
+  if (isMoodle) {
+    const university = detectUniversity(window.location.href);
+    if (university) {
+      console.log(`[SemesterHub] Detected university: ${university.name}`);
+    }
+    sendProgressUpdate('Content script ready');
+  }
 }
 
 // ========================================
@@ -81,6 +81,9 @@ async function handleMessage(message: ExtensionMessage): Promise<unknown> {
 
     case 'SCRAPE_ALL':
       return handleScrapeAll();
+
+    case 'GET_COURSE_SECTIONS':
+      return handleGetCourseSections(message.payload as { courseMoodleId?: string } | undefined);
 
     default:
       throw new Error(`Unknown message type: ${message.type}`);
@@ -109,10 +112,31 @@ async function handleScrapeCourses(): Promise<{ courses: ScrapedCourse[] }> {
  * Handle SCRAPE_ASSIGNMENTS message
  */
 async function handleScrapeAssignments(
-  payload?: { courseMoodleId?: string }
+  payload?: { courseMoodleId?: string; filterSections?: string[] }
 ): Promise<{ assignments: ScrapedAssignment[] }> {
   sendProgressUpdate('Searching for assignments...');
 
+  // Check if we're on the assignment index page (/mod/assign/index.php)
+  if (isAssignmentIndexPage()) {
+    console.log('[SemesterHub] On assignment index page, using optimized scraper');
+    const courseMoodleId = payload?.courseMoodleId || getAssignmentIndexCourseId();
+    if (!courseMoodleId) {
+      console.warn('[SemesterHub] No course ID found in assignment index URL');
+      return { assignments: [] };
+    }
+
+    // Pass filterSections to scraper
+    const filterSections = payload?.filterSections;
+    if (filterSections && filterSections.length > 0) {
+      console.log('[SemesterHub] Filtering by sections:', filterSections);
+    }
+
+    const assignments = scrapeAssignmentIndex(courseMoodleId, filterSections);
+    sendProgressUpdate(`Found ${assignments.length} assignments`);
+    return { assignments };
+  }
+
+  // Fallback to original scraper for course pages
   const config = getUniversityConfig();
   if (!config) {
     console.warn('[SemesterHub] No university config found');
@@ -130,6 +154,32 @@ async function handleScrapeAssignments(
 
   sendProgressUpdate(`Found ${assignments.length} assignments`);
   return { assignments };
+}
+
+/**
+ * Handle GET_COURSE_SECTIONS message
+ * Returns unique sections (יחידות הוראה) from assignment index page
+ */
+async function handleGetCourseSections(
+  payload?: { courseMoodleId?: string }
+): Promise<{ sections: string[] }> {
+  sendProgressUpdate('Getting course sections...');
+
+  // Only works on assignment index page
+  if (!isAssignmentIndexPage()) {
+    console.warn('[SemesterHub] Not on assignment index page');
+    return { sections: [] };
+  }
+
+  const courseMoodleId = payload?.courseMoodleId || getAssignmentIndexCourseId();
+  if (!courseMoodleId) {
+    console.warn('[SemesterHub] No course ID found');
+    return { sections: [] };
+  }
+
+  const sections = scrapeCourseSections(courseMoodleId);
+  sendProgressUpdate(`Found ${sections.length} sections`);
+  return { sections };
 }
 
 /**
@@ -291,11 +341,15 @@ function getPageInfo(): PageInfo {
   const university = detectUniversity(url);
   const moodleVersion = detectMoodleVersionFromPage();
 
+  // Get course ID - works for both course page and assignment index page
+  const courseId = getCurrentCourseId() || getAssignmentIndexCourseId();
+
   return {
     isMoodlePage: isMoodlePage(),
     isDashboard: isDashboard(),
     isCoursePage: isCoursePage(),
-    currentCourseId: getCurrentCourseId(),
+    isAssignmentIndexPage: isAssignmentIndexPage(),
+    currentCourseId: courseId,
     currentCourseName: isCoursePage() ? getCurrentCourseName() : null,
     universityId: (university?.id as UniversityId) || null,
     universityName: university?.name || null,

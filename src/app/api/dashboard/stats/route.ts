@@ -118,6 +118,7 @@ export async function GET(req: Request) {
             id: true,
             status: true,
             dueDate: true,
+            moodleSubmissionStatus: true,
           },
         },
       },
@@ -132,7 +133,7 @@ export async function GET(req: Request) {
     const coursesWithStats: CourseWithStats[] = courses.map((course) => {
       const total = course.assignments.length;
       const completed = course.assignments.filter(
-        (a) => a.status === "COMPLETED"
+        (a) => a.status === "COMPLETED" || a.moodleSubmissionStatus === "submitted"
       ).length;
       const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
 
@@ -177,13 +178,14 @@ export async function GET(req: Request) {
         id: true,
         status: true,
         dueDate: true,
+        moodleSubmissionStatus: true,
       },
     });
 
     // Calculate assignment stats
     const totalAssignments = allAssignments.length;
     const completedAssignments = allAssignments.filter(
-      (a) => a.status === "COMPLETED"
+      (a) => a.status === "COMPLETED" || a.moodleSubmissionStatus === "submitted"
     ).length;
 
     // This week's deadlines

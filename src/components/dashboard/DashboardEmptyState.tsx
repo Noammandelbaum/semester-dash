@@ -1,13 +1,12 @@
 "use client";
 
 import { EmptyState } from "@/components/ui/empty-state";
-import { CreateCourseDialog } from "@/components/courses/create-course-dialog";
 
 /**
  * DashboardEmptyState
  * Shown when user has no courses yet
  *
- * UX: Encouraging, educational - guide user to add first course
+ * UX: Guide user to sync from Moodle via extension
  */
 interface DashboardEmptyStateProps {
   onCourseCreated: () => void;
@@ -15,7 +14,6 @@ interface DashboardEmptyStateProps {
 }
 
 export function DashboardEmptyState({
-  onCourseCreated,
   hasSemester,
 }: DashboardEmptyStateProps) {
   if (!hasSemester) {
@@ -26,7 +24,6 @@ export function DashboardEmptyState({
         description="הגדר את הסמסטר הנוכחי שלך כדי לראות את התמונה המלאה"
         actionLabel="הגדר סמסטר"
         onAction={() => {
-          // TODO: Navigate to semester setup or open dialog
           window.location.href = "/dashboard/settings";
         }}
       />
@@ -34,15 +31,14 @@ export function DashboardEmptyState({
   }
 
   return (
-    <div className="flex flex-col items-center justify-center py-12">
-      <EmptyState
-        illustration="empty-courses"
-        title="עדיין אין לך קורסים"
-        description="הוסף את הקורסים שלך כדי לראות את התמונה המלאה של הסמסטר"
-      />
-      <div className="mt-6">
-        <CreateCourseDialog onCourseCreated={onCourseCreated} />
-      </div>
-    </div>
+    <EmptyState
+      illustration="empty-courses"
+      title="עדיין אין לך קורסים"
+      description="סנכרן את הקורסים שלך מ-Moodle באמצעות התוסף של SemesterHub"
+      actionLabel="פתח את Moodle"
+      onAction={() => {
+        window.open("https://moodle.jct.ac.il/my/courses.php", "_blank");
+      }}
+    />
   );
 }

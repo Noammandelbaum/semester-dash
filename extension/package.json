@@ -1,12 +1,12 @@
 {
   "name": "semesterhub-extension",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "Moodle sync extension for SemesterHub",
   "type": "module",
   "scripts": {
     "dev": "vite build --watch --mode development",
-    "build": "vite build",
-    "build:prod": "vite build --mode production",
+    "build": "vite build && vite build --config vite.config.content.ts && vite build --config vite.config.content-webapp.ts",
+    "build:prod": "vite build --mode production && vite build --config vite.config.content.ts --mode production && vite build --config vite.config.content-webapp.ts --mode production",
     "build:zip": "node scripts/build-zip.js",
     "typecheck": "tsc --noEmit"
   },

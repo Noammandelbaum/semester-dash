@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Calendar, MoreVertical, Trash2, Edit, CheckCircle, Settings } from "lucide-react";
+import { Calendar, MoreVertical, Trash2, CheckCircle } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CreateSemesterDialog } from "@/components/semesters";
+import { SyncSemesterDialog } from "@/components/semesters";
 import { EmptyState } from "@/components/ui/empty-state";
 import {
   Popover,
@@ -143,7 +143,12 @@ export default function SemestersPage() {
             נהל את הסמסטרים והחלף ביניהם
           </p>
         </div>
-        <CreateSemesterDialog onSemesterCreated={fetchSemesters} />
+        <SyncSemesterDialog
+          onSyncComplete={fetchSemesters}
+          trigger={
+            <Button variant="primary">סנכרן סמסטר חדש</Button>
+          }
+        />
       </div>
 
       {/* Semesters Grid */}
@@ -151,13 +156,13 @@ export default function SemestersPage() {
         <EmptyState
           icon={<Calendar className="h-12 w-12" />}
           title="עדיין אין סמסטרים"
-          description="צור את הסמסטר הראשון שלך כדי להתחיל לעקוב אחרי הקורסים והמשימות"
+          description="סנכרן את הסמסטר הראשון שלך מ-Moodle כדי להתחיל"
           action={
-            <CreateSemesterDialog
-              onSemesterCreated={fetchSemesters}
+            <SyncSemesterDialog
+              onSyncComplete={fetchSemesters}
               trigger={
                 <Button variant="primary" size="lg">
-                  צור סמסטר ראשון
+                  סנכרן מ-Moodle
                 </Button>
               }
             />

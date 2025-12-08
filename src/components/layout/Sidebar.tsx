@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { LogoutButton } from "./LogoutButton";
-import { SemesterSelector, CreateSemesterDialog } from "@/components/semesters";
+import { SemesterSelector, SyncSemesterDialog } from "@/components/semesters";
 import { NotificationBell } from "@/components/notifications";
 import type { NavItemConfig } from "./nav-items";
 
@@ -31,9 +31,9 @@ interface SidebarProps {
 export function Sidebar({ items, user }: SidebarProps) {
   const pathname = usePathname();
   const t = useTranslations("nav");
-  const [createSemesterOpen, setCreateSemesterOpen] = useState(false);
+  const [syncSemesterOpen, setSyncSemesterOpen] = useState(false);
 
-  const handleSemesterCreated = () => {
+  const handleSyncComplete = () => {
     // Refresh the page to update semester context
     window.location.reload();
   };
@@ -60,13 +60,13 @@ export function Sidebar({ items, user }: SidebarProps) {
       </div>
 
       {/* Semester Selector */}
-      <SemesterSelector onCreateNew={() => setCreateSemesterOpen(true)} />
+      <SemesterSelector onCreateNew={() => setSyncSemesterOpen(true)} />
 
-      {/* Create Semester Dialog */}
-      <CreateSemesterDialog
-        open={createSemesterOpen}
-        onOpenChange={setCreateSemesterOpen}
-        onSemesterCreated={handleSemesterCreated}
+      {/* Sync Semester Dialog (Moodle-only) */}
+      <SyncSemesterDialog
+        open={syncSemesterOpen}
+        onOpenChange={setSyncSemesterOpen}
+        onSyncComplete={handleSyncComplete}
       />
 
       {/* Navigation Links */}

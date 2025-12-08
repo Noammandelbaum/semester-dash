@@ -322,26 +322,22 @@ export async function getAuthStatus(): Promise<AuthStatus> {
   try {
     const result = await apiRequest<VerifyResponse>("/api/extension/verify");
 
-    return {
-      isAuthenticated: result.valid,
-      user: result.user,
-    };
-  } catch (error) {
-    if (error instanceof ApiError && error.isAuthError()) {
-      // Clear invalid token
+    if (!result.valid) {
+      // Token is invalid, clear it
       await clearToken();
       return { isAuthenticated: false };
     }
 
-    // For network errors, assume still authenticated if we have a token
-    if (error instanceof ApiError && error.isNetworkError()) {
-      return {
-        isAuthenticated: true, // Optimistic - we have a token
-        user: undefined,
-      };
-    }
-
-    throw error;
+    return {
+      isAuthenticated: true,
+      user: result.user,
+    };
+  } catch (error) {
+    // ANY error means we can't verify - clear token and show as disconnected
+    // This is safer than assuming we're still connected
+    console.error("[API] Auth verification failed:", error);
+    await clearToken();
+    return { isAuthenticated: false };
   }
 }
 
@@ -374,9 +370,75 @@ export async function getAuthStatusSafe(): AsyncResult<AuthStatus, ApiError> {
  * @throws ApiError on failure
  */
 export async function requestToken(): Promise<TokenResponse> {
-  return apiRequest<TokenResponse>("/api/extension/token", {
-    credentials: "include", // Include session cookies
-  });
+  // Get the session cookie manually using chrome.cookies API
+  // NextAuth uses these cookie names
+  const cookieNames = [
+    'next-auth.session-token',
+    '__Secure-next-auth.session-token',
+    'authjs.session-token',
+    '__Secure-authjs.session-token',
+  ];
+
+  let sessionCookie: string | null = null;
+
+  for (const name of cookieNames) {
+    try {
+      const cookie = await chrome.cookies.get({
+        url: API_BASE_URL,
+        name: name,
+      });
+      if (cookie?.value) {
+        sessionCookie = `${cookie.name}=${cookie.value}`;
+        break;
+      }
+    } catch {
+      // Cookie not found, try next
+    }
+  }
+
+  if (!sessionCookie) {
+    throw new ApiError(
+      'יש להתחבר קודם ל-SemesterHub דרך הדפדפן',
+      401,
+      'auth'
+    );
+  }
+
+  // Make request with cookie header
+  const url = `${API_BASE_URL}/api/extension/token`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cookie': sessionCookie,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({
+        error: `HTTP ${response.status}`,
+      }));
+
+      throw new ApiError(
+        errorData.error || errorData.message || `HTTP ${response.status}`,
+        response.status,
+        response.status === 401 ? 'auth' : 'unknown'
+      );
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError(
+      error instanceof Error ? error.message : 'Network error',
+      0,
+      'network'
+    );
+  }
 }
 
 /**

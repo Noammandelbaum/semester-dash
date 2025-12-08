@@ -214,18 +214,45 @@ function extractCourseFromCard(card: Element, version: MoodleVersion): ScrapedCo
     return null;
   }
 
-  // Get course name
-  const nameElement = querySelectorWithFallback(card, [
-    '[data-field="fullname"]',
-    '.course-title',
-    '.course-card-name',
-    '.coursename',
-    '.fullname',
-    'h3',
-    'h4',
-  ]);
+  // Get course name - try specific selectors first to avoid sr-only text pollution
+  let name = '';
 
-  let name = nameElement?.textContent?.trim() || link.textContent?.trim() || '';
+  // Strategy 1: Look for span.multiline with title attribute (JCT Moodle style)
+  const multilineSpan = card.querySelector<HTMLElement>('span.multiline[title]');
+  if (multilineSpan) {
+    // Prefer the title attribute as it's clean
+    name = multilineSpan.getAttribute('title') || '';
+  }
+
+  // Strategy 2: Look for aria-hidden="true" span inside coursename (visible text only)
+  if (!name) {
+    const visibleNameSpan = card.querySelector<HTMLElement>('.coursename span[aria-hidden="true"]');
+    if (visibleNameSpan) {
+      name = visibleNameSpan.textContent?.trim() || '';
+    }
+  }
+
+  // Strategy 3: Fallback to standard selectors
+  if (!name) {
+    const nameElement = querySelectorWithFallback(card, [
+      '[data-field="fullname"]',
+      '.course-title',
+      '.course-card-name',
+      '.fullname',
+      'h3',
+      'h4',
+    ]);
+    name = nameElement?.textContent?.trim() || '';
+  }
+
+  // Strategy 4: Last resort - use link text but filter out sr-only content
+  if (!name) {
+    // Clone the link and remove sr-only elements before getting text
+    const linkClone = link.cloneNode(true) as HTMLElement;
+    linkClone.querySelectorAll('.sr-only, [class*="sr-only"]').forEach(el => el.remove());
+    name = linkClone.textContent?.trim() || '';
+  }
+
   name = cleanMoodleText(name);
 
   if (!name) {
@@ -266,17 +293,35 @@ function extractCourseFromLink(link: HTMLAnchorElement, version: MoodleVersion):
   );
 
   if (container) {
-    const nameElement = querySelectorWithFallback(container, [
-      '.course-title',
-      '.coursename',
-      '.fullname',
-    ]);
-    name = nameElement?.textContent?.trim() || '';
+    // Strategy 1: Look for span.multiline with title attribute (JCT Moodle style)
+    const multilineSpan = container.querySelector<HTMLElement>('span.multiline[title]');
+    if (multilineSpan) {
+      name = multilineSpan.getAttribute('title') || '';
+    }
+
+    // Strategy 2: Look for aria-hidden="true" span (visible text only)
+    if (!name) {
+      const visibleNameSpan = container.querySelector<HTMLElement>('.coursename span[aria-hidden="true"]');
+      if (visibleNameSpan) {
+        name = visibleNameSpan.textContent?.trim() || '';
+      }
+    }
+
+    // Strategy 3: Fallback to standard selectors
+    if (!name) {
+      const nameElement = querySelectorWithFallback(container, [
+        '.course-title',
+        '.fullname',
+      ]);
+      name = nameElement?.textContent?.trim() || '';
+    }
   }
 
-  // Fallback to link text
+  // Fallback to link text but filter out sr-only content
   if (!name) {
-    name = link.textContent?.trim() || '';
+    const linkClone = link.cloneNode(true) as HTMLElement;
+    linkClone.querySelectorAll('.sr-only, [class*="sr-only"]').forEach(el => el.remove());
+    name = linkClone.textContent?.trim() || '';
   }
 
   name = cleanMoodleText(name);

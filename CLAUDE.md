@@ -1,15 +1,15 @@
 # SemesterHub - Project Memory
 
 > **Read this FIRST in every session**
-> **Last Updated:** 2025-12-01
+> **Last Updated:** 2025-12-07
 
 ---
 
 ## Quick Context
 
 **מה:** SemesterHub - דשבורד סמסטר לסטודנטים ישראליים
-**שלב:** MVP Development - Sprint 1 ✅ Complete
-**הבא:** Sprint 2 - UI Framework
+**שלב:** MVP Development - Moodle-Only Architecture Migration
+**עכשיו:** Sprint 2 - Onboarding, Semester Sync, Semester Page
 
 ---
 
@@ -17,18 +17,36 @@
 
 Before starting ANY work, read these:
 
-1. **Product Vision:** `docs/private/planning/product-vision.md`
-2. **Gap Analysis:** `docs/private/planning/gap-analysis.md`
-3. **ADR-003 (Refactor Decision):** `docs/private/decisions/003-refactor-existing-project.md`
-4. **Roadmap:** `docs/private/planning/roadmap.md`
-5. **UX Research:** `docs/private/research/ux-research.md` (comprehensive UX guidelines)
-6. **Color & Branding:** `docs/private/research/color-branding-research.md` (palette rationale)
+1. **Moodle-Only Migration:** `docs/private/planning/moodle-only-migration.md` **(CURRENT WORK - read this!)**
+2. **Extension Sync Context:** `docs/private/planning/extension-sync-context.md`
+3. **Product Vision:** `docs/private/planning/product-vision.md`
+4. **UX Research:** `docs/private/research/ux-research.md`
 
 ---
 
 ## Current Sprint Status
 
-### Sprint 1 (Nov 30 - Dec 14): Infrastructure - ✅ COMPLETE
+### Moodle-Only Migration - Sprint 1 ✅ COMPLETE
+
+| Phase | Task | Status |
+|-------|------|--------|
+| 1.1 | Remove course number display | ✅ Done |
+| 1.2 | Fix progress calculation (moodleSubmissionStatus) | ✅ Done |
+| 2 | Remove manual UI (create dialogs) | ✅ Done |
+| 3 | Simplify token flow (auto-polling) | ✅ Done |
+| 7 | Webapp-Extension communication | ✅ Done |
+
+### Moodle-Only Migration - Sprint 2 (IN PROGRESS)
+
+| Phase | Task | Status | Depends On |
+|-------|------|--------|------------|
+| 4 | New Onboarding (extension check) | ⏳ Pending | Phase 3+7 ✅ |
+| 5 | Semester = Sync (SyncSemesterDialog) | ⏳ Pending | - |
+| 6 | Semester Page (courses + sections) | ⏳ Pending | Phase 5 |
+
+**Full context:** `docs/private/planning/moodle-only-migration.md`
+
+### Previous: Infrastructure - ✅ COMPLETE
 
 | Task | Status | Notes |
 |------|--------|-------|
