@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "SemesterHub - Moodle Sync",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Sync your Moodle courses and assignments to SemesterHub",
   "default_locale": "he",
   "permissions": [

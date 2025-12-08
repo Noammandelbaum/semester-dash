@@ -2,26 +2,28 @@
  * Content script for SemesterHub webapp
  * Enables communication between webapp and extension
  *
- * Note: Content scripts run in an isolated world, so we inject a script
- * into the page to set window.__SEMESTERHUB_EXTENSION__
+ * CSP-Safe Detection: Instead of injecting inline scripts (blocked by CSP),
+ * we use a hidden DOM element that the webapp can detect.
  */
 
-// Inject script into page context to set global variable
-const script = document.createElement('script');
-script.textContent = `
-  window.__SEMESTERHUB_EXTENSION__ = {
-    version: '1.0.4',
-    ready: true
-  };
-  window.dispatchEvent(new CustomEvent('semesterhub-extension-ready', {
-    detail: { version: '1.0.4' }
-  }));
-  console.log('[SemesterHub] Extension detected - version 1.0.4');
-`;
-(document.head || document.documentElement).appendChild(script);
-script.remove();
+const EXTENSION_VERSION = '1.0.5';
 
-console.log('[SemesterHub] Content script loaded on webapp');
+// Create a hidden marker element in the DOM (CSP-safe)
+const marker = document.createElement('div');
+marker.id = 'semesterhub-extension-marker';
+marker.setAttribute('data-version', EXTENSION_VERSION);
+marker.setAttribute('data-ready', 'true');
+marker.style.display = 'none';
+document.documentElement.appendChild(marker);
+
+// Dispatch custom event on document (CSP-safe - no inline script needed)
+document.dispatchEvent(
+  new CustomEvent('semesterhub-extension-ready', {
+    detail: { version: EXTENSION_VERSION },
+  })
+);
+
+console.log(`[SemesterHub] Content script loaded - version ${EXTENSION_VERSION}`);
 
 // Listen for sync requests from webapp (via custom events)
 window.addEventListener('semesterhub-webapp-command', (event: Event) => {
@@ -40,14 +42,11 @@ window.addEventListener('semesterhub-webapp-command', (event: Event) => {
 // Listen for messages from background script
 chrome.runtime.onMessage.addListener((message) => {
   if (message.type === 'SYNC_COMPLETE') {
-    // Inject event into page context
-    const resultScript = document.createElement('script');
-    resultScript.textContent = `
-      window.dispatchEvent(new CustomEvent('semesterhub-sync-complete', {
-        detail: ${JSON.stringify(message.payload)}
-      }));
-    `;
-    (document.head || document.documentElement).appendChild(resultScript);
-    resultScript.remove();
+    // Dispatch event on document (CSP-safe)
+    document.dispatchEvent(
+      new CustomEvent('semesterhub-sync-complete', {
+        detail: message.payload,
+      })
+    );
   }
 });

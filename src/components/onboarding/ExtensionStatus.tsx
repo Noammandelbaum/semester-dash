@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
  * ExtensionStatus
  *
  * Component that checks if the SemesterHub browser extension is installed.
- * Uses window.__SEMESTERHUB_EXTENSION__ injected by the content script.
+ * Uses a hidden DOM element (#semesterhub-extension-marker) injected by the content script.
+ * This approach is CSP-safe (no inline script injection required).
  *
  * States:
  * - checking: Initial state, checking for extension
@@ -17,14 +18,16 @@ import { Button } from "@/components/ui/button";
  * - not_installed: Extension not found
  */
 
-// Type for the extension marker
-declare global {
-  interface Window {
-    __SEMESTERHUB_EXTENSION__?: {
-      version: string;
-      ready: boolean;
+// Helper to get extension info from DOM marker
+function getExtensionMarker(): { version: string; ready: boolean } | null {
+  const marker = document.getElementById('semesterhub-extension-marker');
+  if (marker && marker.getAttribute('data-ready') === 'true') {
+    return {
+      version: marker.getAttribute('data-version') || 'unknown',
+      ready: true,
     };
   }
+  return null;
 }
 
 export type ExtensionStatusType = "checking" | "installed" | "not_installed";
@@ -44,11 +47,15 @@ export function ExtensionStatus({
 }: ExtensionStatusProps) {
   const [status, setStatus] = useState<ExtensionStatusType>("checking");
 
+  const [extensionVersion, setExtensionVersion] = useState<string | null>(null);
+
   useEffect(() => {
-    // Check for extension presence
+    // Check for extension presence via DOM marker
     const checkExtension = () => {
-      if (window.__SEMESTERHUB_EXTENSION__?.ready) {
+      const marker = getExtensionMarker();
+      if (marker?.ready) {
         setStatus("installed");
+        setExtensionVersion(marker.version);
         onStatusChange?.("installed");
       } else {
         setStatus("not_installed");
@@ -59,17 +66,19 @@ export function ExtensionStatus({
     // Wait a bit for the content script to inject the marker
     const timeout = setTimeout(checkExtension, 500);
 
-    // Also listen for the extension's ready event
-    const handleExtensionReady = () => {
+    // Also listen for the extension's ready event (on document, CSP-safe)
+    const handleExtensionReady = (event: Event) => {
+      const customEvent = event as CustomEvent<{ version: string }>;
       setStatus("installed");
+      setExtensionVersion(customEvent.detail?.version || 'unknown');
       onStatusChange?.("installed");
     };
 
-    window.addEventListener("semesterhub-extension-ready", handleExtensionReady);
+    document.addEventListener("semesterhub-extension-ready", handleExtensionReady);
 
     return () => {
       clearTimeout(timeout);
-      window.removeEventListener("semesterhub-extension-ready", handleExtensionReady);
+      document.removeEventListener("semesterhub-extension-ready", handleExtensionReady);
     };
   }, [onStatusChange]);
 
@@ -101,9 +110,7 @@ export function ExtensionStatus({
               התוסף מותקן
             </p>
             <p className="text-sm text-[var(--color-text-muted)]">
-              {window.__SEMESTERHUB_EXTENSION__?.version && (
-                <>גרסה {window.__SEMESTERHUB_EXTENSION__.version}</>
-              )}
+              {extensionVersion && <>גרסה {extensionVersion}</>}
             </p>
           </div>
         </div>
@@ -149,13 +156,17 @@ export function useExtensionStatus(): {
   status: ExtensionStatusType;
   isInstalled: boolean;
   isChecking: boolean;
+  version: string | null;
 } {
   const [status, setStatus] = useState<ExtensionStatusType>("checking");
+  const [version, setVersion] = useState<string | null>(null);
 
   useEffect(() => {
     const checkExtension = () => {
-      if (window.__SEMESTERHUB_EXTENSION__?.ready) {
+      const marker = getExtensionMarker();
+      if (marker?.ready) {
         setStatus("installed");
+        setVersion(marker.version);
       } else {
         setStatus("not_installed");
       }
@@ -163,15 +174,17 @@ export function useExtensionStatus(): {
 
     const timeout = setTimeout(checkExtension, 500);
 
-    const handleExtensionReady = () => {
+    const handleExtensionReady = (event: Event) => {
+      const customEvent = event as CustomEvent<{ version: string }>;
       setStatus("installed");
+      setVersion(customEvent.detail?.version || 'unknown');
     };
 
-    window.addEventListener("semesterhub-extension-ready", handleExtensionReady);
+    document.addEventListener("semesterhub-extension-ready", handleExtensionReady);
 
     return () => {
       clearTimeout(timeout);
-      window.removeEventListener("semesterhub-extension-ready", handleExtensionReady);
+      document.removeEventListener("semesterhub-extension-ready", handleExtensionReady);
     };
   }, []);
 
@@ -179,5 +192,6 @@ export function useExtensionStatus(): {
     status,
     isInstalled: status === "installed",
     isChecking: status === "checking",
+    version,
   };
 }
