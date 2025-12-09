@@ -326,7 +326,7 @@ export default function CourseDetailPage() {
           <DialogHeader>
             <DialogTitle>מחיקת קורס</DialogTitle>
             <DialogDescription>
-              האם אתה בטוח שברצונך למחוק את הקורס "{course.name}"?
+              האם אתה בטוח שברצונך למחוק את הקורס &quot;{course.name}&quot;?
               <br />
               <span className="text-[var(--color-danger)]">
                 פעולה זו תמחק גם את כל המשימות של הקורס ולא ניתן לבטל אותה.

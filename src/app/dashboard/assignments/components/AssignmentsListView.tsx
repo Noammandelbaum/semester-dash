@@ -171,7 +171,7 @@ export function AssignmentsListView({
           <DialogHeader>
             <DialogTitle>מחיקת משימה</DialogTitle>
             <DialogDescription>
-              האם אתה בטוח שברצונך למחוק את המשימה "{deletingAssignment?.title}"?
+              האם אתה בטוח שברצונך למחוק את המשימה &quot;{deletingAssignment?.title}&quot;?
               <br />
               פעולה זו לא ניתנת לביטול.
             </DialogDescription>
