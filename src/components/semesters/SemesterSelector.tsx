@@ -43,9 +43,18 @@ export function SemesterSelector({ onCreateNew, className }: SemesterSelectorPro
   const [isOpen, setIsOpen] = useState(false);
   const [isSwitching, setIsSwitching] = useState(false);
 
-  // Fetch semesters on mount
+  // Fetch semesters on mount and when semesters change
   useEffect(() => {
     fetchSemesters();
+
+    // Listen for semester changes from other components
+    const handleSemestersChanged = () => {
+      fetchSemesters();
+    };
+    window.addEventListener("semestersChanged", handleSemestersChanged);
+    return () => {
+      window.removeEventListener("semestersChanged", handleSemestersChanged);
+    };
   }, []);
 
   const fetchSemesters = async () => {

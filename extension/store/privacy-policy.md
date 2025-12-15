@@ -95,8 +95,8 @@ We may update this Privacy Policy from time to time. We will notify you of signi
 
 If you have questions about this Privacy Policy, please contact us at:
 
-- Email: support@semesterhub.com
-- Website: https://semester-dash.vercel.app
+- Email: semesterhub.club@gmail.com
+- Website: https://www.semesterhub.club
 
 ## Consent
 
@@ -105,4 +105,4 @@ By using the SemesterHub browser extension, you consent to the collection and us
 ---
 
 **SemesterHub**
-https://semester-dash.vercel.app
+https://www.semesterhub.club

@@ -9,6 +9,7 @@ import {
   getDeadlineUrgencyClasses,
   type DeadlineUrgency,
 } from "@/lib/dashboard-utils";
+import { cleanCourseName } from "@/lib/utils";
 import { Calendar, ChevronLeft } from "lucide-react";
 import type { AssignmentWithCourse } from "@/app/api/dashboard/stats/route";
 
@@ -165,7 +166,7 @@ export function UpcomingDeadlines({
                   <div className="flex flex-wrap items-center gap-2 mt-1">
                     {/* Course badge */}
                     <Badge className={courseColorClass} variant="secondary">
-                      {assignment.course.name}
+                      {cleanCourseName(assignment.course.name)}
                     </Badge>
                     {/* Due date */}
                     <span

@@ -72,3 +72,25 @@ export function getProgressColor(percentage: number): string {
   if (percentage >= 40) return "var(--color-warning)";
   return "var(--color-danger)";
 }
+
+/**
+ * Clean course name by removing code prefixes
+ * Handles formats like:
+ * - "120132.2.5785 - שם קורס" (Israeli Moodle)
+ * - "[CS101] Course Name"
+ * - "CS101 - Course Name"
+ */
+export function cleanCourseName(name: string): string {
+  return name
+    // Remove Israeli Moodle format: CODE.SEMESTER.YEAR -
+    .replace(/^\d{5,8}\.\d\.\d{4}[\s\-]+/, '')
+    // Remove [CODE] prefix
+    .replace(/^\[[A-Z0-9\-]+\]\s*/, '')
+    // Remove (CODE) prefix
+    .replace(/^\([A-Z0-9\-]+\)\s*/, '')
+    // Remove CODE - or CODE: prefix (letters + numbers)
+    .replace(/^[A-Z]{2,5}\d{3,6}[\s\-:]+/, '')
+    // Remove numeric code prefix
+    .replace(/^\d{4,8}[\s\-:]+/, '')
+    .trim();
+}

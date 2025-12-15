@@ -49,10 +49,23 @@ const priorityVariants: Record<AssignmentPriority, "secondary" | "warning" | "da
 
 function formatDueDate(dateStr: string): string {
   const date = new Date(dateStr);
-  return date.toLocaleDateString("he-IL", {
-    day: "numeric",
-    month: "short",
-  });
+  const now = new Date();
+  const diffMs = date.getTime() - now.getTime();
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+  // Future dates
+  if (diffDays < 0) {
+    const absDays = Math.abs(diffDays);
+    if (absDays === 1) return "אתמול";
+    if (absDays <= 7) return `לפני ${absDays} ימים`;
+    if (absDays <= 14) return "לפני שבוע";
+    return date.toLocaleDateString("he-IL", { day: "numeric", month: "short" });
+  }
+  if (diffDays === 0) return "היום";
+  if (diffDays === 1) return "מחר";
+  if (diffDays <= 7) return `עוד ${diffDays} ימים`;
+  if (diffDays <= 14) return `עוד שבוע ו-${diffDays - 7} ימים`;
+  return date.toLocaleDateString("he-IL", { day: "numeric", month: "short" });
 }
 
 function getDeadlineUrgency(dateStr: string): "overdue" | "urgent" | "soon" | "normal" {
@@ -80,6 +93,7 @@ export function AssignmentItem({
   onDelete,
 }: AssignmentItemProps) {
   const [isUpdating, setIsUpdating] = useState(false);
+  const [justCompleted, setJustCompleted] = useState(false);
   const isCompleted = status === "COMPLETED";
   const urgency = getDeadlineUrgency(dueDate);
 
@@ -91,6 +105,12 @@ export function AssignmentItem({
 
     try {
       await onToggleStatus(id, newStatus);
+
+      // Show success animation when completing (not when uncompleting)
+      if (!isCompleted && newStatus === "COMPLETED") {
+        setJustCompleted(true);
+        setTimeout(() => setJustCompleted(false), 500);
+      }
     } finally {
       setIsUpdating(false);
     }
@@ -109,7 +129,8 @@ export function AssignmentItem({
         "group flex items-start gap-3 p-4 rounded-lg border transition-all duration-200",
         "bg-[var(--color-surface)] border-[var(--color-border)]",
         "hover:shadow-sm",
-        isCompleted && "opacity-75"
+        isCompleted && "opacity-75",
+        justCompleted && "bg-[var(--color-success)]/5 border-[var(--color-success)] animate-scale-in"
       )}
       role="listitem"
     >

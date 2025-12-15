@@ -34,6 +34,8 @@ export function BottomNav({ items }: BottomNavProps) {
             <Link
               key={item.href}
               href={item.href}
+              aria-label={`${t(item.labelKey)}${item.badge && item.badge > 0 ? ` - ${item.badge} פריטים` : ''}`}
+              aria-current={isActive ? 'page' : undefined}
               className={cn(
                 "flex flex-col items-center justify-center",
                 "py-2 px-3 flex-1",
@@ -52,7 +54,10 @@ export function BottomNav({ items }: BottomNavProps) {
               >
                 {item.icon}
                 {item.badge !== undefined && item.badge > 0 && (
-                  <span className="absolute -top-1 -end-1 w-4 h-4 flex items-center justify-center text-[10px] bg-[var(--color-danger)] text-white rounded-full">
+                  <span
+                    className="absolute -top-1 -end-1 w-4 h-4 flex items-center justify-center text-[10px] bg-[var(--color-danger)] text-white rounded-full"
+                    aria-label={`${item.badge} התראות`}
+                  >
                     {item.badge > 9 ? "9+" : item.badge}
                   </span>
                 )}

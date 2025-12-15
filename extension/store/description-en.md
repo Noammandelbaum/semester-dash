@@ -56,4 +56,4 @@ All data is stored in your SemesterHub account only.
 
 ---
 
-Developed by SemesterHub | https://semester-dash.vercel.app
+Developed by SemesterHub | https://www.semesterhub.club

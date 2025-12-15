@@ -9,6 +9,7 @@ import type {
   ScrapedAssignment,
 } from '../shared/types';
 import { syncMoodleData, getAuthStatus, storeToken, clearToken, ApiError } from '../shared/api';
+import { isMoodleUrl } from '../shared/config';
 
 // Current sync status
 const syncStatus: SyncStatus = {
@@ -106,7 +107,7 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, sendRes
  */
 async function handleMessage(
   message: ExtensionMessage,
-  _sender: chrome.runtime.MessageSender
+  sender: chrome.runtime.MessageSender
 ): Promise<unknown> {
   switch (message.type) {
     case 'GET_STATUS':
@@ -154,6 +155,39 @@ async function handleMessage(
 
     case 'WEBAPP_SYNC_REQUEST':
       return handleWebappSyncRequest(message.payload as { action?: string } | undefined);
+
+    case 'SET_WEBAPP_TAB':
+      // Set the webapp tab ID from the sender
+      if (sender.tab?.id) {
+        setWebappTabId(sender.tab.id);
+        console.log('[ServiceWorker] Webapp tab registered:', sender.tab.id);
+      }
+      return { success: true };
+
+    case 'WEBAPP_OPEN_MOODLE_AND_GET_COURSES':
+      handleOpenMoodleAndGetCourses(
+        (message.payload as { moodleUrl: string }).moodleUrl
+      );
+      return { success: true };
+
+    case 'WEBAPP_GET_SECTIONS_FOR_COURSES':
+      // courses is already string[] of moodleIds from webapp
+      handleGetSectionsForCourses(
+        (message.payload as { courses: string[]; moodleUrl: string }).courses,
+        (message.payload as { courses: string[]; moodleUrl: string }).moodleUrl
+      );
+      return { success: true };
+
+    case 'WEBAPP_SYNC_SELECTED_COURSES':
+      handleSyncSelectedCourses(
+        (message.payload as { courses: any[]; moodleUrl: string }).courses,
+        (message.payload as { courses: any[]; moodleUrl: string }).moodleUrl
+      );
+      return { success: true };
+
+    case 'WEBAPP_DETECT_MOODLE_URL':
+      handleDetectMoodleUrl();
+      return { success: true };
 
     default:
       throw new Error(`Unknown message type: ${message.type}`);
@@ -627,6 +661,81 @@ function sleep(ms: number): Promise<void> {
 }
 
 /**
+ * Open Moodle in a popup window for login/course scraping
+ */
+async function openMoodlePopup(moodleUrl: string): Promise<{ windowId: number; tabId: number }> {
+  const window = await chrome.windows.create({
+    type: 'popup',
+    url: `${moodleUrl}/my/courses.php`,
+    width: 1000,
+    height: 700,
+    focused: true
+  });
+
+  const tabs = await chrome.tabs.query({ windowId: window.id });
+  return { windowId: window.id!, tabId: tabs[0].id! };
+}
+
+/**
+ * Wait for user to login to Moodle
+ * Monitors login status from content script
+ * Returns when logged in or throws on timeout
+ */
+async function waitForMoodleLogin(windowId: number, tabId: number, timeoutMs: number = 120000): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const startTime = Date.now();
+
+    // Listen for login status updates
+    const loginListener = (message: ExtensionMessage, sender: chrome.runtime.MessageSender) => {
+      if (message.type === 'MOODLE_LOGIN_STATUS' && sender.tab?.id === tabId) {
+        if (message.payload && typeof message.payload === 'object' && 'isLoggedIn' in message.payload) {
+          if (message.payload.isLoggedIn) {
+            chrome.runtime.onMessage.removeListener(loginListener);
+            resolve();
+          }
+        }
+      }
+    };
+
+    chrome.runtime.onMessage.addListener(loginListener);
+
+    // Check if window was closed
+    const windowCheckInterval = setInterval(async () => {
+      try {
+        await chrome.windows.get(windowId);
+      } catch {
+        // Window was closed
+        clearInterval(windowCheckInterval);
+        chrome.runtime.onMessage.removeListener(loginListener);
+        reject(new Error('WINDOW_CLOSED'));
+      }
+
+      // Check timeout
+      if (Date.now() - startTime > timeoutMs) {
+        clearInterval(windowCheckInterval);
+        chrome.runtime.onMessage.removeListener(loginListener);
+        reject(new Error('LOGIN_TIMEOUT'));
+      }
+    }, 1000);
+  });
+}
+
+/**
+ * Detect Moodle URL from currently open tabs
+ */
+async function detectMoodleUrlFromTabs(): Promise<string | null> {
+  const tabs = await chrome.tabs.query({});
+
+  for (const tab of tabs) {
+    if (tab.url && isMoodleUrl(tab.url)) {
+      return new URL(tab.url).origin;
+    }
+  }
+
+  return null;
+}
+
+/**
  * Add entry to sync history
  */
 async function addToSyncHistory(entry: SyncHistoryEntry): Promise<void> {
@@ -754,6 +863,213 @@ function getDefaultResponseForMessage(message: ExtensionMessage): unknown {
     default:
       return { error: 'Content script not available' };
   }
+}
+
+// ========================================
+// Webapp Sync Flow Handlers
+// ========================================
+
+// Store webapp tab ID for communication
+let webappTabId: number | null = null;
+
+function setWebappTabId(tabId: number): void {
+  webappTabId = tabId;
+}
+
+/**
+ * Send event to webapp through the content script
+ */
+async function notifyWebapp(eventName: string, payload?: any): Promise<void> {
+  if (!webappTabId) {
+    console.warn('No webapp tab ID set, cannot notify webapp');
+    return;
+  }
+
+  try {
+    await chrome.tabs.sendMessage(webappTabId, {
+      type: 'NOTIFY_WEBAPP',
+      payload: { eventName, data: payload }
+    });
+  } catch (error) {
+    console.error('Failed to notify webapp:', error);
+  }
+}
+
+/**
+ * Open Moodle popup, wait for login if needed, scrape courses
+ */
+async function handleOpenMoodleAndGetCourses(moodleUrl: string): Promise<void> {
+  try {
+    // 1. Open Moodle popup window
+    const { windowId, tabId } = await openMoodlePopup(moodleUrl);
+
+    // 2. Wait for page to load
+    await waitForTabLoad(tabId);
+    await sleep(1000); // Give content script time to initialize
+
+    // 3. Check login status
+    let isLoggedIn = false;
+    try {
+      isLoggedIn = await chrome.tabs.sendMessage(tabId, { type: 'CHECK_MOODLE_LOGIN' });
+    } catch {
+      isLoggedIn = false;
+    }
+
+    // 4. If not logged in, notify webapp and wait for login
+    if (!isLoggedIn) {
+      notifyWebapp('semesterhub-moodle-login-required');
+
+      try {
+        await waitForMoodleLogin(windowId, tabId);
+        notifyWebapp('semesterhub-moodle-login-success');
+
+        // Navigate to courses page after login
+        await chrome.tabs.update(tabId, { url: `${moodleUrl}/my/courses.php` });
+        await waitForTabLoad(tabId);
+        await sleep(1000);
+      } catch (error: any) {
+        if (error.message === 'WINDOW_CLOSED') {
+          notifyWebapp('semesterhub-sync-complete', { success: false, error: 'החלון נסגר' });
+        } else if (error.message === 'LOGIN_TIMEOUT') {
+          notifyWebapp('semesterhub-sync-complete', { success: false, error: 'הזמן הקצוב להתחברות עבר' });
+        }
+        return;
+      }
+    }
+
+    // 5. Scrape courses
+    const result = await chrome.tabs.sendMessage(tabId, { type: 'SCRAPE_COURSES' }) as { courses: any[] };
+
+    // 6. Close popup
+    await chrome.windows.remove(windowId);
+
+    // 7. Send courses to webapp
+    notifyWebapp('semesterhub-courses-ready', { courses: result.courses || [] });
+
+  } catch (error) {
+    console.error('Error in handleOpenMoodleAndGetCourses:', error);
+    notifyWebapp('semesterhub-sync-complete', { success: false, error: 'אירעה שגיאה בטעינת הקורסים' });
+  }
+}
+
+/**
+ * Get sections for selected courses using background tabs
+ */
+async function handleGetSectionsForCourses(courseIds: string[], moodleUrl: string): Promise<void> {
+  try {
+    const sections: Record<string, string[]> = {};
+
+    for (const courseId of courseIds) {
+      // Open background tab for each course's assignment index
+      const tab = await chrome.tabs.create({
+        url: `${moodleUrl}/mod/assign/index.php?id=${courseId}`,
+        active: false
+      });
+
+      await waitForTabLoad(tab.id!);
+      await sleep(500);
+
+      // Get sections from the page
+      try {
+        const result = await chrome.tabs.sendMessage(tab.id!, {
+          type: 'GET_COURSE_SECTIONS',
+          payload: { courseMoodleId: courseId }
+        }) as { sections: string[] };
+        sections[courseId] = result.sections || [];
+      } catch {
+        sections[courseId] = [];
+      }
+
+      // Close the tab
+      await chrome.tabs.remove(tab.id!);
+    }
+
+    notifyWebapp('semesterhub-sections-ready', { sections });
+
+  } catch (error) {
+    console.error('Error in handleGetSectionsForCourses:', error);
+    notifyWebapp('semesterhub-sync-complete', { success: false, error: 'אירעה שגיאה בטעינת יחידות ההוראה' });
+  }
+}
+
+/**
+ * Sync assignments for selected courses with section filtering
+ */
+async function handleSyncSelectedCourses(
+  courses: Array<{ moodleId: string; name?: string; url?: string; selectedSections: string[] }>,
+  moodleUrl: string
+): Promise<void> {
+  try {
+    const allAssignments: any[] = [];
+    const coursesData: Array<{ moodleId: string; name: string; url: string }> = [];
+
+    for (let i = 0; i < courses.length; i++) {
+      const course = courses[i];
+
+      // Build course data for API
+      coursesData.push({
+        moodleId: course.moodleId,
+        name: course.name || `קורס ${course.moodleId}`,
+        url: course.url || `${moodleUrl}/course/view.php?id=${course.moodleId}`,
+      });
+
+      // Notify progress
+      notifyWebapp('semesterhub-sync-progress', {
+        current: i + 1,
+        total: courses.length,
+        courseName: course.name || course.moodleId
+      });
+
+      // Open background tab for assignment scraping
+      const tab = await chrome.tabs.create({
+        url: `${moodleUrl}/mod/assign/index.php?id=${course.moodleId}`,
+        active: false
+      });
+
+      await waitForTabLoad(tab.id!);
+      await sleep(500);
+
+      // Scrape assignments with section filtering
+      try {
+        const result = await chrome.tabs.sendMessage(tab.id!, {
+          type: 'SCRAPE_ASSIGNMENTS',
+          payload: {
+            courseMoodleId: course.moodleId,
+            filterSections: course.selectedSections.length > 0 ? course.selectedSections : undefined
+          }
+        }) as { assignments: any[] };
+
+        if (result.assignments && Array.isArray(result.assignments)) {
+          allAssignments.push(...result.assignments);
+        }
+      } catch (error) {
+        console.warn(`Failed to scrape assignments for course ${course.moodleId}:`, error);
+      }
+
+      // Close the tab
+      await chrome.tabs.remove(tab.id!);
+    }
+
+    // Send data back to webapp for API call
+    notifyWebapp('semesterhub-sync-complete', {
+      success: true,
+      moodleUrl,
+      courses: coursesData,
+      assignments: allAssignments,
+    });
+
+  } catch (error) {
+    console.error('Error in handleSyncSelectedCourses:', error);
+    notifyWebapp('semesterhub-sync-complete', { success: false, error: 'אירעה שגיאה בסנכרון' });
+  }
+}
+
+/**
+ * Detect Moodle URL from open tabs and notify webapp
+ */
+async function handleDetectMoodleUrl(): Promise<void> {
+  const moodleUrl = await detectMoodleUrlFromTabs();
+  notifyWebapp('semesterhub-moodle-url-detected', { moodleUrl });
 }
 
 // ========================================

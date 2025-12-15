@@ -20,13 +20,21 @@ import { Button } from "@/components/ui/button";
 
 // Helper to get extension info from DOM marker
 function getExtensionMarker(): { version: string; ready: boolean } | null {
+  console.log('[ExtensionStatus] Checking for extension marker...');
   const marker = document.getElementById('semesterhub-extension-marker');
+  console.log('[ExtensionStatus] Marker element:', marker);
+  if (marker) {
+    console.log('[ExtensionStatus] Marker data-ready:', marker.getAttribute('data-ready'));
+    console.log('[ExtensionStatus] Marker data-version:', marker.getAttribute('data-version'));
+  }
   if (marker && marker.getAttribute('data-ready') === 'true') {
+    console.log('[ExtensionStatus] Extension detected!');
     return {
       version: marker.getAttribute('data-version') || 'unknown',
       ready: true,
     };
   }
+  console.log('[ExtensionStatus] Extension NOT detected');
   return null;
 }
 

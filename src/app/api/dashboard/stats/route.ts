@@ -104,13 +104,19 @@ export async function GET(req: Request) {
     }
 
     // 5. Get all courses with assignment counts
+    // No active semester = no courses to show (every course must have a semester)
+    if (!activeSemester) {
+      return NextResponse.json({
+        semester: null,
+        courses: { total: 0, list: [] },
+        assignments: { total: 0, completed: 0, thisWeek: 0, upcoming: [] },
+      });
+    }
+
     const courses = await prisma.course.findMany({
       where: {
         userId,
-        // If there's an active semester, show courses in that semester OR without a semester
-        ...(activeSemester
-          ? { OR: [{ semesterId: activeSemester.id }, { semesterId: null }] }
-          : {}),
+        semesterId: activeSemester.id,
       },
       include: {
         assignments: {
@@ -165,14 +171,11 @@ export async function GET(req: Request) {
       };
     });
 
-    // 7. Get all assignments for statistics
+    // 7. Get all assignments for statistics (only from active semester courses)
     const allAssignments = await prisma.assignment.findMany({
       where: {
         userId,
-        // If there's an active semester, filter by courses in that semester
-        ...(activeSemester
-          ? { course: { semesterId: activeSemester.id } }
-          : {}),
+        course: { semesterId: activeSemester.id },
       },
       select: {
         id: true,
@@ -210,10 +213,7 @@ export async function GET(req: Request) {
           gte: now,
           lte: endOfWeek,
         },
-        // If there's an active semester, filter by courses in that semester
-        ...(activeSemester
-          ? { course: { semesterId: activeSemester.id } }
-          : {}),
+        course: { semesterId: activeSemester.id },
       },
       include: {
         course: {

@@ -56,6 +56,9 @@ function initialize(): void {
       console.log(`[SemesterHub] Detected university: ${university.name}`);
     }
     sendProgressUpdate('Content script ready');
+
+    // Start login monitoring on Moodle pages
+    monitorLoginStatus();
   }
 }
 
@@ -84,6 +87,9 @@ async function handleMessage(message: ExtensionMessage): Promise<unknown> {
 
     case 'GET_COURSE_SECTIONS':
       return handleGetCourseSections(message.payload as { courseMoodleId?: string } | undefined);
+
+    case 'CHECK_MOODLE_LOGIN':
+      return checkMoodleLoginStatus();
 
     default:
       throw new Error(`Unknown message type: ${message.type}`);
@@ -212,6 +218,59 @@ async function handleScrapeAll(): Promise<{
   }
 
   return { courses, assignments };
+}
+
+// ========================================
+// Login Detection Functions
+// ========================================
+
+/**
+ * Check if user is logged into Moodle
+ * Returns object to match expected response format
+ */
+function checkMoodleLoginStatus(): { isLoggedIn: boolean } {
+  // Check for login page indicators
+  const isLoginPage = window.location.pathname.includes('/login/');
+  const hasLoginForm = document.querySelector('form#login, .login-form, #loginbtn');
+
+  // If on login page or has login form, user is NOT logged in
+  const isLoggedIn = !isLoginPage && !hasLoginForm;
+  console.log('[SemesterHub] Login check - isLoginPage:', isLoginPage, 'hasLoginForm:', !!hasLoginForm, 'isLoggedIn:', isLoggedIn);
+  return { isLoggedIn };
+}
+
+/**
+ * Send current login status to service worker
+ */
+function sendLoginStatus(): void {
+  const { isLoggedIn } = checkMoodleLoginStatus();
+  chrome.runtime.sendMessage({
+    type: 'MOODLE_LOGIN_STATUS',
+    payload: { isLoggedIn }
+  }).catch(() => {
+    // Ignore errors (service worker might not be listening)
+  });
+}
+
+/**
+ * Monitor login status changes and notify service worker
+ */
+function monitorLoginStatus(): void {
+  // Send initial status
+  sendLoginStatus();
+
+  // Monitor URL changes (Moodle redirects after login)
+  let lastUrl = window.location.href;
+  const urlObserver = new MutationObserver(() => {
+    if (window.location.href !== lastUrl) {
+      lastUrl = window.location.href;
+      sendLoginStatus();
+    }
+  });
+  urlObserver.observe(document, { subtree: true, childList: true });
+
+  // Also check periodically (backup)
+  setInterval(sendLoginStatus, 2000);
 }
 
 // ========================================

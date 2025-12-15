@@ -27,7 +27,7 @@ export function SemesterProgressRing({
   const weekText = formatWeekIndicator(currentWeek, totalWeeks);
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex flex-col items-center gap-3 animate-scale-in">
       {/* Semester name */}
       {semesterName && (
         <h2 className="text-lg font-medium text-[var(--color-text-primary)]">

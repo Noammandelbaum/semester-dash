@@ -25,9 +25,9 @@ export function OnboardingProgress({
   className,
 }: OnboardingProgressProps) {
   return (
-    <div className={cn("w-full", className)}>
+    <div className={cn("w-full", className)} role="progressbar" aria-valuenow={currentStep} aria-valuemin={1} aria-valuemax={totalSteps} aria-label={`שלב ${currentStep} מתוך ${totalSteps}`}>
       {/* Step indicator dots */}
-      <div className="flex items-center justify-center gap-2 mb-2">
+      <div className="flex items-center justify-center gap-2 mb-3">
         {Array.from({ length: totalSteps }, (_, i) => {
           const stepNum = i + 1;
           const isActive = stepNum === currentStep;
@@ -39,17 +39,21 @@ export function OnboardingProgress({
               className={cn(
                 "w-2.5 h-2.5 rounded-full transition-all duration-300",
                 isActive && "w-8 bg-[var(--color-primary)]",
-                isCompleted && "bg-[var(--color-primary)]",
+                isCompleted && "bg-[var(--color-success)]",
                 !isActive && !isCompleted && "bg-[var(--color-border)]"
               )}
+              aria-label={isCompleted ? `שלב ${stepNum} הושלם` : isActive ? `שלב ${stepNum} פעיל` : `שלב ${stepNum}`}
+              aria-current={isActive ? 'step' : undefined}
             />
           );
         })}
       </div>
 
-      {/* Step label */}
-      <p className="text-center text-sm text-[var(--color-text-muted)]">
-        {stepLabels[currentStep - 1]} • שלב {currentStep} מתוך {totalSteps}
+      {/* Step label - larger and clearer */}
+      <p className="text-center text-[var(--color-text-primary)] font-medium">
+        <span className="text-[var(--color-primary)]">{stepLabels[currentStep - 1]}</span>
+        <span className="text-[var(--color-text-muted)] mx-2">•</span>
+        <span className="text-[var(--color-text-secondary)]">צעד {currentStep} מתוך {totalSteps}</span>
       </p>
     </div>
   );

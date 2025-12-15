@@ -215,16 +215,18 @@ export default function SemesterDetailPage({
             </div>
 
             <div className="flex items-center gap-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setSyncDialogOpen(true)}
+              >
+                <RefreshCw className="w-4 h-4 ml-2" />
+                סנכרן מחדש
+              </Button>
               <SyncSemesterDialog
                 open={syncDialogOpen}
                 onOpenChange={setSyncDialogOpen}
                 onSyncComplete={handleSyncComplete}
-                trigger={
-                  <Button variant="secondary" size="sm">
-                    <RefreshCw className="w-4 h-4 ml-2" />
-                    סנכרן מחדש
-                  </Button>
-                }
               />
             </div>
           </div>

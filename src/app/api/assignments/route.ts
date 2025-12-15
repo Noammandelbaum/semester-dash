@@ -138,10 +138,27 @@ export async function GET(req: Request) {
     const queryParams = Object.fromEntries(searchParams.entries());
     const validatedQuery = AssignmentQuerySchema.parse(queryParams);
 
-    // 4. Build where clause based on filters
+    // 4. Get active semester for filtering
+    const activeSemester = await prisma.semester.findFirst({
+      where: {
+        userId: session.user.id,
+        isActive: true,
+      },
+      select: { id: true },
+    });
+
+    // 5. Build where clause based on filters
     const where: Prisma.AssignmentWhereInput = {
       userId: session.user.id,
     };
+
+    // No active semester = no assignments to show (every assignment must have a course in a semester)
+    if (!activeSemester) {
+      return NextResponse.json({
+        assignments: [],
+        pagination: { total: 0, limit: 50, offset: 0, hasMore: false },
+      });
+    }
 
     // Filter by course (must be user's course)
     if (validatedQuery.courseId) {
@@ -159,6 +176,9 @@ export async function GET(req: Request) {
       }
 
       where.courseId = validatedQuery.courseId;
+    } else {
+      // Show assignments from active semester courses only
+      where.course = { semesterId: activeSemester.id };
     }
 
     // Additional filters

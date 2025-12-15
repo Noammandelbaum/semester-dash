@@ -24,7 +24,7 @@ export function DashboardEmptyState({
         description="הגדר את הסמסטר הנוכחי שלך כדי לראות את התמונה המלאה"
         actionLabel="הגדר סמסטר"
         onAction={() => {
-          window.location.href = "/dashboard/settings";
+          window.location.href = "/dashboard/semesters";
         }}
       />
     );

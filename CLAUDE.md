@@ -381,3 +381,7 @@ npx prisma db push
 - Hebrew for user-facing, English for code/docs
 - Values: Deep planning > quick hacks
 - Goal: Real product → users → revenue
+- אשמח שתוסיף אתזה לקובץ הקלוד.
+- 1. לפני תיקון באג - קרא את הspec הרלוונטי להבין מה ההתנהגות הצפויה
+  2. אחרי שינוי - עבור על רשימת "בדיקות נדרשות" בסוף כל קובץ
+  3. כשיש ספק - _BUSINESS_RULES.md מכיל את הכללים המשותפים

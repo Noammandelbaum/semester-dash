@@ -70,24 +70,76 @@ function DialogContent({ children, className }: DialogContentProps) {
   const { open, onOpenChange } = useDialog();
   const contentRef = React.useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = React.useState(false);
+  const previousActiveElement = React.useRef<HTMLElement | null>(null);
 
   // Ensure we're on the client side
   React.useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Close on escape
+  // Focus trap and close on escape
   React.useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onOpenChange(false);
+    if (!open) return;
+
+    // Store previously focused element
+    previousActiveElement.current = document.activeElement as HTMLElement;
+
+    // Get all focusable elements
+    const getFocusableElements = () => {
+      if (!contentRef.current) return [];
+      return Array.from(
+        contentRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter((el) => !el.hasAttribute('disabled'));
     };
-    if (open) {
-      document.addEventListener("keydown", handleEscape);
-      document.body.style.overflow = "hidden";
+
+    // Focus first element when dialog opens
+    const focusableElements = getFocusableElements();
+    if (focusableElements.length > 0) {
+      focusableElements[0].focus();
     }
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onOpenChange(false);
+        return;
+      }
+
+      if (e.key === "Tab") {
+        const focusableElements = getFocusableElements();
+        if (focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey) {
+          // Shift + Tab: moving backwards
+          if (document.activeElement === firstElement) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          // Tab: moving forwards
+          if (document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    document.body.style.overflow = "hidden";
+
     return () => {
-      document.removeEventListener("keydown", handleEscape);
+      document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "";
+
+      // Restore focus to previous element
+      if (previousActiveElement.current) {
+        previousActiveElement.current.focus();
+      }
     };
   }, [open, onOpenChange]);
 

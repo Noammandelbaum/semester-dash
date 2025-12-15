@@ -1,9 +1,12 @@
 import type { UniversityConfig, MoodleSelectors } from './types';
 
 // SemesterHub API configuration
-// For development: change to 'http://localhost:3000' and rebuild
-// For production: 'https://semester-dash.vercel.app'
-export const API_BASE_URL = 'https://semester-dash.vercel.app';
+// Toggle between development and production:
+const IS_DEVELOPMENT = true; // Set to false for production build
+
+export const API_BASE_URL = IS_DEVELOPMENT
+  ? 'http://localhost:3000'
+  : 'https://semesterhub.club';
 
 // ========================================
 // Known Israeli Institutions
@@ -160,34 +163,33 @@ for (const [id, info] of Object.entries(KNOWN_INSTITUTIONS)) {
 // ========================================
 
 /**
- * Extract institution identifier from a Moodle URL
- *
+ * Extract university/institution ID from Moodle URL
  * Examples:
- * - https://moodle.tau.ac.il/my/ → 'tau'
- * - https://moodle.jct.ac.il/course/view.php?id=123 → 'jct'
- * - https://lms.college.edu/my/ → 'college'
- * - https://some-moodle.org/course/ → 'some-moodle'
+ *   moodle.jct.ac.il -> jct
+ *   moodle.tau.ac.il -> tau
+ *   lemida.biu.ac.il -> biu
  */
 export function extractInstitutionId(url: string): string | null {
   try {
     const urlObj = new URL(url);
     const hostname = urlObj.hostname.toLowerCase();
 
-    // Pattern 1: moodle.XXX.ac.il or moodle.XXX.edu
-    const moodleSubdomain = hostname.match(/^moodle\.([^.]+)\./);
-    if (moodleSubdomain) {
-      return moodleSubdomain[1];
+    // Pattern 1: moodle.XXX.ac.il -> XXX
+    const moodleMatch = hostname.match(/moodle\.([^.]+)\./);
+    if (moodleMatch) {
+      return moodleMatch[1];
     }
 
-    // Pattern 2: XXX.moodle.com or lms.XXX.ac.il
-    const parts = hostname.split('.');
-    if (parts.length >= 2) {
-      // If starts with 'moodle' or 'lms', take the next part
-      if (parts[0] === 'moodle' || parts[0] === 'lms') {
-        return parts[1];
-      }
-      // Otherwise take the first part
-      return parts[0];
+    // Pattern 2: XXX.ac.il or XXX.edu.il (subdomain is the ID)
+    const subdomainMatch = hostname.match(/^([^.]+)\.[^.]+\.(ac|edu)\.il$/);
+    if (subdomainMatch) {
+      return subdomainMatch[1];
+    }
+
+    // Pattern 3: Just get the main domain part before .ac.il or .edu.il
+    const domainMatch = hostname.match(/([^.]+)\.(ac|edu)\.il$/);
+    if (domainMatch) {
+      return domainMatch[1];
     }
 
     return null;
@@ -268,25 +270,66 @@ export function detectUniversity(url: string): UniversityConfig | null {
 }
 
 /**
- * Check if URL is a Moodle URL
+ * Check if a URL is likely a Moodle page
+ * More robust detection that supports all Israeli educational institutions
  */
 export function isMoodleUrl(url: string): boolean {
-  const urlLower = url.toLowerCase();
+  try {
+    const urlObj = new URL(url);
+    const hostname = urlObj.hostname.toLowerCase();
+    const pathname = urlObj.pathname.toLowerCase();
 
-  // Check hostname contains 'moodle'
-  if (urlLower.includes('moodle')) {
-    return true;
-  }
+    // Check if it's an Israeli educational domain or contains 'moodle'
+    const isEducationalDomain =
+      hostname.includes('moodle') ||
+      hostname.endsWith('.ac.il') ||
+      hostname.endsWith('.edu.il') ||
+      hostname.endsWith('.college.ac.il');
 
-  // Check for Moodle-specific paths
-  const moodlePaths = ['/my/', '/course/', '/mod/', '/login/index.php'];
-  for (const path of moodlePaths) {
-    if (urlLower.includes(path)) {
+    if (!isEducationalDomain) {
+      return false;
+    }
+
+    // If hostname contains 'moodle', it's definitely a Moodle site
+    if (hostname.includes('moodle')) {
       return true;
     }
-  }
 
-  return false;
+    // For educational domains without 'moodle' in hostname,
+    // check for Moodle-specific paths
+    const moodlePaths = [
+      '/my/',
+      '/my',
+      '/course/',
+      '/mod/',
+      '/login/index.php',
+      '/calendar/',
+      '/user/',
+      '/grade/',
+      '/admin/',
+      '/blocks/',
+      '/lib/ajax/',
+    ];
+
+    return moodlePaths.some(path => pathname.startsWith(path) || pathname.includes(path));
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Extract Moodle base URL from any Moodle page URL
+ */
+export function getMoodleBaseUrl(url: string): string | null {
+  try {
+    if (!isMoodleUrl(url)) {
+      return null;
+    }
+    const urlObj = new URL(url);
+    return urlObj.origin;
+  } catch {
+    return null;
+  }
 }
 
 /**

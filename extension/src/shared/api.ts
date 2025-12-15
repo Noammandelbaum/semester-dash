@@ -4,6 +4,7 @@
  */
 
 import { API_BASE_URL } from "./config";
+import { TIMEOUTS } from "./constants";
 import type {
   SyncPayload,
   SyncResponse,
@@ -13,6 +14,13 @@ import type {
   Result,
   AsyncResult,
 } from "./types";
+
+// ========================================
+// Constants
+// ========================================
+
+/** Timeout for API requests in milliseconds */
+const API_TIMEOUT_MS = TIMEOUTS.API_REQUEST;
 
 // ========================================
 // Error Classes
@@ -156,11 +164,12 @@ function categorizeStatusCode(status: number): ApiErrorCategory {
 }
 
 /**
- * Make authenticated API request with error handling
+ * Make authenticated API request with error handling and timeout
  */
 async function apiRequest<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  timeoutMs: number = API_TIMEOUT_MS
 ): Promise<T> {
   const token = await getStoredToken();
 
@@ -175,11 +184,18 @@ async function apiRequest<T>(
 
   const url = `${API_BASE_URL}${endpoint}`;
 
+  // Create AbortController for timeout
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
   try {
     const response = await fetch(url, {
       ...options,
       headers,
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({
@@ -196,10 +212,21 @@ async function apiRequest<T>(
 
     return response.json();
   } catch (error) {
+    clearTimeout(timeoutId);
+
+    // Handle abort/timeout errors
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw new ApiError(
+        "הזמן הקצוב לבקשה עבר. נסה שוב.",
+        0,
+        "network"
+      );
+    }
+
     // Handle network errors
     if (error instanceof TypeError && error.message.includes("fetch")) {
       throw new ApiError(
-        "Network error: Unable to connect to server",
+        "שגיאת רשת: לא ניתן להתחבר לשרת",
         0,
         "network"
       );
@@ -212,7 +239,7 @@ async function apiRequest<T>(
 
     // Wrap other errors
     throw new ApiError(
-      error instanceof Error ? error.message : "Unknown error occurred",
+      error instanceof Error ? error.message : "שגיאה לא צפויה",
       0,
       "unknown"
     );
@@ -333,9 +360,25 @@ export async function getAuthStatus(): Promise<AuthStatus> {
       user: result.user,
     };
   } catch (error) {
-    // ANY error means we can't verify - clear token and show as disconnected
-    // This is safer than assuming we're still connected
     console.error("[API] Auth verification failed:", error);
+
+    // Don't clear token on network errors (might be temporary)
+    // Only clear on explicit auth errors
+    if (error instanceof ApiError) {
+      if (error.isNetworkError()) {
+        // Network error - keep token, show as potentially authenticated
+        // User might just be offline temporarily
+        console.log("[API] Network error during auth check - keeping token");
+        return { isAuthenticated: false, error: error.message };
+      }
+      if (error.isAuthError()) {
+        // Auth error - token is definitely invalid, clear it
+        await clearToken();
+        return { isAuthenticated: false };
+      }
+    }
+
+    // For other errors, clear token to be safe
     await clearToken();
     return { isAuthenticated: false };
   }
@@ -370,6 +413,8 @@ export async function getAuthStatusSafe(): AsyncResult<AuthStatus, ApiError> {
  * @throws ApiError on failure
  */
 export async function requestToken(): Promise<TokenResponse> {
+  console.log('[API] requestToken - starting, API_BASE_URL:', API_BASE_URL);
+
   // Get the session cookie manually using chrome.cookies API
   // NextAuth uses these cookie names
   const cookieNames = [
@@ -387,16 +432,19 @@ export async function requestToken(): Promise<TokenResponse> {
         url: API_BASE_URL,
         name: name,
       });
+      console.log(`[API] Checking cookie "${name}":`, cookie ? 'FOUND' : 'not found');
       if (cookie?.value) {
         sessionCookie = `${cookie.name}=${cookie.value}`;
+        console.log('[API] Using cookie:', cookie.name);
         break;
       }
-    } catch {
-      // Cookie not found, try next
+    } catch (e) {
+      console.log(`[API] Error getting cookie "${name}":`, e);
     }
   }
 
   if (!sessionCookie) {
+    console.log('[API] No session cookie found!');
     throw new ApiError(
       'יש להתחבר קודם ל-SemesterHub דרך הדפדפן',
       401,

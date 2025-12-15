@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { INSTITUTIONS } from "@/lib/institutions";
 
 /**
  * Theme options for display preferences
@@ -6,9 +7,17 @@ import { z } from "zod";
 export const THEMES = ["system", "light", "dark"] as const;
 
 /**
+ * Valid institution IDs
+ */
+const INSTITUTION_IDS = INSTITUTIONS.map((i) => i.id) as [string, ...string[]];
+
+/**
  * Schema for updating user preferences
  */
 export const UpdatePreferencesSchema = z.object({
+  // Institution
+  institutionId: z.enum(INSTITUTION_IDS).nullable().optional(),
+
   // Notifications
   emailNotifications: z.boolean().optional(),
   inAppNotifications: z.boolean().optional(),

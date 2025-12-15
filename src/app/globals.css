@@ -166,6 +166,67 @@ body {
   line-height: var(--leading-normal-he);
 }
 
+/* Hebrew Typography Scale - Applied to HTML Elements */
+[dir="rtl"] h1 {
+  font-size: var(--text-3xl-he);
+  line-height: var(--leading-tight-he);
+  font-weight: 600;
+}
+
+[dir="rtl"] h2 {
+  font-size: var(--text-2xl-he);
+  line-height: var(--leading-tight-he);
+  font-weight: 600;
+}
+
+[dir="rtl"] h3 {
+  font-size: var(--text-xl-he);
+  line-height: var(--leading-normal-he);
+  font-weight: 500;
+}
+
+[dir="rtl"] h4 {
+  font-size: var(--text-lg-he);
+  line-height: var(--leading-normal-he);
+  font-weight: 500;
+}
+
+[dir="rtl"] p,
+[dir="rtl"] span,
+[dir="rtl"] label,
+[dir="rtl"] button {
+  font-size: var(--text-base-he);
+  line-height: var(--leading-normal-he);
+}
+
+[dir="rtl"] small,
+[dir="rtl"] .text-sm {
+  font-size: var(--text-sm-he);
+  line-height: var(--leading-normal-he);
+}
+
+[dir="rtl"] .text-xs {
+  font-size: var(--text-xs-he);
+  line-height: var(--leading-normal-he);
+}
+
+/* Tailwind size overrides for Hebrew */
+[dir="rtl"] .text-lg {
+  font-size: var(--text-lg-he) !important;
+}
+
+[dir="rtl"] .text-xl {
+  font-size: var(--text-xl-he) !important;
+}
+
+[dir="rtl"] .text-2xl {
+  font-size: var(--text-2xl-he) !important;
+}
+
+[dir="rtl"] .text-3xl {
+  font-size: var(--text-3xl-he) !important;
+}
+
 /* Hebrew emphasis utilities - no bold/italics, use these instead */
 .emphasis-he {
   color: var(--color-primary);

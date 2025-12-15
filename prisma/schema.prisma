@@ -80,6 +80,9 @@ model UserPreferences {
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  // Institution
+  institutionId String? // "jct", "tau", etc. - from institutions.ts
+
   // Notifications
   emailNotifications Boolean @default(false) // Disabled by default
   inAppNotifications Boolean @default(true)
@@ -145,7 +148,7 @@ model Course {
   userId      String
   user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   semesterId  String?
-  semester    Semester?    @relation(fields: [semesterId], references: [id])
+  semester    Semester?    @relation(fields: [semesterId], references: [id], onDelete: Cascade)
   assignments Assignment[]
 
   @@unique([userId, moodleId]) // Unique moodleId per user

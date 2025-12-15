@@ -6,6 +6,11 @@ import { prisma } from "@/lib/prisma";
 import { MoodleSyncPayloadSchema } from "@/schemas/sync";
 import { apiSyncLimiter, getRateLimitIdentifier } from "@/lib/rate-limit";
 import type { MoodleCourse, MoodleAssignment } from "@/schemas/sync";
+import {
+  suggestCurrentSemester,
+  getSemesterStartDate,
+  getSemesterEndDate,
+} from "@/lib/semester-utils";
 
 /**
  * CORS headers for extension requests
@@ -113,17 +118,20 @@ export async function POST(req: Request) {
     const courseCounts = { created: 0, updated: 0, unchanged: 0 };
     const assignmentCounts = { created: 0, updated: 0, unchanged: 0 };
 
-    // 5. Build moodleId -> courseId map for assignment linking
+    // 5. Find or create current semester
+    const semester = await findOrCreateCurrentSemester(userId);
+
+    // 6. Build moodleId -> courseId map for assignment linking
     const moodleIdToCourseId = new Map<string, string>();
 
-    // 6. Upsert courses
+    // 7. Upsert courses (with semester association)
     for (const course of validatedData.courses) {
-      const result = await upsertCourse(userId, course);
+      const result = await upsertCourse(userId, course, semester.id);
       courseCounts[result.action]++;
       moodleIdToCourseId.set(course.moodleId, result.courseId);
     }
 
-    // 7. Upsert assignments
+    // 8. Upsert assignments
     for (const assignment of validatedData.assignments) {
       // Find the course ID for this assignment
       let courseId = moodleIdToCourseId.get(assignment.courseMoodleId);
@@ -156,7 +164,7 @@ export async function POST(req: Request) {
       assignmentCounts[result.action]++;
     }
 
-    // 8. Return sync summary
+    // 9. Return sync summary
     return NextResponse.json(
       {
         success: true,
@@ -214,73 +222,139 @@ export async function POST(req: Request) {
 }
 
 /**
- * Upsert a course from Moodle data
- * Matches by moodleId (primary) or courseCode (fallback)
+ * Find or create the current semester for a user
+ * Based on current date using suggestCurrentSemester()
  */
-async function upsertCourse(
-  userId: string,
-  course: MoodleCourse
-): Promise<{ action: "created" | "updated" | "unchanged"; courseId: string }> {
-  // Try to find existing course by moodleId
-  let existingCourse = await prisma.course.findFirst({
+async function findOrCreateCurrentSemester(userId: string) {
+  const suggestion = suggestCurrentSemester();
+  const { type, year, name } = suggestion.suggested;
+
+  // Try to find existing semester
+  let semester = await prisma.semester.findFirst({
     where: {
       userId,
-      moodleId: course.moodleId,
+      type,
+      year,
     },
   });
 
-  // Fallback: try to find by courseCode if moodleId not found
-  if (!existingCourse && course.courseCode) {
-    existingCourse = await prisma.course.findFirst({
+  if (!semester) {
+    // Create new semester
+    semester = await prisma.semester.create({
+      data: {
+        userId,
+        name,
+        type,
+        year,
+        startDate: getSemesterStartDate(type, year),
+        endDate: getSemesterEndDate(type, year),
+        isActive: true,
+      },
+    });
+
+    // Deactivate other semesters
+    await prisma.semester.updateMany({
       where: {
         userId,
-        courseCode: course.courseCode,
-        moodleId: null, // Only match if moodleId not set
+        id: { not: semester.id },
+        isActive: true,
       },
+      data: { isActive: false },
     });
   }
 
-  if (existingCourse) {
-    // Check if update needed
-    const needsUpdate =
-      existingCourse.name !== course.name ||
-      existingCourse.moodleId !== course.moodleId ||
-      existingCourse.moodleUrl !== course.url ||
-      (course.courseCode && existingCourse.courseCode !== course.courseCode);
+  return semester;
+}
 
-    if (needsUpdate) {
+/**
+ * Upsert a course from Moodle data
+ * Uses atomic upsert to prevent race conditions
+ */
+async function upsertCourse(
+  userId: string,
+  course: MoodleCourse,
+  semesterId: string
+): Promise<{ action: "created" | "updated" | "unchanged"; courseId: string }> {
+  // First check if course exists by courseCode (for migration from manual courses)
+  if (course.courseCode) {
+    const manualCourse = await prisma.course.findFirst({
+      where: {
+        userId,
+        courseCode: course.courseCode,
+        moodleId: null, // Only match if moodleId not set (manual course)
+      },
+    });
+
+    if (manualCourse) {
+      // Update manual course with Moodle data
       await prisma.course.update({
-        where: { id: existingCourse.id },
+        where: { id: manualCourse.id },
         data: {
           name: course.name,
           moodleId: course.moodleId,
           moodleUrl: course.url,
-          courseCode: course.courseCode || existingCourse.courseCode,
+          semesterId,
         },
       });
-      return { action: "updated", courseId: existingCourse.id };
+      return { action: "updated", courseId: manualCourse.id };
     }
-
-    return { action: "unchanged", courseId: existingCourse.id };
   }
 
-  // Create new course
-  const newCourse = await prisma.course.create({
-    data: {
+  // Use atomic upsert by unique constraint (userId, moodleId)
+  // This prevents race conditions when multiple sync requests arrive simultaneously
+  const existingCourse = await prisma.course.findUnique({
+    where: {
+      userId_moodleId: {
+        userId,
+        moodleId: course.moodleId,
+      },
+    },
+  });
+
+  const result = await prisma.course.upsert({
+    where: {
+      userId_moodleId: {
+        userId,
+        moodleId: course.moodleId,
+      },
+    },
+    update: {
+      name: course.name,
+      moodleUrl: course.url,
+      courseCode: course.courseCode,
+      semesterId,
+    },
+    create: {
       userId,
       name: course.name,
       moodleId: course.moodleId,
       moodleUrl: course.url,
       courseCode: course.courseCode,
+      semesterId,
     },
   });
 
-  return { action: "created", courseId: newCourse.id };
+  // Determine action based on whether course existed before
+  if (!existingCourse) {
+    return { action: "created", courseId: result.id };
+  }
+
+  // Check if anything actually changed
+  const wasUnchanged =
+    existingCourse.name === course.name &&
+    existingCourse.moodleUrl === course.url &&
+    existingCourse.semesterId === semesterId &&
+    existingCourse.courseCode === course.courseCode;
+
+  return {
+    action: wasUnchanged ? "unchanged" : "updated",
+    courseId: result.id,
+  };
 }
 
 /**
  * Upsert an assignment from Moodle data
- * Matches by moodleId within the course
+ * Uses atomic upsert to prevent race conditions
  */
 async function upsertAssignment(
   userId: string,
@@ -295,46 +369,34 @@ async function upsertAssignment(
     other: "OTHER",
   };
   const assignmentType = typeMap[assignment.type] || "OTHER";
+  const defaultDueDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days from now
 
-  // Try to find existing assignment by moodleId
-  const existingAssignment = await prisma.assignment.findFirst({
+  // Check if assignment exists before upsert (to determine action)
+  const existingAssignment = await prisma.assignment.findUnique({
     where: {
-      userId,
-      courseId,
-      moodleId: assignment.moodleId,
+      moodleId_courseId: {
+        moodleId: assignment.moodleId,
+        courseId,
+      },
     },
   });
 
-  if (existingAssignment) {
-    // Check if update needed
-    const needsUpdate =
-      existingAssignment.title !== assignment.title ||
-      existingAssignment.description !== assignment.description ||
-      existingAssignment.moodleUrl !== assignment.url ||
-      existingAssignment.type !== assignmentType ||
-      (assignment.dueDate &&
-        existingAssignment.dueDate?.getTime() !== assignment.dueDate.getTime());
-
-    if (needsUpdate) {
-      await prisma.assignment.update({
-        where: { id: existingAssignment.id },
-        data: {
-          title: assignment.title,
-          description: assignment.description,
-          moodleUrl: assignment.url,
-          type: assignmentType,
-          dueDate: assignment.dueDate || existingAssignment.dueDate,
-        },
-      });
-      return { action: "updated" };
-    }
-
-    return { action: "unchanged" };
-  }
-
-  // Create new assignment
-  await prisma.assignment.create({
-    data: {
+  // Use atomic upsert by unique constraint (moodleId, courseId)
+  const result = await prisma.assignment.upsert({
+    where: {
+      moodleId_courseId: {
+        moodleId: assignment.moodleId,
+        courseId,
+      },
+    },
+    update: {
+      title: assignment.title,
+      description: assignment.description,
+      moodleUrl: assignment.url,
+      type: assignmentType,
+      dueDate: assignment.dueDate || undefined, // Keep existing if no new date
+    },
+    create: {
       userId,
       courseId,
       title: assignment.title,
@@ -342,11 +404,23 @@ async function upsertAssignment(
       moodleId: assignment.moodleId,
       moodleUrl: assignment.url,
       type: assignmentType,
-      dueDate: assignment.dueDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Default: 30 days from now
+      dueDate: assignment.dueDate || defaultDueDate,
       priority: "MEDIUM",
       status: "NOT_STARTED",
     },
   });
 
-  return { action: "created" };
+  // Determine action based on whether assignment existed before
+  if (!existingAssignment) {
+    return { action: "created" };
+  }
+
+  // Check if anything actually changed
+  const wasUnchanged =
+    existingAssignment.title === assignment.title &&
+    existingAssignment.description === assignment.description &&
+    existingAssignment.moodleUrl === assignment.url &&
+    existingAssignment.type === assignmentType;
+
+  return { action: wasUnchanged ? "unchanged" : "updated" };
 }

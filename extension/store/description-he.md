@@ -56,4 +56,4 @@
 
 ---
 
-פותח על ידי SemesterHub | https://semester-dash.vercel.app
+פותח על ידי SemesterHub | https://www.semesterhub.club

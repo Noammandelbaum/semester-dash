@@ -75,10 +75,23 @@ const priorityLabels: Record<AssignmentPriority, string> = {
 
 function formatDueDate(dateStr: string): string {
   const date = new Date(dateStr);
-  return date.toLocaleDateString("he-IL", {
-    day: "numeric",
-    month: "short",
-  });
+  const now = new Date();
+  const diffMs = date.getTime() - now.getTime();
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+  // Past dates
+  if (diffDays < 0) {
+    const absDays = Math.abs(diffDays);
+    if (absDays === 1) return "אתמול";
+    if (absDays <= 7) return `לפני ${absDays} ימים`;
+    return date.toLocaleDateString("he-IL", { day: "numeric", month: "short" });
+  }
+  // Today and future
+  if (diffDays === 0) return "היום";
+  if (diffDays === 1) return "מחר";
+  if (diffDays <= 7) return `עוד ${diffDays} ימים`;
+  if (diffDays <= 14) return `עוד שבוע ו-${diffDays - 7} ימים`;
+  return date.toLocaleDateString("he-IL", { day: "numeric", month: "short" });
 }
 
 function getDeadlineUrgency(dateStr: string): "overdue" | "urgent" | "soon" | "normal" {

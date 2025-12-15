@@ -9,6 +9,7 @@ import {
   getDeadlineUrgency,
   type CourseStatus,
 } from "@/lib/dashboard-utils";
+import { cleanCourseName } from "@/lib/utils";
 
 /**
  * CourseCard (STUDDASH-27)
@@ -79,6 +80,7 @@ export function CourseCard({
   const router = useRouter();
   const colorClass = courseColors[color] || courseColors.indigo;
   const statusLabel = getCourseStatusLabel(status);
+  const displayName = cleanCourseName(name);
 
   const handleClick = () => {
     router.push(`/dashboard/courses/${id}`);
@@ -90,9 +92,9 @@ export function CourseCard({
   return (
     <Card
       onClick={handleClick}
-      className="relative cursor-pointer overflow-hidden min-h-[44px]"
+      className="relative cursor-pointer overflow-hidden min-h-[44px] card-hover"
       role="article"
-      aria-label={`קורס ${name}, ${statusLabel}`}
+      aria-label={`קורס ${displayName}, ${statusLabel}`}
     >
       {/* Color stripe on the right (RTL) */}
       <div
@@ -105,7 +107,7 @@ export function CourseCard({
         <div className="flex items-start justify-between gap-2 mb-2">
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-[var(--color-text-primary)] truncate">
-              {name}
+              {displayName}
             </h3>
           </div>
 

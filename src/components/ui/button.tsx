@@ -20,11 +20,11 @@ const buttonVariants = cva(
           "bg-[var(--color-success)] text-white hover:bg-[var(--color-success)]/90",
       },
       size: {
-        sm: "h-8 px-3 text-xs",
-        md: "h-10 px-4 text-sm",
-        lg: "h-12 px-6 text-base",
-        xl: "h-14 px-8 text-lg",
-        icon: "h-10 w-10",
+        sm: "min-h-[44px] h-10 px-3 text-xs",
+        md: "min-h-[44px] h-11 px-4 text-sm",
+        lg: "min-h-[44px] h-12 px-6 text-base",
+        xl: "min-h-[44px] h-14 px-8 text-lg",
+        icon: "min-h-[44px] min-w-[44px] h-11 w-11",
       },
     },
     defaultVariants: {

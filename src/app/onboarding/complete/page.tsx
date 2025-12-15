@@ -44,19 +44,17 @@ export default function CompletePage() {
   useEffect(() => {
     if (isMarking) return;
 
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          router.push("/dashboard");
-          return 0;
-        }
-        return prev - 1;
-      });
+    if (countdown <= 0) {
+      router.push("/dashboard");
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setCountdown((prev) => prev - 1);
     }, 1000);
 
-    return () => clearInterval(timer);
-  }, [isMarking, router]);
+    return () => clearTimeout(timer);
+  }, [isMarking, countdown, router]);
 
   const handleGoToDashboard = () => {
     router.push("/dashboard");

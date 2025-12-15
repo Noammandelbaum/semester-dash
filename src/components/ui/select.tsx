@@ -122,7 +122,9 @@ function SelectContent({ children, className }: SelectContentProps) {
   return (
     <div
       className={cn(
+        // Position: RTL-safe - aligns to start (right in RTL, left in LTR)
         "absolute z-50 mt-1 w-full rounded-lg border",
+        "inset-inline-start-0", // RTL-safe positioning
         "bg-[var(--color-surface)] border-[var(--color-border)]",
         "shadow-[var(--shadow-lg)] animate-slide-down",
         "max-h-60 overflow-auto",
@@ -150,7 +152,8 @@ function SelectItem({ value, children, className }: SelectItemProps) {
       onClick={() => onValueChange(value)}
       className={cn(
         // Size: minimum 44px height for touch target (WCAG)
-        "flex w-full min-h-[44px] items-center justify-between px-3 py-2 text-sm",
+        "flex w-full min-h-[44px] items-center justify-between gap-2 px-3 py-2 text-sm",
+        "text-start", // RTL-safe text alignment
         "text-[var(--color-text-primary)]",
         "hover:bg-[var(--color-primary)]/10",
         "transition-colors",
@@ -158,8 +161,8 @@ function SelectItem({ value, children, className }: SelectItemProps) {
         className
       )}
     >
-      <span>{children}</span>
-      {isSelected && <Check className="h-4 w-4 text-[var(--color-primary)]" />}
+      <span className="flex-1">{children}</span>
+      {isSelected && <Check className="h-4 w-4 text-[var(--color-primary)] flex-shrink-0" />}
     </button>
   );
 }

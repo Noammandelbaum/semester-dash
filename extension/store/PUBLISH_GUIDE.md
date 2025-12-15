@@ -10,8 +10,8 @@
 
 2. **הכן את הפרטים:**
    - שם מפתח: SemesterHub
-   - אימייל תמיכה: support@semesterhub.com
-   - אתר: https://semester-dash.vercel.app
+   - אימייל תמיכה: semesterhub.club@gmail.com
+   - אתר: https://www.semesterhub.club
 
 ## שלב 2: הכנת Assets
 
@@ -72,8 +72,8 @@ npm run build:zip
    - העלה screenshots
 
    **Additional Fields:**
-   - אתר: `https://semester-dash.vercel.app`
-   - מדיניות פרטיות: `https://semester-dash.vercel.app/privacy` (או הכתובת שלך)
+   - אתר: `https://www.semesterhub.club`
+   - מדיניות פרטיות: `https://www.semesterhub.club/privacy` (או הכתובת שלך)
 
 5. **Privacy Practices:**
    - סמן "This extension doesn't collect or use user data" - לא

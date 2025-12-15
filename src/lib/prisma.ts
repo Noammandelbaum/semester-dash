@@ -9,6 +9,10 @@ const globalForPrisma = globalThis as unknown as {
 function createPrismaClient() {
   const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
+    // Neon serverless timeout settings
+    connectionTimeoutMillis: 30000, // 30 seconds to establish connection
+    idleTimeoutMillis: 30000, // Close idle connections after 30 seconds
+    max: 10, // Maximum connections in pool
   });
   const adapter = new PrismaPg(pool);
   return new PrismaClient({ adapter });

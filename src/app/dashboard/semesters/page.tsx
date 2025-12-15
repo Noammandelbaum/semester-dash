@@ -42,6 +42,7 @@ export default function SemestersPage() {
   const [semesters, setSemesters] = useState<SemesterWithCount[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [syncDialogOpen, setSyncDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchSemesters();
@@ -95,6 +96,8 @@ export default function SemestersPage() {
       });
       if (response.ok) {
         await fetchSemesters();
+        // Notify other components (like sidebar) that semesters changed
+        window.dispatchEvent(new CustomEvent("semestersChanged"));
       }
     } catch (error) {
       console.error("Error deleting semester:", error);
@@ -143,11 +146,13 @@ export default function SemestersPage() {
             נהל את הסמסטרים והחלף ביניהם
           </p>
         </div>
+        <Button variant="primary" onClick={() => setSyncDialogOpen(true)}>
+          סנכרן סמסטר חדש
+        </Button>
         <SyncSemesterDialog
+          open={syncDialogOpen}
+          onOpenChange={setSyncDialogOpen}
           onSyncComplete={fetchSemesters}
-          trigger={
-            <Button variant="primary">סנכרן סמסטר חדש</Button>
-          }
         />
       </div>
 
@@ -158,14 +163,9 @@ export default function SemestersPage() {
           title="עדיין אין סמסטרים"
           description="סנכרן את הסמסטר הראשון שלך מ-Moodle כדי להתחיל"
           action={
-            <SyncSemesterDialog
-              onSyncComplete={fetchSemesters}
-              trigger={
-                <Button variant="primary" size="lg">
-                  סנכרן מ-Moodle
-                </Button>
-              }
-            />
+            <Button variant="primary" size="lg" onClick={() => setSyncDialogOpen(true)}>
+              סנכרן מ-Moodle
+            </Button>
           }
         />
       ) : (

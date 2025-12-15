@@ -78,6 +78,8 @@ export function Sidebar({ items, user }: SidebarProps) {
             <Link
               key={item.href}
               href={item.href}
+              aria-label={`${t(item.labelKey)}${item.badge && item.badge > 0 ? ` - ${item.badge} פריטים` : ''}`}
+              aria-current={isActive ? 'page' : undefined}
               className={cn(
                 "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
                 "min-h-[44px]", // Touch-friendly target size
@@ -98,6 +100,7 @@ export function Sidebar({ items, user }: SidebarProps) {
                       ? "bg-white/20 text-white"
                       : "bg-[var(--color-primary)]/10 text-[var(--color-primary)]"
                   )}
+                  aria-label={`${item.badge} פריטים חדשים`}
                 >
                   {item.badge > 99 ? "99+" : item.badge}
                 </span>

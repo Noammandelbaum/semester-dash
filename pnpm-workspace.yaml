@@ -1,0 +1,13 @@
+onlyBuiltDependencies:
+  - '@prisma/engines'
+  - '@swc/core'
+  - b
+  - d
+  - e
+  - i
+  - l
+  - prisma
+  - s
+  - sharp
+  - u
+  - unrs-resolver

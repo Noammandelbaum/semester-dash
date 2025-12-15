@@ -33,7 +33,7 @@ function StatCard({ icon, label, value, subtext, color }: StatCardProps) {
   return (
     <Card
       hover={false}
-      className="flex-shrink-0 min-w-[140px] snap-center"
+      className="flex-shrink-0 min-w-[140px] snap-center animate-slide-up"
     >
       <div className="flex items-start gap-3">
         <div

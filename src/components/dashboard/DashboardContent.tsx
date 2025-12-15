@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { useDashboard } from "@/hooks/useDashboard";
 import { DashboardGreeting } from "./DashboardGreeting";
 import { SemesterProgressRing } from "./SemesterProgressRing";
@@ -35,6 +36,25 @@ interface DashboardContentProps {
 
 export function DashboardContent({ initialData }: DashboardContentProps) {
   const { data, isLoading, error, refresh } = useDashboard(initialData);
+
+  // Keyboard shortcuts
+  React.useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Don't trigger shortcuts when typing in input fields
+      const target = event.target as Element;
+      const isInputField = target.tagName === 'INPUT' ||
+                          target.tagName === 'TEXTAREA' ||
+                          target.tagName === 'SELECT';
+
+      if (isInputField) return;
+
+      // Add specific shortcut handlers here when needed
+      // For now, just setup the infrastructure
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Loading state
   if (isLoading && !data) {

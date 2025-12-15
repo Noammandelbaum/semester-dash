@@ -54,7 +54,10 @@ const illustrations: Record<IllustrationType, React.ReactNode> = {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
+      className="animate-fade-in"
     >
+      {/* Background circle */}
+      <circle cx="60" cy="60" r="45" fill="var(--color-primary)" fillOpacity="0.05" />
       {/* Empty bookshelf illustration */}
       <rect x="20" y="90" width="80" height="4" rx="2" fill="var(--color-border)" />
       <rect x="20" y="60" width="80" height="4" rx="2" fill="var(--color-border)" />
@@ -69,6 +72,7 @@ const illustrations: Record<IllustrationType, React.ReactNode> = {
         height="20"
         rx="2"
         fill="var(--color-primary)"
+        fillOpacity="0.8"
         transform="rotate(-10 55 65)"
       />
       <path
@@ -88,16 +92,19 @@ const illustrations: Record<IllustrationType, React.ReactNode> = {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
+      className="animate-fade-in"
     >
+      {/* Background circle */}
+      <circle cx="60" cy="60" r="48" fill="var(--color-primary)" fillOpacity="0.05" />
       {/* Clipboard with empty checkboxes */}
       <rect x="30" y="25" width="60" height="75" rx="6" fill="var(--color-surface)" stroke="var(--color-border)" strokeWidth="2" />
       <rect x="45" y="15" width="30" height="20" rx="4" fill="var(--color-primary)" />
-      <rect x="40" y="50" width="16" height="16" rx="3" stroke="var(--color-border)" strokeWidth="2" fill="none" />
-      <rect x="40" y="75" width="16" height="16" rx="3" stroke="var(--color-border)" strokeWidth="2" fill="none" />
-      <line x1="64" y1="56" x2="80" y2="56" stroke="var(--color-border)" strokeWidth="2" strokeLinecap="round" />
-      <line x1="64" y1="62" x2="75" y2="62" stroke="var(--color-border)" strokeWidth="2" strokeLinecap="round" />
-      <line x1="64" y1="81" x2="80" y2="81" stroke="var(--color-border)" strokeWidth="2" strokeLinecap="round" />
-      <line x1="64" y1="87" x2="75" y2="87" stroke="var(--color-border)" strokeWidth="2" strokeLinecap="round" />
+      <rect x="40" y="50" width="16" height="16" rx="3" stroke="var(--color-border)" strokeWidth="2" fill="var(--color-surface)" />
+      <rect x="40" y="75" width="16" height="16" rx="3" stroke="var(--color-border)" strokeWidth="2" fill="var(--color-surface)" />
+      <line x1="64" y1="56" x2="80" y2="56" stroke="var(--color-text-muted)" strokeWidth="2" strokeLinecap="round" />
+      <line x1="64" y1="62" x2="75" y2="62" stroke="var(--color-text-muted)" strokeWidth="2" strokeLinecap="round" />
+      <line x1="64" y1="81" x2="80" y2="81" stroke="var(--color-text-muted)" strokeWidth="2" strokeLinecap="round" />
+      <line x1="64" y1="87" x2="75" y2="87" stroke="var(--color-text-muted)" strokeWidth="2" strokeLinecap="round" />
     </svg>
   ),
   "all-done": (

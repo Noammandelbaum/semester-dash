@@ -16,29 +16,25 @@ import { prisma } from "@/lib/prisma";
  * Returns true if user needs to complete onboarding
  */
 export async function shouldShowOnboarding(userId: string): Promise<boolean> {
-  // Check if user has any semesters
-  const semesterCount = await prisma.semester.count({
-    where: { userId },
-  });
-
-  // No semesters = needs onboarding
-  if (semesterCount === 0) {
-    return true;
-  }
-
   // Check user preferences for onboarding completion status
   const preferences = await prisma.userPreferences.findUnique({
     where: { userId },
     select: { onboardingComplete: true },
   });
 
-  // If no preferences exist or onboarding not complete, check semester count again
-  // (user might have semesters but not completed the full flow)
-  if (!preferences) {
-    return semesterCount === 0;
+  // If onboarding was marked complete, don't show again
+  // (even if user later deletes all semesters)
+  if (preferences?.onboardingComplete) {
+    return false;
   }
 
-  return !preferences.onboardingComplete;
+  // New user (no preferences) - check if they have semesters
+  const semesterCount = await prisma.semester.count({
+    where: { userId },
+  });
+
+  // No semesters and onboarding not complete = needs onboarding
+  return semesterCount === 0;
 }
 
 /**

@@ -34,7 +34,7 @@ export async function sendReminderEmail(data: ReminderEmailData): Promise<void> 
   // TODO: Implement with Resend when ready
   // const resend = new Resend(process.env.RESEND_API_KEY);
   // await resend.emails.send({
-  //   from: "SemesterHub <notifications@semesterhub.com>",
+  //   from: "SemesterHub <notifications@semesterhub.club>",
   //   to: [to],
   //   subject: `תזכורת: ${assignment.title} - ${assignment.course.name}`,
   //   html: `

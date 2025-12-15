@@ -16,113 +16,13 @@
       </div>
     </header>
 
-    <!-- Status Section -->
-    <section id="status-section" class="section">
-      <div id="connection-status" class="status-badge disconnected">
-        <span class="status-dot"></span>
-        <span class="status-text">לא מחובר</span>
-      </div>
-      <div id="university-info" class="university-info hidden">
-        <span class="university-icon">🎓</span>
-        <span id="university-name">-</span>
-      </div>
-    </section>
+    <!-- Main Content -->
+    <section class="section main-section">
+      <p class="info-text">נהל את הקורסים והמשימות שלך מ-Moodle</p>
 
-    <!-- Auth Section (shown when not logged in) -->
-    <section id="auth-section" class="section">
-      <p class="info-text">התחבר ל-SemesterHub כדי לסנכרן את הקורסים והמשימות שלך</p>
-      <button id="login-btn" class="btn btn-primary">
-        התחבר ל-SemesterHub
+      <button id="open-app-btn" class="btn btn-primary">
+        פתח את SemesterHub
       </button>
-      <div id="auth-polling" class="auth-polling hidden">
-        <div class="spinner-small"></div>
-        <span class="info-text small">ממתין להתחברות...</span>
-      </div>
-      <div id="token-error" class="error-message hidden"></div>
-    </section>
-
-    <!-- Sync Section (shown when logged in) -->
-    <section id="sync-section" class="section hidden">
-      <div id="page-status" class="page-status">
-        <span id="page-type-icon">📄</span>
-        <span id="page-type-text">בודק עמוד...</span>
-      </div>
-
-      <!-- Initial sync buttons -->
-      <div id="sync-initial">
-        <button id="sync-btn" class="btn btn-primary">
-          <span class="btn-icon">🔄</span>
-          סנכרן קורסים
-        </button>
-        <button id="sync-assignments-btn" class="btn btn-secondary" style="margin-top: 8px;">
-          <span class="btn-icon">📝</span>
-          סנכרן משימות
-        </button>
-      </div>
-
-      <!-- Course selection UI (shown after scraping) -->
-      <div id="course-selection" class="course-selection hidden">
-        <div class="course-selection-header">
-          <span class="course-count">נמצאו <strong id="courses-found">0</strong> קורסים</span>
-          <div class="select-actions">
-            <button id="select-all-btn" class="btn-link">בחר הכל</button>
-            <span class="separator">|</span>
-            <button id="select-none-btn" class="btn-link">נקה הכל</button>
-          </div>
-        </div>
-
-        <div id="course-list" class="course-list">
-          <!-- Courses will be added dynamically -->
-        </div>
-
-        <div class="course-selection-actions">
-          <button id="continue-to-sections-btn" class="btn btn-primary">
-            <span class="btn-icon">➡️</span>
-            המשך (<span id="selected-count">0</span>)
-          </button>
-          <button id="cancel-selection-btn" class="btn btn-secondary btn-small">
-            ביטול
-          </button>
-        </div>
-      </div>
-
-      <!-- Section selection UI (shown after course selection) -->
-      <div id="section-selection" class="section-selection hidden">
-        <div class="section-selection-header">
-          <h3>בחר יחידות הוראה</h3>
-          <p class="info-text small">סמן את היחידות הרלוונטיות לך בכל קורס</p>
-        </div>
-
-        <div id="section-list" class="section-list">
-          <!-- Sections will be added dynamically -->
-        </div>
-
-        <div class="section-selection-actions">
-          <button id="save-and-sync-btn" class="btn btn-primary">
-            <span class="btn-icon">✅</span>
-            שמור וסנכרן
-          </button>
-          <button id="back-to-courses-btn" class="btn btn-secondary btn-small">
-            חזור
-          </button>
-        </div>
-      </div>
-
-      <button id="logout-btn" class="btn btn-secondary btn-small">
-        התנתק
-      </button>
-
-      <div id="sync-progress" class="progress-container hidden">
-        <div class="progress-bar">
-          <div id="progress-fill" class="progress-fill"></div>
-        </div>
-        <span id="progress-text" class="progress-text">מסנכרן...</span>
-      </div>
-
-      <div id="sync-result" class="sync-result hidden">
-        <span id="result-icon">✅</span>
-        <span id="result-text">-</span>
-      </div>
 
       <div id="last-sync" class="last-sync hidden">
         <span>סנכרון אחרון:</span>
@@ -132,9 +32,11 @@
 
     <!-- Footer -->
     <footer class="footer">
-      <a id="open-app-btn" href="#" class="link">
-        פתח את SemesterHub ←
-      </a>
+      <div class="footer-links">
+        <a id="privacy-link" href="#" class="footer-link">מדיניות פרטיות</a>
+        <span class="separator">|</span>
+        <a id="terms-link" href="#" class="footer-link">תנאי שימוש</a>
+      </div>
     </footer>
   </div>
 

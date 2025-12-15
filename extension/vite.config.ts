@@ -26,8 +26,11 @@ export default defineConfig({
     rollupOptions: {
       input: {
         // Service worker and popup use ES modules (they can share chunks)
-        'background/service-worker': resolve(__dirname, 'src/background/service-worker.ts'),
+        'background/index': resolve(__dirname, 'src/background/index.ts'),
         'popup/popup': resolve(__dirname, 'src/popup/popup.ts'),
+        // Content scripts (IIFE format - no imports/exports)
+        'content/content-script': resolve(__dirname, 'src/content/content-script.ts'),
+        'content/content-script-webapp': resolve(__dirname, 'src/content/content-script-webapp.ts'),
       },
       output: {
         entryFileNames: '[name].js',

@@ -396,9 +396,12 @@ function extractCourseFromContainer(
  * - "CS101 - Course Name"
  * - "CS101: Course Name"
  * - "12345 - Course Name" (numeric codes)
+ * - "120132.2.5785 - Course Name" (Israeli Moodle format: code.semester.year)
  */
 function extractCourseCode(name: string): string | null {
   const patterns = [
+    // Israeli Moodle format: CODE.SEMESTER.YEAR - Name (e.g., "120132.2.5785 - שם")
+    /^(\d{5,8}\.\d\.\d{4})[\s\-]+/,
     // [CODE] prefix
     /^\[([A-Z0-9\-]+)\]/,
     // (CODE) prefix
@@ -426,6 +429,8 @@ function extractCourseCode(name: string): string | null {
  */
 function cleanCourseName(name: string): string {
   return name
+    // Remove Israeli Moodle format: CODE.SEMESTER.YEAR - (e.g., "120132.2.5785 - ")
+    .replace(/^\d{5,8}\.\d\.\d{4}[\s\-]+/, '')
     // Remove [CODE] prefix
     .replace(/^\[[A-Z0-9\-]+\]\s*/, '')
     // Remove (CODE) prefix

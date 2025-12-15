@@ -95,7 +95,7 @@ export const INSTITUTIONS: Institution[] = [
     name: "מכון לב (JCT)",
     nameEn: "Jerusalem College of Technology",
     type: "college",
-    moodleUrl: "https://lemida.jct.ac.il",
+    moodleUrl: "https://moodle.jct.ac.il",
     supported: true,
   },
   {
@@ -202,4 +202,12 @@ export function getInstitutionsByType(): {
     universities: INSTITUTIONS.filter((i) => i.type === "university"),
     colleges: INSTITUTIONS.filter((i) => i.type === "college"),
   };
+}
+
+/**
+ * Get Moodle URL by institution ID
+ */
+export function getMoodleUrlByInstitutionId(id: string): string | null {
+  const institution = getInstitutionById(id);
+  return institution?.moodleUrl ?? null;
 }

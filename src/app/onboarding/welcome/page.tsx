@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { GraduationCap, ArrowLeft, Sparkles, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -30,27 +32,29 @@ export default function WelcomePage() {
   const router = useRouter();
   const [selectedInstitution, setSelectedInstitution] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const [hasConsented, setHasConsented] = useState(false);
 
   const { universities, colleges } = getInstitutionsByType();
 
+  const canProceed = selectedInstitution && hasConsented;
+
   const handleStart = async () => {
-    if (!selectedInstitution) return;
+    if (!canProceed) return;
 
     setIsLoading(true);
+
     try {
-      // Save institution preference to user profile
-      await fetch("/api/user/preferences", {
+      // Save institutionId to user preferences
+      await fetch("/api/users/preferences", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ institutionId: selectedInstitution }),
       });
 
+      // Navigate to extension page
       router.push("/onboarding/extension");
     } catch (error) {
       console.error("Failed to save institution:", error);
-      // Continue anyway - preference is not critical
-      router.push("/onboarding/extension");
-    } finally {
       setIsLoading(false);
     }
   };
@@ -143,13 +147,47 @@ export default function WelcomePage() {
         )}
       </div>
 
+      {/* Consent Checkbox */}
+      <div className="mb-6 p-4 bg-[var(--color-bg-secondary)] rounded-lg border border-[var(--color-border)]">
+        <div className="flex items-start gap-3">
+          <Checkbox
+            id="consent"
+            checked={hasConsented}
+            onCheckedChange={(checked) => setHasConsented(checked === true)}
+            disabled={isLoading}
+          />
+          <label
+            htmlFor="consent"
+            className="text-sm text-[var(--color-text-secondary)] leading-relaxed cursor-pointer"
+          >
+            קראתי ואני מסכים/ה ל
+            <Link
+              href="/terms"
+              target="_blank"
+              className="text-[var(--color-primary)] hover:underline mx-1"
+            >
+              תנאי השימוש
+            </Link>
+            ול
+            <Link
+              href="/privacy"
+              target="_blank"
+              className="text-[var(--color-primary)] hover:underline mx-1"
+            >
+              מדיניות הפרטיות
+            </Link>
+            , ומאשר/ת את איסוף הנתונים מ-Moodle כמתואר.
+          </label>
+        </div>
+      </div>
+
       {/* CTA */}
       <Button
         variant="primary"
         size="lg"
         className="w-full min-h-[48px]"
         onClick={handleStart}
-        disabled={!selectedInstitution || isLoading}
+        disabled={!canProceed || isLoading}
         isLoading={isLoading}
       >
         <span>המשך</span>

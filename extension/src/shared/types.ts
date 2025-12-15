@@ -161,7 +161,18 @@ export type ExtensionMessageType =
   | "SET_AUTH_TOKEN"
   | "GET_AUTH_TOKEN"
   | "CLEAR_AUTH_TOKEN"
-  | "AUTH_STATUS";
+  | "AUTH_STATUS"
+  // Moodle Login
+  | "CHECK_MOODLE_LOGIN"
+  | "MOODLE_LOGIN_STATUS"
+  // Webapp Communication
+  | "SET_WEBAPP_TAB"
+  | "NOTIFY_WEBAPP"
+  | "WEBAPP_OPEN_MOODLE_AND_GET_COURSES"
+  | "WEBAPP_GET_SECTIONS_FOR_COURSES"
+  | "WEBAPP_SYNC_SELECTED_COURSES"
+  | "WEBAPP_DETECT_MOODLE_URL"
+  | "WEBAPP_SYNC_REQUEST";
 
 /**
  * Generic extension message structure
@@ -169,6 +180,59 @@ export type ExtensionMessageType =
 export interface ExtensionMessage<T = unknown> {
   type: ExtensionMessageType;
   payload?: T;
+}
+
+// ========================================
+// Webapp ↔ Extension Communication Types
+// ========================================
+
+/**
+ * Moodle course data (simplified for webapp communication)
+ */
+export interface MoodleCourse {
+  moodleId: string;
+  name: string;
+  url: string;
+}
+
+/**
+ * Commands sent from webapp to extension
+ * Sent via CustomEvent 'semesterhub-webapp-command'
+ */
+export type WebappCommand =
+  | { action: 'openMoodleAndGetCourses'; moodleUrl: string }
+  | { action: 'getSectionsForCourses'; courses: string[]; moodleUrl: string }
+  | { action: 'syncSelectedCourses'; courses: { moodleId: string; selectedSections: string[] }[]; moodleUrl: string }
+  | { action: 'detectMoodleUrl' };
+
+/**
+ * Events sent from extension to webapp via CustomEvents
+ *
+ * Event names:
+ * - 'semesterhub-moodle-login-required'    // No payload
+ * - 'semesterhub-moodle-login-success'     // No payload
+ * - 'semesterhub-courses-ready'            // { courses: MoodleCourse[] }
+ * - 'semesterhub-sections-ready'           // { sections: Record<string, string[]> }
+ * - 'semesterhub-sync-progress'            // { current: number; total: number; courseName: string }
+ * - 'semesterhub-sync-complete'            // { success: boolean; coursesCount?: number; error?: string }
+ * - 'semesterhub-moodle-url-detected'      // { moodleUrl: string | null }
+ */
+
+export interface WebappEventPayloads {
+  'semesterhub-moodle-login-required': undefined;
+  'semesterhub-moodle-login-success': undefined;
+  'semesterhub-courses-ready': { courses: MoodleCourse[] };
+  'semesterhub-sections-ready': { sections: Record<string, string[]> };
+  'semesterhub-sync-progress': { current: number; total: number; courseName: string };
+  'semesterhub-sync-complete': { success: boolean; coursesCount?: number; error?: string };
+  'semesterhub-moodle-url-detected': { moodleUrl: string | null };
+}
+
+/**
+ * Moodle login status payload
+ */
+export interface MoodleLoginStatus {
+  isLoggedIn: boolean;
 }
 
 /**
@@ -257,6 +321,8 @@ export interface AuthStatus {
     email: string;
   };
   tokenExpiresAt?: string;
+  /** Error message if authentication check failed (e.g., network error) */
+  error?: string;
 }
 
 /**

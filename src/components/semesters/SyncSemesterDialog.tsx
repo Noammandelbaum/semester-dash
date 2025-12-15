@@ -1,280 +1,499 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { RefreshCw, ExternalLink, Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useExtensionStatus } from "@/components/onboarding";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Progress } from "@/components/ui/progress";
+import { Loader2, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { useExtensionStatus } from "@/components/onboarding/ExtensionStatus";
+import { getMoodleUrlByInstitutionId } from "@/lib/institutions";
 
-/**
- * SyncSemesterDialog
- *
- * Dialog that replaces CreateSemesterDialog for Moodle-only architecture.
- * Instead of manually creating a semester, guides user to sync from Moodle.
- *
- * Flow:
- * 1. Check extension status
- * 2. If installed: prompt to open Moodle and sync
- * 3. If not installed: show install instructions
- *
- * The sync will auto-detect semester from course codes (e.g., "5785.1" → Semester A 2024-25)
- */
+// Types
+type SyncStep =
+  | "idle"
+  | "opening"
+  | "login_required"
+  | "loading_courses"
+  | "select_courses"
+  | "loading_sections"
+  | "select_sections"
+  | "syncing"
+  | "success"
+  | "error";
 
-interface SyncSemesterDialogProps {
-  onSyncComplete?: () => void;
-  trigger?: React.ReactNode;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
+interface MoodleCourse {
+  moodleId: string;
+  name: string;
+  url: string;
 }
 
-type SyncState = "idle" | "waiting" | "syncing" | "success" | "error";
-
-const CHROME_STORE_URL = "#"; // TODO: Add actual Chrome Web Store URL
+interface SyncSemesterDialogProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onSyncComplete?: () => void;
+  /** Moodle URL - if provided, skips detection */
+  moodleUrl?: string;
+}
 
 export function SyncSemesterDialog({
+  open,
+  onOpenChange,
   onSyncComplete,
-  trigger,
-  open: controlledOpen,
-  onOpenChange: controlledOnOpenChange,
+  moodleUrl: moodleUrlProp,
 }: SyncSemesterDialogProps) {
-  // Support both controlled and uncontrolled modes
-  const [internalOpen, setInternalOpen] = useState(false);
-  const isControlled = controlledOpen !== undefined;
-  const open = isControlled ? controlledOpen : internalOpen;
+  const router = useRouter();
+  const { isInstalled } = useExtensionStatus();
 
-  const { isInstalled, isChecking } = useExtensionStatus();
-  const [syncState, setSyncState] = useState<SyncState>("idle");
-  const [error, setError] = useState<string | null>(null);
-  const [syncedCourses, setSyncedCourses] = useState<number>(0);
+  // State
+  const [step, setStep] = useState<SyncStep>("idle");
+  const [courses, setCourses] = useState<MoodleCourse[]>([]);
+  const [selectedCourses, setSelectedCourses] = useState<string[]>([]);
+  const [sections, setSections] = useState<Record<string, string[]>>({});
+  const [selectedSections, setSelectedSections] = useState<Record<string, string[]>>({});
+  const [progress, setProgress] = useState({ current: 0, total: 0, courseName: "" });
+  const [error, setError] = useState<string>("");
+  const [moodleUrl, setMoodleUrl] = useState<string>(moodleUrlProp || "");
+  const [loginCountdown, setLoginCountdown] = useState(120);
 
-  // Handle open change with state reset
-  const handleOpenChange = useCallback((newOpen: boolean) => {
-    if (!newOpen) {
-      // Reset state when closing
-      setSyncState("idle");
-      setError(null);
-      setSyncedCourses(0);
-    }
-    if (isControlled) {
-      controlledOnOpenChange?.(newOpen);
-    } else {
-      setInternalOpen(newOpen);
-    }
-  }, [isControlled, controlledOnOpenChange]);
-
-  // Handle sync completion from extension
-  const handleSyncComplete = useCallback(
-    (event: Event) => {
-      const customEvent = event as CustomEvent<{
-        success: boolean;
-        coursesCount?: number;
-        semesterName?: string;
-        error?: string;
-      }>;
-
-      if (customEvent.detail.success) {
-        setSyncState("success");
-        setSyncedCourses(customEvent.detail.coursesCount || 0);
-        // Notify parent after a short delay to show success state
-        setTimeout(() => {
-          handleOpenChange(false);
-          onSyncComplete?.();
-        }, 1500);
-      } else {
-        setSyncState("error");
-        setError(customEvent.detail.error || "שגיאה בסנכרון");
-      }
-    },
-    [onSyncComplete, handleOpenChange]
-  );
-
+  // Update moodleUrl if prop changes
   useEffect(() => {
-    window.addEventListener("semesterhub-sync-complete", handleSyncComplete);
+    if (moodleUrlProp) {
+      setMoodleUrl(moodleUrlProp);
+    }
+  }, [moodleUrlProp]);
+
+  // Get Moodle URL from user's institution (only if not provided as prop)
+  useEffect(() => {
+    // Skip if moodleUrl already provided via prop
+    if (moodleUrlProp) return;
+
+    async function fetchMoodleUrl() {
+      try {
+        const res = await fetch("/api/users/preferences");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.institutionId && data.institutionId !== "other") {
+            const url = getMoodleUrlByInstitutionId(data.institutionId);
+            if (url) setMoodleUrl(url);
+          }
+        }
+      } catch {
+        // Will use detection fallback
+      }
+    }
+    fetchMoodleUrl();
+  }, [moodleUrlProp]);
+
+  // Login countdown timer
+  useEffect(() => {
+    if (step === "login_required" && loginCountdown > 0) {
+      const timer = setTimeout(() => setLoginCountdown((c) => c - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [step, loginCountdown]);
+
+  // Event listeners for extension communication
+  useEffect(() => {
+    const handlers: Record<string, (e: CustomEvent) => void> = {
+      "semesterhub-moodle-login-required": () => {
+        setStep("login_required");
+        setLoginCountdown(120);
+      },
+      "semesterhub-moodle-login-success": () => {
+        setStep("loading_courses");
+      },
+      "semesterhub-courses-ready": (e) => {
+        const { courses } = e.detail;
+        setCourses(courses);
+        setSelectedCourses([]); // Default: no courses selected
+        setStep("select_courses");
+      },
+      "semesterhub-sections-ready": (e) => {
+        const { sections } = e.detail;
+        setSections(sections);
+        // Default: all sections selected
+        const defaultSelected: Record<string, string[]> = {};
+        Object.entries(sections).forEach(([courseId, secs]) => {
+          defaultSelected[courseId] = secs as string[];
+        });
+        setSelectedSections(defaultSelected);
+        setStep("select_sections");
+      },
+      "semesterhub-sync-progress": (e) => {
+        setProgress(e.detail);
+      },
+      "semesterhub-sync-complete": async (e) => {
+        if (e.detail.success && e.detail.courses) {
+          // Save to database via API
+          try {
+            setStep("syncing");
+
+            // Extract universityId from moodleUrl
+            const moodleUrlObj = new URL(e.detail.moodleUrl);
+            const universityId = moodleUrlObj.hostname.split('.')[1] || 'unknown';
+
+            const response = await fetch("/api/sync/moodle", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                universityId,
+                moodleUrl: e.detail.moodleUrl,
+                courses: e.detail.courses,
+                assignments: e.detail.assignments || [],
+              }),
+            });
+
+            if (!response.ok) {
+              throw new Error("שגיאה בשמירת הנתונים");
+            }
+
+            setStep("success");
+            if (onSyncComplete) {
+              onSyncComplete();
+            } else {
+              setTimeout(() => router.push("/dashboard"), 2000);
+            }
+          } catch (err) {
+            setError(err instanceof Error ? err.message : "שגיאה בשמירה");
+            setStep("error");
+          }
+        } else if (e.detail.success) {
+          // Legacy: no data, just success
+          setStep("success");
+          if (onSyncComplete) {
+            onSyncComplete();
+          } else {
+            setTimeout(() => router.push("/dashboard"), 2000);
+          }
+        } else {
+          setError(e.detail.error || "אירעה שגיאה");
+          setStep("error");
+        }
+      },
+      "semesterhub-moodle-url-detected": (e) => {
+        if (e.detail.moodleUrl) {
+          setMoodleUrl(e.detail.moodleUrl);
+        }
+      },
+    };
+
+    Object.entries(handlers).forEach(([event, handler]) => {
+      document.addEventListener(event, handler as EventListener);
+    });
 
     return () => {
-      window.removeEventListener("semesterhub-sync-complete", handleSyncComplete);
+      Object.entries(handlers).forEach(([event, handler]) => {
+        document.removeEventListener(event, handler as EventListener);
+      });
     };
-  }, [handleSyncComplete]);
+  }, [router, onSyncComplete]);
 
+  // Flag to auto-start sync when moodleUrl is detected
+  const [pendingSync, setPendingSync] = useState(false);
+
+  // Auto-start sync when moodleUrl is detected and pendingSync is true
+  useEffect(() => {
+    if (pendingSync && moodleUrl) {
+      setPendingSync(false);
+      setStep("opening");
+      document.dispatchEvent(
+        new CustomEvent("semesterhub-webapp-command", {
+          detail: { action: "openMoodleAndGetCourses", moodleUrl },
+        })
+      );
+    }
+  }, [pendingSync, moodleUrl]);
+
+  // Timeout for moodleUrl detection
+  useEffect(() => {
+    if (pendingSync && !moodleUrl) {
+      const timeout = setTimeout(() => {
+        if (pendingSync) {
+          setPendingSync(false);
+          setError("לא הצלחנו לזהות את כתובת המודל. נסה לפתוח את אתר המודל בכרטיסייה אחרת.");
+          setStep("error");
+        }
+      }, 5000); // 5 second timeout
+      return () => clearTimeout(timeout);
+    }
+  }, [pendingSync, moodleUrl]);
+
+  // Actions
   const handleStartSync = () => {
-    setSyncState("waiting");
-    setError(null);
+    if (!moodleUrl) {
+      // Try to detect from extension, then auto-start sync
+      setPendingSync(true);
+      setStep("opening"); // Show loading state while detecting
+      document.dispatchEvent(
+        new CustomEvent("semesterhub-webapp-command", {
+          detail: { action: "detectMoodleUrl" },
+        })
+      );
+      return;
+    }
 
-    // Dispatch event to extension to start sync flow
-    window.dispatchEvent(
+    setStep("opening");
+    document.dispatchEvent(
       new CustomEvent("semesterhub-webapp-command", {
-        detail: { action: "openMoodleAndSync" },
+        detail: { action: "openMoodleAndGetCourses", moodleUrl },
       })
     );
-
-    // Set state to syncing after a short delay (user should have Moodle open)
-    setTimeout(() => {
-      if (syncState === "waiting") {
-        setSyncState("syncing");
-      }
-    }, 2000);
   };
 
-  const handleRetry = () => {
-    setSyncState("idle");
-    setError(null);
+  const handleContinueToSections = () => {
+    setStep("loading_sections");
+    document.dispatchEvent(
+      new CustomEvent("semesterhub-webapp-command", {
+        detail: {
+          action: "getSectionsForCourses",
+          courses: selectedCourses,
+          moodleUrl,
+        },
+      })
+    );
+  };
+
+  const handleSync = () => {
+    setStep("syncing");
+    const coursesToSync = selectedCourses.map((id) => {
+      const course = courses.find((c) => c.moodleId === id);
+      return {
+        moodleId: id,
+        name: course?.name,
+        url: course?.url,
+        selectedSections: selectedSections[id] || [],
+      };
+    });
+
+    document.dispatchEvent(
+      new CustomEvent("semesterhub-webapp-command", {
+        detail: {
+          action: "syncSelectedCourses",
+          courses: coursesToSync,
+          moodleUrl,
+        },
+      })
+    );
+  };
+
+  const handleReset = () => {
+    setStep("idle");
+    setCourses([]);
+    setSelectedCourses([]);
+    setSections({});
+    setSelectedSections({});
+    setProgress({ current: 0, total: 0, courseName: "" });
+    setError("");
+    setLoginCountdown(120);
+  };
+
+  const toggleCourse = (courseId: string) => {
+    setSelectedCourses((prev) =>
+      prev.includes(courseId)
+        ? prev.filter((id) => id !== courseId)
+        : [...prev, courseId]
+    );
+  };
+
+  const toggleSection = (courseId: string, section: string) => {
+    setSelectedSections((prev) => {
+      const current = prev[courseId] || [];
+      return {
+        ...prev,
+        [courseId]: current.includes(section)
+          ? current.filter((s) => s !== section)
+          : [...current, section],
+      };
+    });
+  };
+
+  // Render different steps
+  const renderContent = () => {
+    switch (step) {
+      case "idle":
+        return (
+          <div className="space-y-4 text-center">
+            {!isInstalled ? (
+              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <AlertCircle className="h-8 w-8 text-yellow-500 mx-auto mb-2" />
+                <p className="text-sm text-yellow-800">
+                  התוסף לא מותקן. יש להתקין את התוסף כדי לסנכרן.
+                </p>
+              </div>
+            ) : (
+              <>
+                <p className="text-muted-foreground">
+                  לחץ על הכפתור כדי לפתוח את המודל ולסנכרן את הקורסים שלך
+                </p>
+                <Button onClick={handleStartSync} size="lg">
+                  פתח את המודל וסנכרן
+                </Button>
+              </>
+            )}
+          </div>
+        );
+
+      case "opening":
+        return (
+          <div className="flex flex-col items-center gap-4 py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p>פותח את המודל...</p>
+          </div>
+        );
+
+      case "login_required":
+        return (
+          <div className="flex flex-col items-center gap-4 py-8">
+            <AlertCircle className="h-12 w-12 text-orange-500" />
+            <p className="text-lg font-medium">אנא התחבר למודל בחלון שנפתח</p>
+            <p className="text-sm text-muted-foreground">
+              זמן נותר: {Math.floor(loginCountdown / 60)}:{String(loginCountdown % 60).padStart(2, "0")}
+            </p>
+          </div>
+        );
+
+      case "loading_courses":
+        return (
+          <div className="flex flex-col items-center gap-4 py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p>טוען קורסים...</p>
+          </div>
+        );
+
+      case "select_courses":
+        return (
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              בחר את הקורסים שברצונך לסנכרן:
+            </p>
+            <div className="max-h-64 overflow-y-auto space-y-2 border rounded-lg p-3">
+              {courses.map((course) => (
+                <label
+                  key={course.moodleId}
+                  className="flex items-center gap-3 p-2 hover:bg-muted rounded cursor-pointer"
+                >
+                  <Checkbox
+                    checked={selectedCourses.includes(course.moodleId)}
+                    onCheckedChange={() => toggleCourse(course.moodleId)}
+                  />
+                  <span className="text-sm">{course.name}</span>
+                </label>
+              ))}
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">
+                נבחרו {selectedCourses.length} מתוך {courses.length} קורסים
+              </span>
+              <Button
+                onClick={handleContinueToSections}
+                disabled={selectedCourses.length === 0}
+              >
+                המשך
+              </Button>
+            </div>
+          </div>
+        );
+
+      case "loading_sections":
+        return (
+          <div className="flex flex-col items-center gap-4 py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p>טוען יחידות הוראה...</p>
+          </div>
+        );
+
+      case "select_sections":
+        return (
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              בחר את יחידות ההוראה שברצונך לעקוב אחריהן:
+            </p>
+            <div className="max-h-64 overflow-y-auto space-y-4 border rounded-lg p-3">
+              {selectedCourses.map((courseId) => {
+                const course = courses.find((c) => c.moodleId === courseId);
+                const courseSections = sections[courseId] || [];
+
+                if (courseSections.length === 0) return null;
+
+                return (
+                  <div key={courseId} className="space-y-2">
+                    <p className="font-medium text-sm">{course?.name}</p>
+                    <div className="mr-4 space-y-1">
+                      {courseSections.map((section) => (
+                        <label
+                          key={section}
+                          className="flex items-center gap-2 cursor-pointer"
+                        >
+                          <Checkbox
+                            checked={selectedSections[courseId]?.includes(section)}
+                            onCheckedChange={() => toggleSection(courseId, section)}
+                          />
+                          <span className="text-sm">{section}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex justify-end">
+              <Button onClick={handleSync}>סנכרן</Button>
+            </div>
+          </div>
+        );
+
+      case "syncing":
+        return (
+          <div className="flex flex-col items-center gap-4 py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p>מסנכרן קורס {progress.current} מתוך {progress.total}...</p>
+            {progress.courseName && (
+              <p className="text-sm text-muted-foreground">{progress.courseName}</p>
+            )}
+            <Progress value={(progress.current / progress.total) * 100} className="w-full" />
+          </div>
+        );
+
+      case "success":
+        return (
+          <div className="flex flex-col items-center gap-4 py-8">
+            <CheckCircle2 className="h-12 w-12 text-green-500" />
+            <p className="text-lg font-medium">הסנכרון הושלם בהצלחה!</p>
+            <p className="text-sm text-muted-foreground">
+              מעביר אותך לדשבורד...
+            </p>
+          </div>
+        );
+
+      case "error":
+        return (
+          <div className="flex flex-col items-center gap-4 py-8">
+            <XCircle className="h-12 w-12 text-red-500" />
+            <p className="text-lg font-medium">אירעה שגיאה</p>
+            <p className="text-sm text-muted-foreground">{error}</p>
+            <Button onClick={handleReset} variant="secondary">
+              נסה שוב
+            </Button>
+          </div>
+        );
+    }
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <RefreshCw className="h-5 w-5 text-[var(--color-primary)]" />
-            סנכרון סמסטר חדש
-          </DialogTitle>
-          <DialogDescription>
-            הקורסים והמטלות יתווספו אוטומטית מ-Moodle
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="py-4">
-          {/* Checking extension */}
-          {isChecking && (
-            <div className="flex flex-col items-center gap-3 py-6">
-              <Loader2 className="w-8 h-8 text-[var(--color-primary)] animate-spin" />
-              <p className="text-[var(--color-text-secondary)]">בודק התקנת התוסף...</p>
-            </div>
-          )}
-
-          {/* Extension not installed */}
-          {!isChecking && !isInstalled && (
-            <div className="space-y-4">
-              <div className="p-4 rounded-lg bg-[var(--color-warning)]/10 border border-[var(--color-warning)]/20">
-                <div className="flex items-center gap-2 text-[var(--color-warning)] mb-2">
-                  <AlertCircle className="w-5 h-5" />
-                  <span className="font-medium">התוסף לא מותקן</span>
-                </div>
-                <p className="text-sm text-[var(--color-text-secondary)]">
-                  כדי לסנכרן קורסים מ-Moodle, יש להתקין את תוסף SemesterHub
-                </p>
-              </div>
-
-              <Button
-                variant="primary"
-                className="w-full"
-                onClick={() => window.open(CHROME_STORE_URL, "_blank")}
-              >
-                <ExternalLink className="w-4 h-4 ml-2" />
-                התקן תוסף Chrome
-              </Button>
-
-              <Button
-                variant="ghost"
-                className="w-full"
-                onClick={() => window.location.reload()}
-              >
-                רענן דף לבדיקה מחדש
-              </Button>
-            </div>
-          )}
-
-          {/* Extension installed - idle state */}
-          {!isChecking && isInstalled && syncState === "idle" && (
-            <div className="space-y-4">
-              <div className="p-4 rounded-lg bg-[var(--color-success)]/5 border border-[var(--color-success)]/20">
-                <div className="flex items-center gap-2 text-[var(--color-success)] mb-2">
-                  <CheckCircle className="w-5 h-5" />
-                  <span className="font-medium">התוסף מותקן</span>
-                </div>
-                <p className="text-sm text-[var(--color-text-secondary)]">
-                  לחץ על הכפתור למטה כדי לפתוח את Moodle ולבחור קורסים לסנכרון
-                </p>
-              </div>
-
-              <div className="bg-[var(--color-bg-secondary)] rounded-lg p-4 border border-[var(--color-border)]">
-                <h4 className="font-medium text-[var(--color-text-primary)] mb-2">
-                  איך זה עובד:
-                </h4>
-                <ol className="space-y-1 text-sm text-[var(--color-text-secondary)]">
-                  <li>1. Moodle יפתח בלשונית חדשה</li>
-                  <li>2. התחבר אם צריך ובחר קורסים לסנכרון</li>
-                  <li>3. הקורסים יתווספו אוטומטית לדשבורד</li>
-                </ol>
-              </div>
-
-              <Button
-                variant="primary"
-                size="lg"
-                className="w-full"
-                onClick={handleStartSync}
-              >
-                <RefreshCw className="w-5 h-5 ml-2" />
-                פתח Moodle וסנכרן
-              </Button>
-            </div>
-          )}
-
-          {/* Waiting/Syncing state */}
-          {(syncState === "waiting" || syncState === "syncing") && (
-            <div className="flex flex-col items-center gap-4 py-6">
-              <div className="relative">
-                <Loader2 className="w-12 h-12 text-[var(--color-primary)] animate-spin" />
-              </div>
-              <div className="text-center">
-                <p className="font-medium text-[var(--color-text-primary)]">
-                  {syncState === "waiting" ? "פותח את Moodle..." : "מסנכרן קורסים..."}
-                </p>
-                <p className="text-sm text-[var(--color-text-muted)] mt-1">
-                  {syncState === "waiting"
-                    ? "בחר קורסים בלשונית החדשה"
-                    : "אנא המתן, זה עלול לקחת מספר שניות"}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Success state */}
-          {syncState === "success" && (
-            <div className="flex flex-col items-center gap-4 py-6">
-              <div className="w-16 h-16 rounded-full bg-[var(--color-success)]/10 flex items-center justify-center">
-                <CheckCircle className="w-8 h-8 text-[var(--color-success)]" />
-              </div>
-              <div className="text-center">
-                <p className="font-medium text-[var(--color-text-primary)]">
-                  הסנכרון הושלם!
-                </p>
-                <p className="text-sm text-[var(--color-text-muted)] mt-1">
-                  {syncedCourses > 0
-                    ? `נוספו ${syncedCourses} קורסים`
-                    : "הקורסים סונכרנו בהצלחה"}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Error state */}
-          {syncState === "error" && (
-            <div className="space-y-4">
-              <div className="p-4 rounded-lg bg-[var(--color-danger)]/10 border border-[var(--color-danger)]/20">
-                <div className="flex items-center gap-2 text-[var(--color-danger)] mb-2">
-                  <AlertCircle className="w-5 h-5" />
-                  <span className="font-medium">שגיאה בסנכרון</span>
-                </div>
-                <p className="text-sm text-[var(--color-text-secondary)]">
-                  {error || "אירעה שגיאה בעת הסנכרון. אנא נסה שנית."}
-                </p>
-              </div>
-
-              <Button variant="primary" className="w-full" onClick={handleRetry}>
-                נסה שנית
-              </Button>
-            </div>
-          )}
+        <div dir="rtl">
+          <DialogHeader>
+            <DialogTitle>סנכרון סמסטר</DialogTitle>
+          </DialogHeader>
+          {renderContent()}
         </div>
       </DialogContent>
     </Dialog>
