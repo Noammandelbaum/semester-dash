@@ -61,6 +61,10 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  // Moodle Embedded Architecture fields
+  moodleUserId     String? // Moodle user ID (e.g., "36012")
+  universityDomain String? // University domain (e.g., "moodle.jct.ac.il")
+
   // Relations
   accounts      Account[]
   sessions      Session[]
@@ -69,6 +73,8 @@ model User {
   assignments   Assignment[]
   preferences   UserPreferences?
   notifications Notification[]
+
+  @@unique([moodleUserId, universityDomain])
 }
 
 // ========================================
@@ -126,6 +132,7 @@ model Semester {
   user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   courses Course[]
 
+  @@unique([userId, type, year]) // Prevent duplicate semesters
   @@index([userId])
 }
 
@@ -143,6 +150,11 @@ model Course {
   moodleId     String?   // Moodle course ID
   moodleUrl    String?   // Full URL to course in Moodle
   lastSyncedAt DateTime? // Last successful sync timestamp
+
+  // Moodle Embedded Architecture fields
+  totalAssignments    Int?   // Total number of assignments in course
+  requiredAssignments Int?   // Number of required assignments
+  assignmentWeight    Float? // Assignment weight in grade (0-100)
 
   // Relations
   userId      String
@@ -197,6 +209,10 @@ model Assignment {
   moodleUrl              String?   // Full URL to assignment in Moodle
   moodleSubmissionStatus String?   // "submitted", "draft", "new", etc.
   lastSyncedAt           DateTime? // Last successful sync timestamp
+
+  // Moodle Embedded Architecture fields
+  orderInCourse Int?    // Order/position in course (1, 2, 3...)
+  sectionName   String? // Section name (יחידת הוראה)
 
   // Relations
   courseId      String
