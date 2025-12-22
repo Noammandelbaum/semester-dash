@@ -1,0 +1,703 @@
+/**
+ * SemesterHub Component Styles
+ */
+
+/* ========================================
+   Buttons (extended from base.css)
+   ======================================== */
+
+#semesterhub-root .sh-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sh-space-2);
+  padding: var(--sh-space-2) var(--sh-space-4);
+  font-size: var(--sh-font-size-sm);
+  font-weight: 600;
+  border-radius: var(--sh-radius-lg);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+}
+
+#semesterhub-root .sh-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%);
+  pointer-events: none;
+}
+
+#semesterhub-root .sh-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.3);
+}
+
+#semesterhub-root .sh-button-sm {
+  padding: var(--sh-space-1) var(--sh-space-3);
+  font-size: var(--sh-font-size-xs);
+  border-radius: var(--sh-radius-md);
+}
+
+#semesterhub-root .sh-button-lg {
+  padding: var(--sh-space-3) var(--sh-space-6);
+  font-size: var(--sh-font-size-base);
+}
+
+#semesterhub-root .sh-button-primary {
+  background: linear-gradient(135deg, var(--sh-primary) 0%, var(--sh-primary-dark) 100%);
+  color: var(--sh-white);
+  box-shadow: 0 2px 4px rgba(15, 118, 110, 0.2);
+}
+
+#semesterhub-root .sh-button-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+}
+
+#semesterhub-root .sh-button-primary:active {
+  transform: translateY(0);
+}
+
+#semesterhub-root .sh-button-secondary {
+  background-color: var(--sh-gray-100);
+  color: var(--sh-gray-700);
+  border: 1px solid var(--sh-gray-200);
+}
+
+#semesterhub-root .sh-button-secondary::before {
+  display: none;
+}
+
+#semesterhub-root .sh-button-secondary:hover {
+  background-color: var(--sh-gray-200);
+  border-color: var(--sh-gray-300);
+}
+
+#semesterhub-root .sh-button-ghost {
+  background-color: transparent;
+  color: var(--sh-gray-600);
+}
+
+#semesterhub-root .sh-button-ghost::before {
+  display: none;
+}
+
+#semesterhub-root .sh-button-ghost:hover {
+  background-color: var(--sh-gray-100);
+  color: var(--sh-gray-800);
+}
+
+#semesterhub-root .sh-button-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+#semesterhub-root .sh-button-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1em;
+}
+
+#semesterhub-root .sh-button-icon-only {
+  padding: var(--sh-space-2);
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: var(--sh-radius-lg);
+}
+
+#semesterhub-root .sh-btn-danger {
+  color: var(--sh-error);
+  border: 1px solid var(--sh-error);
+  background-color: transparent;
+}
+
+#semesterhub-root .sh-btn-danger::before {
+  display: none;
+}
+
+#semesterhub-root .sh-btn-danger:hover {
+  background-color: var(--sh-error);
+  color: var(--sh-white);
+}
+
+/* ========================================
+   Inputs
+   ======================================== */
+
+#semesterhub-root .sh-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sh-space-1);
+}
+
+#semesterhub-root .sh-input-label {
+  font-size: var(--sh-font-size-sm);
+  font-weight: 500;
+  color: var(--sh-gray-700);
+}
+
+#semesterhub-root .sh-required {
+  color: var(--sh-error);
+  margin-inline-start: var(--sh-space-1);
+}
+
+#semesterhub-root .sh-input,
+#semesterhub-root .sh-select {
+  width: 100%;
+  padding: var(--sh-space-2) var(--sh-space-3);
+  font-size: var(--sh-font-size-base);
+  font-family: inherit;
+  border: 1px solid var(--sh-gray-300);
+  border-radius: var(--sh-radius-md);
+  background-color: var(--sh-white);
+  color: var(--sh-gray-900);
+  transition: border-color var(--sh-transition-fast);
+}
+
+#semesterhub-root .sh-input:focus,
+#semesterhub-root .sh-select:focus {
+  outline: none;
+  border-color: var(--sh-primary);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
+}
+
+#semesterhub-root .sh-input:disabled,
+#semesterhub-root .sh-select:disabled {
+  background-color: var(--sh-gray-100);
+  cursor: not-allowed;
+}
+
+#semesterhub-root .sh-input::placeholder {
+  color: var(--sh-gray-400);
+}
+
+/* Checkbox */
+#semesterhub-root .sh-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--sh-space-3);
+  cursor: pointer;
+  padding: var(--sh-space-2) var(--sh-space-3);
+  border-radius: var(--sh-radius-md);
+  transition: background-color 0.15s ease;
+}
+
+#semesterhub-root .sh-checkbox:hover {
+  background-color: var(--sh-gray-100);
+}
+
+#semesterhub-root .sh-checkbox input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--sh-gray-300);
+  border-radius: var(--sh-radius-sm);
+  background: var(--sh-white);
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+#semesterhub-root .sh-checkbox input[type="checkbox"]:checked {
+  background-color: var(--sh-primary);
+  border-color: var(--sh-primary);
+}
+
+#semesterhub-root .sh-checkbox input[type="checkbox"]:checked::after {
+  content: '✓';
+  position: absolute;
+  color: var(--sh-white);
+  font-size: 14px;
+  font-weight: 700;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#semesterhub-root .sh-checkbox input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--sh-primary);
+  outline-offset: 2px;
+}
+
+#semesterhub-root .sh-checkbox input[type="checkbox"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#semesterhub-root .sh-checkbox-label {
+  font-size: var(--sh-font-size-base);
+  color: var(--sh-gray-800);
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ========================================
+   Modal
+   ======================================== */
+
+#semesterhub-root .sh-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: var(--sh-space-4);
+  animation: sh-fade-in 0.2s ease;
+}
+
+@keyframes sh-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+#semesterhub-root .sh-modal {
+  background-color: var(--sh-white);
+  border-radius: var(--sh-radius-xl);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  max-width: 420px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  animation: sh-slide-up 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes sh-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+#semesterhub-root .sh-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sh-space-5) var(--sh-space-5) var(--sh-space-4);
+  border-bottom: 1px solid var(--sh-gray-100);
+}
+
+#semesterhub-root .sh-modal-title {
+  font-size: var(--sh-font-size-lg);
+  font-weight: 700;
+  color: var(--sh-gray-900);
+  margin: 0;
+}
+
+#semesterhub-root .sh-modal-close {
+  margin-inline-start: var(--sh-space-4);
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+#semesterhub-root .sh-modal-close:hover {
+  opacity: 1;
+}
+
+#semesterhub-root .sh-modal-body {
+  padding: var(--sh-space-5);
+}
+
+#semesterhub-root .sh-modal-message {
+  font-size: var(--sh-font-size-sm);
+  color: var(--sh-gray-600);
+  margin-bottom: var(--sh-space-4);
+  line-height: 1.6;
+}
+
+#semesterhub-root .sh-modal-actions {
+  display: flex;
+  gap: var(--sh-space-3);
+  justify-content: flex-end;
+  margin-top: var(--sh-space-5);
+  padding-top: var(--sh-space-4);
+  border-top: 1px solid var(--sh-gray-100);
+}
+
+/* ========================================
+   Spinner
+   ======================================== */
+
+#semesterhub-root .sh-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--sh-gray-200);
+  border-top-color: var(--sh-primary);
+  border-radius: 50%;
+  animation: sh-spin 1s linear infinite;
+}
+
+#semesterhub-root .sh-spinner-sm {
+  width: 24px;
+  height: 24px;
+  border-width: 2px;
+}
+
+#semesterhub-root .sh-spinner-lg {
+  width: 64px;
+  height: 64px;
+  border-width: 6px;
+}
+
+#semesterhub-root .sh-spinner-inline {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--sh-gray-200);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: sh-spin 1s linear infinite;
+}
+
+@keyframes sh-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ========================================
+   Header (extended)
+   ======================================== */
+
+#semesterhub-root .sh-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sh-space-4) var(--sh-space-5);
+  background: linear-gradient(135deg, var(--sh-white) 0%, var(--sh-gray-50) 100%);
+  border-radius: var(--sh-radius-xl);
+  margin-bottom: var(--sh-space-5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--sh-gray-100);
+}
+
+#semesterhub-root .sh-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--sh-space-4);
+}
+
+#semesterhub-root .sh-header-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--sh-space-2);
+}
+
+#semesterhub-root .sh-header-logo-icon {
+  font-size: 28px;
+}
+
+#semesterhub-root .sh-header-title {
+  font-size: var(--sh-font-size-lg);
+  font-weight: 700;
+  color: var(--sh-primary);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+#semesterhub-root .sh-header-subtitle {
+  font-size: var(--sh-font-size-sm);
+  color: var(--sh-gray-500);
+  padding-inline-start: var(--sh-space-4);
+  border-inline-start: 2px solid var(--sh-gray-200);
+  font-weight: 500;
+}
+
+#semesterhub-root .sh-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sh-space-3);
+}
+
+#semesterhub-root .sh-header-sync-time {
+  font-size: var(--sh-font-size-xs);
+  color: var(--sh-gray-400);
+  margin-inline-end: var(--sh-space-2);
+  display: flex;
+  align-items: center;
+  gap: var(--sh-space-1);
+}
+
+#semesterhub-root .sh-header-sync-time::before {
+  content: '🕐';
+  font-size: 12px;
+}
+
+#semesterhub-root .sh-page-header {
+  display: flex;
+  align-items: center;
+  gap: var(--sh-space-3);
+  margin-bottom: var(--sh-space-5);
+}
+
+#semesterhub-root .sh-page-title {
+  font-size: var(--sh-font-size-xl);
+  font-weight: 700;
+  color: var(--sh-gray-900);
+  margin: 0;
+}
+
+/* ========================================
+   Progress Cell
+   ======================================== */
+
+#semesterhub-root .sh-progress-cell {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  height: 56px !important;
+  border-radius: var(--sh-radius-lg);
+  color: var(--sh-white);
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+#semesterhub-root .sh-progress-cell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 50%);
+  pointer-events: none;
+}
+
+#semesterhub-root .sh-progress-cell:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+#semesterhub-root .sh-cell-clickable {
+  cursor: pointer;
+}
+
+#semesterhub-root .sh-cell-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+#semesterhub-root .sh-cell-checkmark {
+  font-size: 26px;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+#semesterhub-root .sh-cell-text {
+  font-size: var(--sh-font-size-xs);
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.3;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  padding: 0 var(--sh-space-1);
+}
+
+#semesterhub-root .sh-cell-faded {
+  box-shadow: none;
+}
+
+#semesterhub-root .sh-cell-faded::before {
+  display: none;
+}
+
+#semesterhub-root .sh-cell-bonus-label {
+  font-size: 10px;
+  font-weight: 500;
+  margin-top: 2px;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+#semesterhub-root .sh-cell-promoted {
+  border: 2px dashed rgba(255, 255, 255, 0.6);
+  animation: sh-pulse-border 2s ease-in-out infinite;
+}
+
+@keyframes sh-pulse-border {
+  0%, 100% { border-color: rgba(255, 255, 255, 0.4); }
+  50% { border-color: rgba(255, 255, 255, 0.8); }
+}
+
+/* ========================================
+   Course Column
+   ======================================== */
+
+#semesterhub-root .sh-course-column {
+  display: flex !important;
+  flex-direction: column !important;
+  min-width: 130px !important;
+  max-width: 160px !important;
+  flex: 0 0 auto !important;
+  border-radius: var(--sh-radius-xl);
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+#semesterhub-root .sh-course-column:hover {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+#semesterhub-root .sh-column-header {
+  padding: var(--sh-space-4) var(--sh-space-3);
+  color: var(--sh-white);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+#semesterhub-root .sh-column-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(0,0,0,0.05) 100%);
+  pointer-events: none;
+}
+
+#semesterhub-root .sh-column-header-clickable {
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+
+#semesterhub-root .sh-column-header-clickable:hover {
+  filter: brightness(1.08);
+}
+
+#semesterhub-root .sh-column-name {
+  font-size: var(--sh-font-size-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: var(--sh-space-1);
+  position: relative;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+#semesterhub-root .sh-column-meta {
+  display: flex;
+  justify-content: center;
+  gap: var(--sh-space-2);
+  font-size: 11px;
+  opacity: 0.95;
+  position: relative;
+}
+
+#semesterhub-root .sh-column-meta span {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 6px;
+  border-radius: var(--sh-radius-sm);
+}
+
+#semesterhub-root .sh-column-progress {
+  position: relative;
+  height: 6px;
+  background-color: rgba(0, 0, 0, 0.15);
+  border-radius: var(--sh-radius-full);
+  margin-top: var(--sh-space-3);
+  overflow: hidden;
+}
+
+#semesterhub-root .sh-column-progress-bar {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  background: linear-gradient(90deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,1) 100%);
+  border-radius: var(--sh-radius-full);
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#semesterhub-root .sh-column-progress-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--sh-white);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+#semesterhub-root .sh-column-header:hover .sh-column-progress-text {
+  opacity: 1;
+}
+
+#semesterhub-root .sh-column-cells {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  padding: 8px !important;
+  background-color: var(--sh-gray-50);
+  flex: 1;
+}
+
+/* Row numbers */
+#semesterhub-root .sh-row-numbers {
+  display: flex;
+  flex-direction: column;
+  width: 36px;
+  margin-inline-end: var(--sh-space-3);
+}
+
+#semesterhub-root .sh-row-numbers-header {
+  /* Match column header height - adjusted for new padding */
+  height: calc(var(--sh-space-4) * 2 + 1.5rem + var(--sh-space-1) + 11px * 1.2 + var(--sh-space-3) + 6px);
+}
+
+#semesterhub-root .sh-row-numbers-cells {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 0;
+}
+
+#semesterhub-root .sh-row-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 56px;
+  font-size: var(--sh-font-size-xs);
+  font-weight: 600;
+  color: var(--sh-gray-400);
+  background: var(--sh-gray-100);
+  border-radius: var(--sh-radius-md);
+  transition: all 0.2s ease;
+}
+
+#semesterhub-root .sh-row-number:hover {
+  background: var(--sh-gray-200);
+  color: var(--sh-gray-600);
+}
+
+/* ========================================
+   Divider
+   ======================================== */
+
+#semesterhub-root .sh-divider {
+  border: none;
+  border-top: 1px solid var(--sh-gray-200);
+  margin: var(--sh-space-3) 0;
+}

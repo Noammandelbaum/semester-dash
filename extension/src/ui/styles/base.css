@@ -1,0 +1,782 @@
+/**
+ * SemesterHub Base Styles
+ *
+ * Isolated styles that don't affect Moodle's styling.
+ * Uses CSS containment to prevent style leakage.
+ */
+
+/* Import Rubik font for Hebrew support */
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ========================================
+   CSS Variables (SemesterHub Design System)
+   ======================================== */
+
+#semesterhub-root {
+  /* Primary Colors - Deep Teal (calm, focus, trust) */
+  --sh-primary: #0f766e;
+  --sh-primary-light: #14b8a6;
+  --sh-primary-dark: #0d5f58;
+
+  /* Secondary Colors - Warm Orange (energy, action, Moodle connection) */
+  --sh-secondary: #ff6b35;
+  --sh-secondary-light: #ff8c5a;
+  --sh-secondary-dark: #e55a2b;
+
+  /* Accent Colors - Soft Green (success, growth, calm progress) */
+  --sh-accent: #10B981;
+  --sh-accent-light: #34D399;
+  --sh-accent-dark: #059669;
+
+  /* Semantic Colors */
+  --sh-success: #10B981;
+  --sh-warning: #F59E0B;
+  --sh-danger: #EF4444;
+  --sh-error: #EF4444;
+  --sh-info: #3B82F6;
+
+  /* Course Colors (User-selectable) */
+  --sh-course-red: #EF4444;
+  --sh-course-orange: #ff6b35;
+  --sh-course-amber: #F59E0B;
+  --sh-course-green: #22C55E;
+  --sh-course-teal: #0f766e;
+  --sh-course-blue: #3B82F6;
+  --sh-course-indigo: #6366F1;
+  --sh-course-purple: #8B5CF6;
+  --sh-course-pink: #EC4899;
+
+  /* Neutrals - Light Mode */
+  --sh-background: #fafaf9;      /* Warm white */
+  --sh-surface: #FFFFFF;
+  --sh-white: #FFFFFF;
+  --sh-border: #E5E7EB;
+
+  --sh-gray-50: #f9fafb;
+  --sh-gray-100: #f3f4f6;
+  --sh-gray-200: #e5e7eb;
+  --sh-gray-300: #d1d5db;
+  --sh-gray-400: #9ca3af;
+  --sh-gray-500: #6b7280;
+  --sh-gray-600: #4b5563;
+  --sh-gray-700: #374151;
+  --sh-gray-800: #1f2937;
+  --sh-gray-900: #111827;
+
+  --sh-text-primary: #111827;
+  --sh-text-secondary: #6B7280;
+  --sh-text-muted: #9CA3AF;
+
+  /* Spacing */
+  --sh-space-1: 0.25rem;
+  --sh-space-2: 0.5rem;
+  --sh-space-3: 0.75rem;
+  --sh-space-4: 1rem;
+  --sh-space-5: 1.25rem;
+  --sh-space-6: 1.5rem;
+  --sh-space-8: 2rem;
+  --sh-space-10: 2.5rem;
+  --sh-space-12: 3rem;
+
+  /* Typography - Rubik for Hebrew, Inter for English */
+  --sh-font-sans: 'Inter', 'Rubik', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --sh-font-hebrew: 'Rubik', 'Inter', sans-serif;
+
+  /* Standard font sizes */
+  --sh-font-size-xs: 0.75rem;      /* 12px */
+  --sh-font-size-sm: 0.875rem;     /* 14px */
+  --sh-font-size-base: 1rem;       /* 16px */
+  --sh-font-size-lg: 1.125rem;     /* 18px */
+  --sh-font-size-xl: 1.25rem;      /* 20px */
+  --sh-font-size-2xl: 1.5rem;      /* 24px */
+  --sh-font-size-3xl: 1.875rem;    /* 30px */
+
+  /* Hebrew Typography Scale (10-15% larger) */
+  --sh-text-xs-he: 0.8125rem;     /* 13px */
+  --sh-text-sm-he: 0.9375rem;     /* 15px */
+  --sh-text-base-he: 1.125rem;    /* 18px */
+  --sh-text-lg-he: 1.25rem;       /* 20px */
+  --sh-text-xl-he: 1.5rem;        /* 24px */
+  --sh-text-2xl-he: 1.75rem;      /* 28px */
+  --sh-text-3xl-he: 2.125rem;     /* 34px */
+
+  /* Hebrew line heights */
+  --sh-leading-tight-he: 1.3;
+  --sh-leading-normal-he: 1.6;
+  --sh-leading-relaxed-he: 1.75;
+
+  /* Borders */
+  --sh-radius-sm: 0.25rem;
+  --sh-radius-md: 0.375rem;
+  --sh-radius-lg: 0.5rem;
+  --sh-radius-xl: 0.75rem;
+  --sh-radius-full: 9999px;
+
+  /* Shadows */
+  --sh-shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --sh-shadow-md: 0 4px 6px rgba(0,0,0,0.07);
+  --sh-shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+  --sh-shadow-xl: 0 20px 25px rgba(0,0,0,0.15);
+
+  /* Transitions */
+  --sh-transition-fast: 150ms ease;
+  --sh-transition-normal: 200ms ease;
+  --sh-transition-slow: 300ms ease;
+}
+
+/* ========================================
+   AGGRESSIVE CSS RESET - Block Moodle Styles
+   ======================================== */
+
+#semesterhub-root {
+  /* Complete isolation from parent styles */
+  all: initial;
+
+  /* CSS containment for performance and isolation */
+  contain: content;
+  isolation: isolate;
+}
+
+/* Reset EVERYTHING inside the container */
+#semesterhub-root *,
+#semesterhub-root *::before,
+#semesterhub-root *::after {
+  all: unset;
+  box-sizing: border-box;
+  display: revert;
+}
+
+/* ========================================
+   Container Base Styles - Rebuild from Scratch
+   ======================================== */
+
+#semesterhub-root {
+  /* Display & Layout */
+  display: block;
+  position: relative;
+
+  /* Box Model */
+  width: 100%;
+  min-height: 400px;
+  padding: var(--sh-space-6);
+  box-sizing: border-box;
+
+  /* Typography */
+  font-family: var(--sh-font-hebrew);
+  font-size: var(--sh-text-base-he);
+  line-height: var(--sh-leading-normal-he);
+  color: var(--sh-text-primary);
+
+  /* Background */
+  background-color: var(--sh-background);
+
+  /* RTL by default */
+  direction: rtl;
+  text-align: start;
+
+  /* Containment for isolation */
+  contain: style layout;
+}
+
+/* ========================================
+   HTML Element Resets - Rebuild Basic Styles
+   ======================================== */
+
+/* Headings - Hebrew optimized, no bold */
+#semesterhub-root h1 {
+  display: block;
+  margin: 0;
+  padding: 0;
+  font-family: var(--sh-font-hebrew);
+  font-size: var(--sh-text-3xl-he);
+  line-height: var(--sh-leading-tight-he);
+  font-weight: 600;
+  color: var(--sh-text-primary);
+}
+
+#semesterhub-root h2 {
+  display: block;
+  margin: 0;
+  padding: 0;
+  font-family: var(--sh-font-hebrew);
+  font-size: var(--sh-text-2xl-he);
+  line-height: var(--sh-leading-tight-he);
+  font-weight: 600;
+  color: var(--sh-text-primary);
+}
+
+#semesterhub-root h3 {
+  display: block;
+  margin: 0;
+  padding: 0;
+  font-family: var(--sh-font-hebrew);
+  font-size: var(--sh-text-xl-he);
+  line-height: var(--sh-leading-normal-he);
+  font-weight: 500;
+  color: var(--sh-text-primary);
+}
+
+#semesterhub-root h4 {
+  display: block;
+  margin: 0;
+  padding: 0;
+  font-family: var(--sh-font-hebrew);
+  font-size: var(--sh-text-lg-he);
+  line-height: var(--sh-leading-normal-he);
+  font-weight: 500;
+  color: var(--sh-text-primary);
+}
+
+#semesterhub-root h5,
+#semesterhub-root h6 {
+  display: block;
+  margin: 0;
+  padding: 0;
+  font-family: var(--sh-font-hebrew);
+  font-size: var(--sh-text-base-he);
+  line-height: var(--sh-leading-normal-he);
+  font-weight: 500;
+  color: var(--sh-text-primary);
+}
+
+/* Paragraphs */
+#semesterhub-root p {
+  display: block;
+  margin: 0;
+  padding: 0;
+  font-family: var(--sh-font-hebrew);
+  font-size: var(--sh-text-base-he);
+  line-height: var(--sh-leading-normal-he);
+  color: var(--sh-text-primary);
+}
+
+/* Spans */
+#semesterhub-root span {
+  display: inline;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+/* Divs */
+#semesterhub-root div {
+  display: block;
+  margin: 0;
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+/* Buttons */
+#semesterhub-root button {
+  display: inline-flex;
+  margin: 0;
+  padding: 0;
+  font-family: var(--sh-font-hebrew);
+  font-size: var(--sh-text-base-he);
+  line-height: var(--sh-leading-normal-he);
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+  text-align: start;
+}
+
+/* Links */
+#semesterhub-root a {
+  display: inline;
+  color: var(--sh-primary);
+  text-decoration: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+#semesterhub-root a:hover {
+  text-decoration: underline;
+}
+
+/* Inputs */
+#semesterhub-root input,
+#semesterhub-root select,
+#semesterhub-root textarea {
+  display: block;
+  margin: 0;
+  padding: 0;
+  font-family: var(--sh-font-hebrew);
+  font-size: var(--sh-text-base-he);
+  line-height: var(--sh-leading-normal-he);
+  color: var(--sh-text-primary);
+  background: var(--sh-white);
+  border: 1px solid var(--sh-border);
+}
+
+/* Labels */
+#semesterhub-root label {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  font-family: var(--sh-font-hebrew);
+  font-size: var(--sh-text-base-he);
+  line-height: var(--sh-leading-normal-he);
+  color: var(--sh-text-primary);
+}
+
+/* Lists */
+#semesterhub-root ul,
+#semesterhub-root ol {
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#semesterhub-root li {
+  display: list-item;
+  margin: 0;
+  padding: 0;
+}
+
+/* Strong/Bold - Reduce to medium weight for Hebrew */
+#semesterhub-root strong,
+#semesterhub-root b {
+  display: inline;
+  font-weight: 500; /* Not bold, just medium */
+  color: inherit;
+}
+
+/* Em/Italic - Use underline instead for Hebrew */
+#semesterhub-root em,
+#semesterhub-root i {
+  display: inline;
+  font-style: normal;
+  text-decoration: underline;
+  text-decoration-color: var(--sh-primary);
+  text-underline-offset: 2px;
+  color: inherit;
+}
+
+/* Small text */
+#semesterhub-root small {
+  display: inline;
+  font-size: var(--sh-text-sm-he);
+  line-height: var(--sh-leading-normal-he);
+  color: inherit;
+}
+
+/* ========================================
+   Visibility Toggle (SemesterHub <-> Moodle)
+   ======================================== */
+
+/* Hide SemesterHub container by default */
+#semesterhub-root {
+  display: none !important;
+}
+
+/* When SemesterHub is active */
+body.semesterhub-active #semesterhub-root {
+  display: block !important;
+}
+
+/* Hide Moodle content when SemesterHub is active */
+body.semesterhub-active #page-content,
+body.semesterhub-active #region-main,
+body.semesterhub-active #region-main-box,
+body.semesterhub-active [role="main"] {
+  display: none !important;
+}
+
+/* ========================================
+   Loading State
+   ======================================== */
+
+#semesterhub-root .sh-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: var(--sh-space-4);
+}
+
+#semesterhub-root .sh-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--sh-gray-200);
+  border-top-color: var(--sh-primary);
+  border-radius: 50%;
+  animation: sh-spin 1s linear infinite;
+}
+
+@keyframes sh-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+#semesterhub-root .sh-loading p {
+  font-size: var(--sh-font-size-lg);
+  color: var(--sh-gray-600);
+}
+
+/* ========================================
+   Error State
+   ======================================== */
+
+#semesterhub-root .sh-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: var(--sh-space-4);
+  text-align: center;
+}
+
+#semesterhub-root .sh-error-icon {
+  font-size: 48px;
+}
+
+#semesterhub-root .sh-error-message {
+  font-size: var(--sh-font-size-lg);
+  color: var(--sh-gray-700);
+  max-width: 400px;
+}
+
+/* ========================================
+   Buttons
+   ======================================== */
+
+#semesterhub-root .sh-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sh-space-2);
+  padding: var(--sh-space-2) var(--sh-space-4);
+  font-size: var(--sh-font-size-base);
+  font-weight: 500;
+  border-radius: var(--sh-radius-md);
+  transition: all var(--sh-transition-fast);
+}
+
+#semesterhub-root .sh-button-primary {
+  background-color: var(--sh-primary);
+  color: var(--sh-white);
+}
+
+#semesterhub-root .sh-button-primary:hover {
+  background-color: var(--sh-primary-dark);
+}
+
+#semesterhub-root .sh-button-secondary {
+  background-color: var(--sh-gray-200);
+  color: var(--sh-gray-800);
+}
+
+#semesterhub-root .sh-button-secondary:hover {
+  background-color: var(--sh-gray-300);
+}
+
+#semesterhub-root .sh-button-ghost {
+  background-color: transparent;
+  color: var(--sh-gray-700);
+}
+
+#semesterhub-root .sh-button-ghost:hover {
+  background-color: var(--sh-gray-100);
+}
+
+/* ========================================
+   Cards
+   ======================================== */
+
+#semesterhub-root .sh-card {
+  background-color: var(--sh-white);
+  border-radius: var(--sh-radius-lg);
+  box-shadow: var(--sh-shadow-sm);
+  padding: var(--sh-space-4);
+}
+
+/* ========================================
+   Header
+   ======================================== */
+
+#semesterhub-root .sh-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sh-space-4);
+  background-color: var(--sh-white);
+  border-radius: var(--sh-radius-lg);
+  margin-bottom: var(--sh-space-4);
+  box-shadow: var(--sh-shadow-sm);
+}
+
+#semesterhub-root .sh-header-title {
+  font-size: var(--sh-font-size-xl);
+  font-weight: 600;
+  color: var(--sh-gray-900);
+}
+
+#semesterhub-root .sh-header-subtitle {
+  font-size: var(--sh-font-size-sm);
+  color: var(--sh-gray-500);
+}
+
+#semesterhub-root .sh-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sh-space-2);
+}
+
+/* ========================================
+   Footer
+   ======================================== */
+
+#semesterhub-root .sh-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sh-space-3);
+  font-size: var(--sh-font-size-sm);
+  color: var(--sh-gray-500);
+  margin-top: var(--sh-space-4);
+}
+
+/* ========================================
+   Animations
+   ======================================== */
+
+@keyframes sh-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes sh-slide-up {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes sh-slide-down {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes sh-scale-in {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes sh-checkmark {
+  from { stroke-dashoffset: 100; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes sh-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes sh-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* ========================================
+   Utilities
+   ======================================== */
+
+/* Animation utilities */
+#semesterhub-root .sh-animate-fade-in {
+  animation: sh-fade-in 200ms ease-out;
+}
+
+#semesterhub-root .sh-animate-slide-up {
+  animation: sh-slide-up 200ms ease-out;
+}
+
+#semesterhub-root .sh-animate-slide-down {
+  animation: sh-slide-down 200ms ease-out;
+}
+
+#semesterhub-root .sh-animate-scale-in {
+  animation: sh-scale-in 200ms ease-out;
+}
+
+#semesterhub-root .sh-animate-fade-out {
+  animation: sh-fade-out 150ms ease-in;
+}
+
+/* Text utilities */
+#semesterhub-root .sh-text-center {
+  text-align: center;
+}
+
+#semesterhub-root .sh-text-start {
+  text-align: start;
+}
+
+#semesterhub-root .sh-text-end {
+  text-align: end;
+}
+
+#semesterhub-root .sh-text-muted {
+  color: var(--sh-text-muted);
+}
+
+#semesterhub-root .sh-text-secondary {
+  color: var(--sh-text-secondary);
+}
+
+/* Hebrew emphasis utilities - no bold/italics */
+#semesterhub-root .sh-emphasis-he {
+  color: var(--sh-primary);
+  font-weight: 500; /* Medium, not bold */
+}
+
+#semesterhub-root .sh-emphasis-size-he {
+  font-size: 1.1em; /* 10% larger */
+}
+
+/* Spacing utilities */
+#semesterhub-root .sh-mt-1 { margin-top: var(--sh-space-1); }
+#semesterhub-root .sh-mt-2 { margin-top: var(--sh-space-2); }
+#semesterhub-root .sh-mt-3 { margin-top: var(--sh-space-3); }
+#semesterhub-root .sh-mt-4 { margin-top: var(--sh-space-4); }
+#semesterhub-root .sh-mt-5 { margin-top: var(--sh-space-5); }
+#semesterhub-root .sh-mt-6 { margin-top: var(--sh-space-6); }
+
+#semesterhub-root .sh-mb-1 { margin-bottom: var(--sh-space-1); }
+#semesterhub-root .sh-mb-2 { margin-bottom: var(--sh-space-2); }
+#semesterhub-root .sh-mb-3 { margin-bottom: var(--sh-space-3); }
+#semesterhub-root .sh-mb-4 { margin-bottom: var(--sh-space-4); }
+#semesterhub-root .sh-mb-5 { margin-bottom: var(--sh-space-5); }
+#semesterhub-root .sh-mb-6 { margin-bottom: var(--sh-space-6); }
+
+#semesterhub-root .sh-ms-1 { margin-inline-start: var(--sh-space-1); }
+#semesterhub-root .sh-ms-2 { margin-inline-start: var(--sh-space-2); }
+#semesterhub-root .sh-ms-3 { margin-inline-start: var(--sh-space-3); }
+#semesterhub-root .sh-ms-4 { margin-inline-start: var(--sh-space-4); }
+
+#semesterhub-root .sh-me-1 { margin-inline-end: var(--sh-space-1); }
+#semesterhub-root .sh-me-2 { margin-inline-end: var(--sh-space-2); }
+#semesterhub-root .sh-me-3 { margin-inline-end: var(--sh-space-3); }
+#semesterhub-root .sh-me-4 { margin-inline-end: var(--sh-space-4); }
+
+#semesterhub-root .sh-p-1 { padding: var(--sh-space-1); }
+#semesterhub-root .sh-p-2 { padding: var(--sh-space-2); }
+#semesterhub-root .sh-p-3 { padding: var(--sh-space-3); }
+#semesterhub-root .sh-p-4 { padding: var(--sh-space-4); }
+#semesterhub-root .sh-p-5 { padding: var(--sh-space-5); }
+#semesterhub-root .sh-p-6 { padding: var(--sh-space-6); }
+
+/* Flexbox utilities */
+#semesterhub-root .sh-flex {
+  display: flex;
+}
+
+#semesterhub-root .sh-flex-col {
+  flex-direction: column;
+}
+
+#semesterhub-root .sh-flex-row {
+  flex-direction: row;
+}
+
+#semesterhub-root .sh-items-center {
+  align-items: center;
+}
+
+#semesterhub-root .sh-items-start {
+  align-items: flex-start;
+}
+
+#semesterhub-root .sh-items-end {
+  align-items: flex-end;
+}
+
+#semesterhub-root .sh-justify-center {
+  justify-content: center;
+}
+
+#semesterhub-root .sh-justify-start {
+  justify-content: flex-start;
+}
+
+#semesterhub-root .sh-justify-end {
+  justify-content: flex-end;
+}
+
+#semesterhub-root .sh-justify-between {
+  justify-content: space-between;
+}
+
+#semesterhub-root .sh-gap-1 { gap: var(--sh-space-1); }
+#semesterhub-root .sh-gap-2 { gap: var(--sh-space-2); }
+#semesterhub-root .sh-gap-3 { gap: var(--sh-space-3); }
+#semesterhub-root .sh-gap-4 { gap: var(--sh-space-4); }
+#semesterhub-root .sh-gap-5 { gap: var(--sh-space-5); }
+#semesterhub-root .sh-gap-6 { gap: var(--sh-space-6); }
+
+/* Card effects */
+#semesterhub-root .sh-card-hover {
+  transition: transform var(--sh-transition-fast), box-shadow var(--sh-transition-fast);
+}
+
+#semesterhub-root .sh-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sh-shadow-lg);
+}
+
+/* Button press effect */
+#semesterhub-root .sh-btn-press:active {
+  transform: scale(0.98);
+}
+
+/* Focus styles for accessibility */
+#semesterhub-root *:focus-visible {
+  outline: 2px solid var(--sh-primary);
+  outline-offset: 2px;
+}
+
+/* Scrollbar styling */
+#semesterhub-root *::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+#semesterhub-root *::-webkit-scrollbar-track {
+  background: var(--sh-background);
+}
+
+#semesterhub-root *::-webkit-scrollbar-thumb {
+  background: var(--sh-border);
+  border-radius: var(--sh-radius-full);
+}
+
+#semesterhub-root *::-webkit-scrollbar-thumb:hover {
+  background: var(--sh-text-muted);
+}

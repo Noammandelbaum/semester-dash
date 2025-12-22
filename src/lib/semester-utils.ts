@@ -228,3 +228,68 @@ export function getSemesterEndDate(
       return new Date(academicYear + 1, 8, 30); // End of September
   }
 }
+
+/**
+ * Hebrew year letters to academic year mapping (reverse lookup)
+ */
+const ACADEMIC_YEAR_FROM_HEBREW: Record<string, number> = {
+  "תשפא": 2020,
+  "תשפ״א": 2020,
+  "תשפב": 2021,
+  "תשפ״ב": 2021,
+  "תשפג": 2022,
+  "תשפ״ג": 2022,
+  "תשפד": 2023,
+  "תשפ״ד": 2023,
+  "תשפה": 2024,
+  "תשפ״ה": 2024,
+  "תשפו": 2025,
+  "תשפ״ו": 2025,
+  "תשפז": 2026,
+  "תשפ״ז": 2026,
+  "תשפח": 2027,
+  "תשפ״ח": 2027,
+  "תשפט": 2028,
+  "תשפ״ט": 2028,
+  "תשצ": 2029,
+  "תש״צ": 2029,
+  "תשצא": 2030,
+  "תשצ״א": 2030,
+};
+
+/**
+ * Parse semester information from name string
+ * e.g., "סמסטר א' תשפ"ה" -> { type: "A", year: 2024 }
+ *
+ * Returns null if parsing fails - use suggestCurrentSemester as fallback
+ */
+export function parseSemesterFromName(
+  name: string
+): { type: SemesterType; year: number } | null {
+  // Try to extract semester type
+  let type: SemesterType;
+  if (name.includes("א'") || name.includes("א׳") || name.includes("A")) {
+    type = "A";
+  } else if (name.includes("ב'") || name.includes("ב׳") || name.includes("B")) {
+    type = "B";
+  } else if (name.includes("קיץ") || name.toLowerCase().includes("summer")) {
+    type = "SUMMER";
+  } else {
+    return null;
+  }
+
+  // Try to extract Hebrew year
+  for (const [hebrewYear, academicYear] of Object.entries(ACADEMIC_YEAR_FROM_HEBREW)) {
+    if (name.includes(hebrewYear)) {
+      return { type, year: academicYear };
+    }
+  }
+
+  // Try to extract numeric year (e.g., "2024")
+  const yearMatch = name.match(/20\d{2}/);
+  if (yearMatch) {
+    return { type, year: parseInt(yearMatch[0], 10) };
+  }
+
+  return null;
+}

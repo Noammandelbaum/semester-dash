@@ -1,0 +1,608 @@
+/**
+ * SemesterHub View Styles
+ */
+
+/* ========================================
+   Onboarding
+   ======================================== */
+
+#semesterhub-root .sh-onboarding {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--sh-space-4);
+}
+
+/* Welcome */
+#semesterhub-root .sh-onboarding-welcome {
+  text-align: center;
+  padding: var(--sh-space-8) var(--sh-space-4);
+}
+
+#semesterhub-root .sh-welcome-icon {
+  font-size: 64px;
+  margin-bottom: var(--sh-space-4);
+}
+
+#semesterhub-root .sh-welcome-title {
+  font-size: var(--sh-font-size-2xl);
+  font-weight: 600;
+  color: var(--sh-gray-900);
+  margin-bottom: var(--sh-space-3);
+}
+
+#semesterhub-root .sh-welcome-desc {
+  font-size: var(--sh-font-size-lg);
+  color: var(--sh-gray-600);
+  margin-bottom: var(--sh-space-6);
+  max-width: 400px;
+  margin-inline: auto;
+}
+
+#semesterhub-root .sh-welcome-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto var(--sh-space-8);
+  max-width: 320px;
+  text-align: start;
+}
+
+#semesterhub-root .sh-welcome-features li {
+  padding: var(--sh-space-2) 0;
+  font-size: var(--sh-font-size-base);
+  color: var(--sh-gray-700);
+}
+
+#semesterhub-root .sh-welcome-start-btn {
+  min-width: 200px;
+}
+
+/* Step layout */
+#semesterhub-root .sh-onboarding-step {
+  padding: var(--sh-space-4);
+}
+
+#semesterhub-root .sh-step-header {
+  margin-bottom: var(--sh-space-6);
+  text-align: center;
+}
+
+#semesterhub-root .sh-step-title {
+  font-size: var(--sh-font-size-xl);
+  font-weight: 600;
+  color: var(--sh-gray-900);
+  margin-bottom: var(--sh-space-2);
+}
+
+#semesterhub-root .sh-step-subtitle {
+  font-size: var(--sh-font-size-base);
+  color: var(--sh-gray-600);
+}
+
+#semesterhub-root .sh-step-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--sh-space-6);
+  padding-top: var(--sh-space-4);
+  border-top: 1px solid var(--sh-gray-200);
+}
+
+#semesterhub-root .sh-step-help {
+  text-align: center;
+  font-size: var(--sh-font-size-sm);
+  color: var(--sh-gray-500);
+  margin-top: var(--sh-space-4);
+}
+
+/* Course list - improved styling like popup.css */
+#semesterhub-root .sh-courses-list {
+  max-height: 350px;
+  overflow-y: auto;
+  border: 1px solid var(--sh-gray-200);
+  border-radius: var(--sh-radius-lg);
+  background-color: var(--sh-white);
+}
+
+#semesterhub-root .sh-select-all {
+  padding: var(--sh-space-3);
+  background-color: var(--sh-gray-50);
+  border-bottom: 1px solid var(--sh-gray-200);
+}
+
+#semesterhub-root .sh-course-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sh-space-2);
+  padding: var(--sh-space-3);
+  border-bottom: 1px solid var(--sh-gray-100);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+#semesterhub-root .sh-course-item:last-child {
+  border-bottom: none;
+}
+
+#semesterhub-root .sh-course-item:hover {
+  background-color: var(--sh-gray-50);
+}
+
+#semesterhub-root .sh-course-item.selected {
+  background-color: rgba(16, 185, 129, 0.08);
+}
+
+#semesterhub-root .sh-course-code {
+  font-size: var(--sh-font-size-xs);
+  color: var(--sh-gray-500);
+  font-family: monospace;
+  display: block;
+  margin-top: var(--sh-space-1);
+}
+
+#semesterhub-root .sh-selected-count {
+  text-align: center;
+  font-size: var(--sh-font-size-sm);
+  color: var(--sh-gray-500);
+  margin-top: var(--sh-space-3);
+  padding: var(--sh-space-2);
+  background-color: var(--sh-gray-50);
+  border-radius: var(--sh-radius-md);
+}
+
+/* Sections list - improved styling like popup.css */
+#semesterhub-root .sh-sections-accordion {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid var(--sh-gray-200);
+  border-radius: var(--sh-radius-lg);
+  background-color: var(--sh-white);
+}
+
+#semesterhub-root .sh-accordion-panel {
+  border-bottom: 1px solid var(--sh-gray-200);
+}
+
+#semesterhub-root .sh-accordion-panel:last-child {
+  border-bottom: none;
+}
+
+#semesterhub-root .sh-accordion-header {
+  display: flex;
+  align-items: center;
+  gap: var(--sh-space-2);
+  padding: var(--sh-space-3);
+  cursor: pointer;
+  user-select: none;
+  background-color: var(--sh-gray-100);
+  transition: background-color 0.15s ease;
+}
+
+#semesterhub-root .sh-accordion-header:hover {
+  background-color: var(--sh-gray-200);
+}
+
+#semesterhub-root .sh-accordion-title {
+  flex: 1;
+  font-weight: 500;
+  color: var(--sh-gray-700);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#semesterhub-root .sh-accordion-count {
+  font-size: var(--sh-font-size-sm);
+  color: var(--sh-gray-500);
+}
+
+#semesterhub-root .sh-accordion-icon {
+  font-size: var(--sh-font-size-xs);
+  color: var(--sh-gray-500);
+  transition: transform 0.15s ease;
+}
+
+#semesterhub-root .sh-accordion-content {
+  padding: var(--sh-space-2) var(--sh-space-3);
+  background-color: var(--sh-white);
+}
+
+#semesterhub-root .sh-section-select-all {
+  padding: var(--sh-space-2) 0;
+  border-bottom: 1px solid var(--sh-gray-100);
+  margin-bottom: var(--sh-space-1);
+}
+
+#semesterhub-root .sh-section-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sh-space-2);
+  padding: var(--sh-space-1) 0;
+}
+
+/* Metadata cards */
+#semesterhub-root .sh-metadata-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--sh-space-4);
+}
+
+#semesterhub-root .sh-metadata-card {
+  background-color: var(--sh-white);
+  border-radius: var(--sh-radius-lg);
+  overflow: hidden;
+}
+
+#semesterhub-root .sh-metadata-card-header {
+  padding: var(--sh-space-3);
+  color: var(--sh-white);
+}
+
+#semesterhub-root .sh-metadata-card-name {
+  font-weight: 600;
+  font-size: var(--sh-font-size-base);
+}
+
+#semesterhub-root .sh-metadata-card-body {
+  padding: var(--sh-space-4);
+}
+
+#semesterhub-root .sh-metadata-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sh-space-3);
+  margin-bottom: var(--sh-space-3);
+}
+
+#semesterhub-root .sh-metadata-row:last-child {
+  margin-bottom: 0;
+}
+
+/* Done */
+#semesterhub-root .sh-onboarding-done {
+  text-align: center;
+  padding: var(--sh-space-8) var(--sh-space-4);
+}
+
+#semesterhub-root .sh-done-icon {
+  font-size: 64px;
+  margin-bottom: var(--sh-space-4);
+}
+
+#semesterhub-root .sh-done-title {
+  font-size: var(--sh-font-size-2xl);
+  font-weight: 600;
+  color: var(--sh-gray-900);
+  margin-bottom: var(--sh-space-3);
+}
+
+#semesterhub-root .sh-done-desc {
+  font-size: var(--sh-font-size-lg);
+  color: var(--sh-gray-600);
+  margin-bottom: var(--sh-space-6);
+}
+
+#semesterhub-root .sh-done-tips {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto var(--sh-space-8);
+  max-width: 400px;
+  text-align: start;
+  background-color: var(--sh-gray-50);
+  border-radius: var(--sh-radius-lg);
+  padding: var(--sh-space-4);
+}
+
+#semesterhub-root .sh-done-tips li {
+  padding: var(--sh-space-2) 0;
+  font-size: var(--sh-font-size-sm);
+  color: var(--sh-gray-700);
+  padding-inline-start: var(--sh-space-4);
+  position: relative;
+}
+
+#semesterhub-root .sh-done-tips li::before {
+  content: '💡';
+  position: absolute;
+  inset-inline-start: 0;
+}
+
+#semesterhub-root .sh-done-finish-btn {
+  min-width: 200px;
+}
+
+#semesterhub-root .sh-done-error {
+  color: var(--sh-error);
+}
+
+#semesterhub-root .sh-done-error-message {
+  color: var(--sh-error);
+  background-color: rgba(239, 68, 68, 0.1);
+  padding: var(--sh-space-3);
+  border-radius: var(--sh-radius-md);
+  margin-bottom: var(--sh-space-4);
+}
+
+/* ========================================
+   Dashboard
+   ======================================== */
+
+#semesterhub-root .sh-dashboard {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+#semesterhub-root .sh-dashboard-main {
+  flex: 1;
+  padding: var(--sh-space-6);
+}
+
+/* Cumulative View */
+#semesterhub-root .sh-cumulative-view {
+  width: 100%;
+  overflow-x: auto;
+  padding: var(--sh-space-2);
+  scrollbar-width: thin;
+  scrollbar-color: var(--sh-gray-300) transparent;
+}
+
+#semesterhub-root .sh-cumulative-view::-webkit-scrollbar {
+  height: 8px;
+}
+
+#semesterhub-root .sh-cumulative-view::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#semesterhub-root .sh-cumulative-view::-webkit-scrollbar-thumb {
+  background: var(--sh-gray-300);
+  border-radius: var(--sh-radius-full);
+}
+
+#semesterhub-root .sh-cumulative-view::-webkit-scrollbar-thumb:hover {
+  background: var(--sh-gray-400);
+}
+
+#semesterhub-root .sh-cumulative-grid {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: var(--sh-space-4) !important;
+  min-width: min-content;
+  padding-bottom: var(--sh-space-4);
+  align-items: flex-start !important;
+}
+
+/* Empty state */
+#semesterhub-root .sh-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sh-space-12);
+  text-align: center;
+  background: var(--sh-white);
+  border-radius: var(--sh-radius-xl);
+  box-shadow: var(--sh-shadow-sm);
+}
+
+#semesterhub-root .sh-empty-icon {
+  font-size: 72px;
+  margin-bottom: var(--sh-space-4);
+  filter: grayscale(0.2);
+}
+
+#semesterhub-root .sh-empty-state h3 {
+  font-size: var(--sh-font-size-xl);
+  font-weight: 600;
+  color: var(--sh-gray-700);
+  margin-bottom: var(--sh-space-2);
+}
+
+#semesterhub-root .sh-empty-state p {
+  font-size: var(--sh-font-size-base);
+  color: var(--sh-gray-500);
+  max-width: 300px;
+}
+
+/* Course edit form */
+#semesterhub-root .sh-course-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sh-space-4);
+}
+
+/* Assignment detail */
+#semesterhub-root .sh-assignment-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sh-space-3);
+}
+
+#semesterhub-root .sh-detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--sh-space-2) 0;
+  border-bottom: 1px solid var(--sh-gray-100);
+}
+
+#semesterhub-root .sh-detail-row:last-child {
+  border-bottom: none;
+}
+
+#semesterhub-root .sh-detail-label {
+  font-weight: 500;
+  color: var(--sh-gray-600);
+}
+
+#semesterhub-root .sh-detail-value {
+  color: var(--sh-gray-900);
+}
+
+#semesterhub-root .sh-status-submitted {
+  color: var(--sh-success);
+}
+
+#semesterhub-root .sh-status-pending {
+  color: var(--sh-warning);
+}
+
+#semesterhub-root .sh-status-overdue {
+  color: var(--sh-gray-500);
+}
+
+#semesterhub-root .sh-status-not-required {
+  color: var(--sh-gray-400);
+}
+
+/* ========================================
+   Settings
+   ======================================== */
+
+#semesterhub-root .sh-settings {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--sh-space-4);
+  padding-bottom: 80px; /* Space for save bar */
+}
+
+#semesterhub-root .sh-settings-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sh-space-6);
+}
+
+#semesterhub-root .sh-settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sh-space-2);
+}
+
+#semesterhub-root .sh-section-title {
+  font-size: var(--sh-font-size-sm);
+  font-weight: 600;
+  color: var(--sh-gray-600);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+#semesterhub-root .sh-settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sh-space-2);
+}
+
+#semesterhub-root .sh-settings-desc {
+  font-size: var(--sh-font-size-sm);
+  color: var(--sh-gray-500);
+  padding-inline-start: 26px; /* Align with checkbox label */
+}
+
+#semesterhub-root .sh-settings-warning {
+  font-size: var(--sh-font-size-sm);
+  color: var(--sh-error);
+}
+
+#semesterhub-root .sh-settings-save-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--sh-space-4);
+  background-color: var(--sh-white);
+  box-shadow: 0 -4px 6px -1px rgb(0 0 0 / 0.1);
+  display: flex;
+  justify-content: center;
+}
+
+/* About */
+#semesterhub-root .sh-settings-about {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sh-space-3);
+}
+
+#semesterhub-root .sh-about-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--sh-font-size-sm);
+  color: var(--sh-gray-600);
+}
+
+#semesterhub-root .sh-about-links {
+  display: flex;
+  gap: var(--sh-space-4);
+  flex-wrap: wrap;
+}
+
+#semesterhub-root .sh-about-links a {
+  font-size: var(--sh-font-size-sm);
+  color: var(--sh-primary);
+  text-decoration: none;
+}
+
+#semesterhub-root .sh-about-links a:hover {
+  text-decoration: underline;
+}
+
+#semesterhub-root .sh-about-credits {
+  font-size: var(--sh-font-size-sm);
+  color: var(--sh-gray-500);
+  text-align: center;
+  margin-top: var(--sh-space-2);
+}
+
+/* ========================================
+   Footer
+   ======================================== */
+
+#semesterhub-root .sh-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sh-space-3);
+  font-size: var(--sh-font-size-sm);
+  color: var(--sh-gray-500);
+  margin-top: var(--sh-space-4);
+}
+
+/* ========================================
+   Responsive
+   ======================================== */
+
+@media (max-width: 768px) {
+  #semesterhub-root .sh-header {
+    flex-direction: column;
+    gap: var(--sh-space-3);
+    text-align: center;
+  }
+
+  #semesterhub-root .sh-header-left {
+    flex-direction: column;
+  }
+
+  #semesterhub-root .sh-header-subtitle {
+    border-inline-start: none;
+    padding-inline-start: 0;
+  }
+
+  #semesterhub-root .sh-metadata-cards {
+    grid-template-columns: 1fr;
+  }
+
+  #semesterhub-root .sh-metadata-row {
+    grid-template-columns: 1fr;
+    gap: var(--sh-space-2);
+  }
+
+  #semesterhub-root .sh-course-column {
+    min-width: 100px;
+    max-width: 120px;
+  }
+
+  #semesterhub-root .sh-progress-cell {
+    height: 50px;
+  }
+
+  #semesterhub-root .sh-row-number {
+    height: 50px;
+  }
+}
