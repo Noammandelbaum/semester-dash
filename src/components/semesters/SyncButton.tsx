@@ -189,14 +189,14 @@ export function SyncButton({ className, onSyncComplete }: SyncButtonProps) {
 
     document.addEventListener("semesterhub-moodle-login-required", handleLoginRequired);
     document.addEventListener("semesterhub-moodle-login-success", handleLoginSuccess);
-    document.addEventListener("semesterhub-sync-progress", handleProgress as EventListener);
-    document.addEventListener("semesterhub-sync-complete", handleSyncComplete as EventListener);
+    document.addEventListener("semesterhub-sync-progress", handleProgress as unknown as EventListener);
+    document.addEventListener("semesterhub-sync-complete", handleSyncComplete as unknown as EventListener);
 
     return () => {
       document.removeEventListener("semesterhub-moodle-login-required", handleLoginRequired);
       document.removeEventListener("semesterhub-moodle-login-success", handleLoginSuccess);
-      document.removeEventListener("semesterhub-sync-progress", handleProgress as EventListener);
-      document.removeEventListener("semesterhub-sync-complete", handleSyncComplete as EventListener);
+      document.removeEventListener("semesterhub-sync-progress", handleProgress as unknown as EventListener);
+      document.removeEventListener("semesterhub-sync-complete", handleSyncComplete as unknown as EventListener);
     };
   }, [onSyncComplete, saveLastSyncTime]);
 
