@@ -141,7 +141,7 @@ export const AnalyticsEventRequestSchema = z.object({
   event: z.string().min(1),
   moodleUserId: z.string().optional(),
   universityDomain: z.string().optional(),
-  data: z.record(z.unknown()).optional(),
+  data: z.record(z.string(), z.unknown()).optional(),
   timestamp: z.string().datetime(),
   extensionVersion: z.string(),
 });
